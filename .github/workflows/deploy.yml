@@ -38,7 +38,7 @@ jobs:
           version: 8.6.10
 
       - name: Build
-        run: pnpm install && pnpm build:prod
+        run: pnpm install && pnpm build
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
