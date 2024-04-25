@@ -2,12 +2,9 @@
 name: Deploy static content to Pages
 
 on:
-  # 仅在推送到默认分支时运行。
   push:
-    branches: ['web']
-
-  # 这个选项可以使你手动在 Action tab 页面触发工作流
-  workflow_dispatch:
+    branches:
+      - web
 
 # 设置 GITHUB_TOKEN 的权限，以允许部署到 GitHub Pages。
 permissions:
@@ -17,7 +14,7 @@ permissions:
 
 # 允许一个并发的部署
 concurrency:
-  group: 'pages'
+  group: "pages"
   cancel-in-progress: true
 
 jobs:
@@ -33,10 +30,16 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: 'pnpm'
+          node-version: 20.10.0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8.6.10
+
       - name: Build
-        run: pnpm run build
+        run: pnpm install && pnpm build:prod
+
       - name: Setup Pages
         uses: actions/configure-pages@v4
       - name: Upload artifact
