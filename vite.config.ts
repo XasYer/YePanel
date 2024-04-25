@@ -13,7 +13,7 @@ export default ({ mode }: ConfigEnv): UserConfigExport => {
   const { VITE_CDN, VITE_PORT, VITE_COMPRESSION, VITE_PUBLIC_PATH } =
     warpperEnv(loadEnv(mode, root));
   return {
-    base: VITE_PUBLIC_PATH,
+    base: "/qqbot/",
     root,
     resolve: {
       alias
