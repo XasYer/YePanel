@@ -1,9 +1,11 @@
 <script setup lang="ts">
+import { useUserStore } from "@/store/modules/user";
+const userStore = useUserStore();
 defineOptions({
   name: "Welcome"
 });
 </script>
 
 <template>
-  <h1>Pure-Admin-Thin（非国际化版本）</h1>
+  <h1>Hello, {{ userStore.nickname }}</h1>
 </template>

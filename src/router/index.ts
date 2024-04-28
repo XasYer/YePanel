@@ -4,6 +4,8 @@ import { getConfig } from "@/config";
 import NProgress from "@/utils/progress";
 import { buildHierarchyTree } from "@/utils/tree";
 import remainingRouter from "./modules/remaining";
+import { useUserStoreHook } from "@/store/modules/user";
+import { http } from "@/utils/http";
 import { useMultiTagsStoreHook } from "@/store/modules/multiTags";
 import { usePermissionStoreHook } from "@/store/modules/permission";
 import { isUrl, openLink, storageLocal, isAllEmpty } from "@pureadmin/utils";
@@ -102,6 +104,7 @@ export function resetRouter() {
 
 /** 路由白名单 */
 const whiteList = ["/login"];
+let isFirstVisit = true;
 
 const { VITE_HIDE_HOME } = import.meta.env;
 
@@ -112,6 +115,12 @@ router.beforeEach((to: ToRouteType, _from, next) => {
     if (_from.name === undefined || _from.name === "Redirect") {
       handleAliveRoute(to);
     }
+  }
+  if (isFirstVisit) {
+    console.log('首次访问页面,需要重新登录');
+    // http.setBaseURL('http://127.0.0.1:2536/');
+    useUserStoreHook().logOut()
+    isFirstVisit = false;
   }
   const userInfo = storageLocal().getItem<DataInfo<number>>(userKey);
   NProgress.start();

@@ -145,6 +145,11 @@ class PureHttp {
     );
   }
 
+  /** 设置基础 URL */
+  public setBaseURL(url: string): void {
+    PureHttp.axiosInstance.defaults.baseURL = url;
+  }
+
   /** 通用请求工具函数 */
   public request<T>(
     method: RequestMethods,
