@@ -7,7 +7,11 @@ import { ReNormalCountTo } from "@/components/ReCountTo";
 import { useRenderFlicker } from "@/components/ReFlicker";
 import { ChartBar, ChartLine, ChartRound } from "./components/charts";
 import Segmented, { type OptionsType } from "@/components/ReSegmented";
-import { chartData, barChartData, progressData, latestNewsData } from "./data";
+import { getData } from "./data";
+
+
+// 临时解决一下
+const { chartData, barChartData, progressData, latestNewsData } = await getData();
 
 defineOptions({
   name: "Welcome"
