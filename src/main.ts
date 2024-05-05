@@ -44,6 +44,10 @@ app.component("FontIcon", FontIcon);
 import { Auth } from "@/components/ReAuth";
 app.component("Auth", Auth);
 
+// 引入echarts
+import * as echarts from "echarts";
+app.config.globalProperties.$echarts = echarts;
+
 // 全局注册vue-tippy
 import "tippy.js/dist/tippy.css";
 import "tippy.js/themes/light.css";

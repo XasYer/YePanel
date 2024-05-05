@@ -24,5 +24,6 @@ export type {
   userType,
   multiType,
   cacheType,
-  positionType
+  positionType,
+  homeDataType
 } from "./types";
