@@ -35,8 +35,8 @@ dataThemeChange();
 const { title } = useNav();
 
 const ruleForm = reactive({
-  username: "",
-  password: "",
+  username: localStorage.getItem("QQBotUsername") || "",
+  password: localStorage.getItem("QQBotPassword") || "",
   baseUrl: getBaseUrlApi()
 });
 
@@ -53,6 +53,9 @@ const onLogin = async (formEl: FormInstance | undefined) => {
             return initRouter().then(() => {
               router.push(getTopMenu(true).path).then(() => {
                 message("登录成功", { type: "success" });
+                localStorage.setItem("QQBotUsername", ruleForm.username);
+                localStorage.setItem("QQBotPassword", ruleForm.password);
+                localStorage.setItem("QQBotBaseUrl", ruleForm.baseUrl);
               });
             });
           } else {
