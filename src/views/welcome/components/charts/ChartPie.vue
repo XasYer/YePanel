@@ -46,7 +46,7 @@ watch(
           name: "调用统计",
           type: "pie",
           roseType: "area",
-          radius: ["40%", "70%"],
+          radius: ["20%", "70%"],
           avoidLabelOverlap: false,
           itemStyle: {
             borderRadius: 10,
