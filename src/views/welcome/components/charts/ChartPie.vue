@@ -56,8 +56,13 @@ watch(
           data: props.chartData,
           label: {
             formatter: function (params) {
-              const [, name, fun] = params.name.match(/^(.+)\((.+)\)$/);
-              return `${name}\n${fun}`;
+              const reg = /^(.+)\((.+)\)$/;
+              if (reg.test(params.name)) {
+                const [, name, fun] = params.name.match(/^(.+)\((.+)\)$/);
+                return `${name}\n${fun}`;
+              } else {
+                return params.name;
+              }
             }
           },
           labelLine: {
