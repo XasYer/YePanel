@@ -3,11 +3,9 @@ import GroupLine from "@iconify-icons/ri/group-line";
 import Question from "@iconify-icons/ri/question-answer-line";
 import CheckLine from "@iconify-icons/ri/chat-check-line";
 import Smile from "@iconify-icons/ri/star-smile-line";
-import { type homeDataResult, getHomeData } from "@/api/home";
+import { getHomeData } from "@/api/home";
 
 const days = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"];
-
-// TODO: 太丑了，需要重构
 
 /** 需求人数、提问数量、解决数量、用户满意度 */
 const chartData = [
@@ -53,78 +51,19 @@ const chartData = [
   }
 ];
 
-// const chartData =
-(async () => {
-  const { data: { chartData: chart } } = await getHomeData()
-  for (let i = 0; i < chart.length; i++) {
-    chartData[i].name = chart[i].name
-    chartData[i].value = chart[i].value
+const getChartData = async () => {
+  const { data } = await getHomeData();
+  for (let i = 0; i < data.chartData.length; i++) {
+    chartData[i].name = data.chartData[i].name;
+    chartData[i].value = data.chartData[i].value;
     // chartData[i].percent = chart[i].percent
     // chartData[i].data = chart[i].data
   }
-})()
-
-
-// console.log('chartData', data)
-
-/** 分析概览 */
-const barChartData = [
-  {
-    requireData: [2101, 5288, 4239, 4962, 6752, 5208, 7450],
-    questionData: [2216, 1148, 1255, 1788, 4821, 1973, 4379]
-  },
-  {
-    requireData: [2101, 3280, 4400, 4962, 5752, 6889, 7600],
-    questionData: [2116, 3148, 3255, 3788, 4821, 4970, 5390]
-  }
-];
-
-
-/** 解决概率 */
-const progressData = [
-  {
-    week: "周一",
-    percentage: 85,
-    duration: 110,
-    color: "#41b6ff"
-  },
-  {
-    week: "周二",
-    percentage: 86,
-    duration: 105,
-    color: "#41b6ff"
-  },
-  {
-    week: "周三",
-    percentage: 88,
-    duration: 100,
-    color: "#41b6ff"
-  },
-  {
-    week: "周四",
-    percentage: 89,
-    duration: 95,
-    color: "#41b6ff"
-  },
-  {
-    week: "周五",
-    percentage: 94,
-    duration: 90,
-    color: "#26ce83"
-  },
-  {
-    week: "周六",
-    percentage: 96,
-    duration: 85,
-    color: "#26ce83"
-  },
-  {
-    week: "周日",
-    percentage: 100,
-    duration: 80,
-    color: "#26ce83"
-  }
-].reverse();
+  return {
+    ...data,
+    chartData
+  };
+};
 
 /** 数据统计 */
 const tableData = Array.from({ length: 30 }).map((_, index) => {
@@ -143,9 +82,8 @@ const latestNewsData = cloneDeep(tableData)
   .slice(0, 14)
   .map((item, index) => {
     return Object.assign(item, {
-      date: `${dayjs().subtract(index, "day").format("YYYY-MM-DD")} ${days[dayjs().subtract(index, "day").day()]
-        }`
+      date: `${dayjs().subtract(index, "day").format("YYYY-MM-DD")} ${days[dayjs().subtract(index, "day").day()]}`
     });
   });
 
-export { chartData, barChartData, progressData, tableData, latestNewsData };
+export { getChartData, tableData, latestNewsData };

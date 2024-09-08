@@ -14,7 +14,7 @@ const TITLE = getConfig("Title");
       href="https://github.com/pure-admin"
       target="_blank"
     >
-      &nbsp;{{ TITLE }}
+      &nbsp;pure-admin
     </a>
   </footer>
 </template>

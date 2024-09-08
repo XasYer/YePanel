@@ -1,33 +1,3 @@
-<script setup lang="ts">
-import { ref, markRaw } from "vue";
-import ReCol from "@/components/ReCol";
-import { useDark, randomGradient } from "./utils";
-import WelcomeTable from "./components/table/index.vue";
-import { ReNormalCountTo } from "@/components/ReCountTo";
-import { useRenderFlicker } from "@/components/ReFlicker";
-import { ChartBar, ChartLine, ChartRound } from "./components/charts";
-import Segmented, { type OptionsType } from "@/components/ReSegmented";
-import { chartData, barChartData, progressData, latestNewsData } from "./data";
-
-
-
-defineOptions({
-  name: "Welcome"
-});
-
-const { isDark } = useDark();
-
-let curWeek = ref(1); // 0上周、1本周
-const optionsBasis: Array<OptionsType> = [
-  {
-    label: "上周"
-  },
-  {
-    label: "本周"
-  }
-];
-</script>
-
 <template>
   <div>
     <el-row :gutter="24" justify="space-around">
@@ -108,18 +78,19 @@ const optionsBasis: Array<OptionsType> = [
           }
         }"
       >
-        <!-- <el-card class="bar-card" shadow="never">
+        <el-card class="bar-card" shadow="never">
           <div class="flex justify-between">
-            <span class="text-md font-medium">分析概览</span>
+            <span class="text-md font-medium">最近用户量</span>
             <Segmented v-model="curWeek" :options="optionsBasis" />
           </div>
           <div class="flex justify-between items-start mt-3">
             <ChartBar
-              :requireData="barChartData[curWeek].requireData"
-              :questionData="barChartData[curWeek].questionData"
+              :userData="weekChartData[curWeek]?.userData"
+              :groupData="weekChartData[curWeek]?.groupData"
+              :weekData="weekChartData[curWeek]?.weekData"
             />
           </div>
-        </el-card> -->
+        </el-card>
       </re-col>
 
       <re-col
@@ -141,10 +112,10 @@ const optionsBasis: Array<OptionsType> = [
       >
         <!-- <el-card shadow="never">
           <div class="flex justify-between">
-            <span class="text-md font-medium">解决概率</span>
+            <span class="text-md font-medium">调用统计</span>
           </div>
           <div
-            v-for="(item, index) in progressData"
+            v-for="(item, index) in callStat"
             :key="index"
             :class="[
               'flex',
@@ -152,21 +123,30 @@ const optionsBasis: Array<OptionsType> = [
               'items-start',
               index === 0 ? 'mt-8' : 'mt-[2.15rem]'
             ]"
+            style="margin-top: 15px"
           >
             <el-progress
               :text-inside="true"
               :percentage="item.percentage"
-              :stroke-width="21"
+              :stroke-width="20"
               :color="item.color"
               striped
               striped-flow
-              :duration="item.duration"
+              :format="() => get(item.name)"
             />
             <span class="text-nowrap ml-2 text-text_color_regular text-sm">
-              {{ item.week }}
+              {{ item.num }}
             </span>
           </div>
         </el-card> -->
+        <el-card shadow="never">
+          <div class="flex justify-between">
+            <span class="text-md font-medium">调用统计</span>
+          </div>
+          <div class="flex justify-between items-start mt-3">
+            <ChartPie :chartData="callStat" />
+          </div>
+        </el-card>
       </re-col>
 
       <re-col
@@ -246,6 +226,58 @@ const optionsBasis: Array<OptionsType> = [
     </el-row>
   </div>
 </template>
+
+<script setup lang="ts">
+import { ref, markRaw } from "vue";
+import ReCol from "@/components/ReCol";
+import { useDark, randomGradient } from "./utils";
+import WelcomeTable from "./components/table/index.vue";
+import { ReNormalCountTo } from "@/components/ReCountTo";
+import { useRenderFlicker } from "@/components/ReFlicker";
+import { ChartBar, ChartLine, ChartRound, ChartPie } from "./components/charts";
+import Segmented, { type OptionsType } from "@/components/ReSegmented";
+import {
+  getChartData,
+  barChartData,
+  progressData,
+  latestNewsData
+} from "./data";
+
+const get = (key: any) => key;
+
+const chartData = ref([]);
+const weekChartData = ref<
+  {
+    userData: number[];
+    groupData: number[];
+    weekData: string[];
+  }[]
+>([]);
+const callStat = ref([]);
+
+getChartData().then(res => {
+  console.log("res", res);
+  chartData.value = res.chartData;
+  weekChartData.value = res.weekData;
+  callStat.value = res.callStat;
+});
+
+defineOptions({
+  name: "Welcome"
+});
+
+const { isDark } = useDark();
+
+let curWeek = ref(0); // 0: 7天、1: 30天
+const optionsBasis: Array<OptionsType> = [
+  {
+    label: "7天"
+  },
+  {
+    label: "30天"
+  }
+];
+</script>
 
 <style lang="scss" scoped>
 :deep(.el-card) {

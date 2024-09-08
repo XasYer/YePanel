@@ -3,13 +3,16 @@ import { useDark, useECharts } from "@pureadmin/utils";
 import { type PropType, ref, computed, watch, nextTick } from "vue";
 
 const props = defineProps({
-  requireData: {
+  userData: {
     type: Array as PropType<Array<number>>,
     default: () => []
   },
-  questionData: {
+  groupData: {
     type: Array as PropType<Array<number>>,
     default: () => []
+  },
+  weekData: {
+    type: Array as PropType<Array<string>>
   }
 });
 
@@ -51,7 +54,7 @@ watch(
       xAxis: [
         {
           type: "category",
-          data: ["周一", "周二", "周三", "周四", "周五", "周六", "周日"],
+          data: props.weekData,
           axisLabel: {
             fontSize: "0.875rem"
           },
@@ -74,24 +77,24 @@ watch(
       ],
       series: [
         {
-          name: "需求人数",
+          name: "上行人数",
           type: "bar",
           barWidth: 10,
           itemStyle: {
             color: "#41b6ff",
             borderRadius: [10, 10, 0, 0]
           },
-          data: props.requireData
+          data: props.userData
         },
         {
-          name: "提问数量",
+          name: "上行群数",
           type: "bar",
           barWidth: 10,
           itemStyle: {
             color: "#e86033ce",
             borderRadius: [10, 10, 0, 0]
           },
-          data: props.questionData
+          data: props.groupData
         }
       ]
     });
