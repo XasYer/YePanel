@@ -11,6 +11,14 @@ const props = defineProps({
     type: Array as PropType<Array<number>>,
     default: () => []
   },
+  receiveMsgData: {
+    type: Array as PropType<Array<number>>,
+    default: () => []
+  },
+  sendMsgData: {
+    type: Array as PropType<Array<number>>,
+    default: () => []
+  },
   weekData: {
     type: Array as PropType<Array<string>>
   }
@@ -41,10 +49,10 @@ watch(
       grid: {
         top: "20px",
         left: "50px",
-        right: 0
+        right: "80px"
       },
       legend: {
-        data: ["需求人数", "提问数量"],
+        data: ["上行人数", "上行群数", "上行消息", "下行消息"],
         textStyle: {
           color: "#606266",
           fontSize: "0.875rem"
@@ -72,7 +80,17 @@ watch(
           splitLine: {
             show: false // 去网格线
           }
-          // name: "单位: 个"
+        },
+        {
+          type: "value",
+          position: "right",
+          alignTicks: true,
+          axisLabel: {
+            fontSize: "0.875rem"
+          },
+          splitLine: {
+            show: false // 去网格线
+          }
         }
       ],
       series: [
@@ -84,7 +102,10 @@ watch(
             color: "#41b6ff",
             borderRadius: [10, 10, 0, 0]
           },
-          data: props.userData
+          data: props.userData,
+          markPoint: {
+            data: [{ type: "average", name: "平均值" }]
+          }
         },
         {
           name: "上行群数",
@@ -94,7 +115,34 @@ watch(
             color: "#e86033ce",
             borderRadius: [10, 10, 0, 0]
           },
-          data: props.groupData
+          data: props.groupData,
+          markPoint: {
+            data: [{ type: "average", name: "平均值" }]
+          }
+        },
+        {
+          name: "上行消息",
+          type: "line",
+          yAxisIndex: 1,
+          itemStyle: {
+            color: "#8B864E"
+          },
+          data: props.receiveMsgData,
+          markPoint: {
+            data: [{ type: "average", name: "平均值" }]
+          }
+        },
+        {
+          name: "下行消息",
+          type: "line",
+          yAxisIndex: 1,
+          itemStyle: {
+            color: "#FFC125"
+          },
+          data: props.sendMsgData,
+          markPoint: {
+            data: [{ type: "average", name: "平均值" }]
+          }
         }
       ]
     });

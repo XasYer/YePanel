@@ -48,21 +48,38 @@ const chartData = [
     value: 100,
     // percent: "+100%",
     data: [100, 100]
+  },
+  {
+    icon: CheckLine,
+    bgColor: "#eff8f4",
+    color: "#26ce83",
+    duration: 1500,
+    name: "解决数量",
+    value: 16499,
+    // percent: "+99%",
+    data: [100, 100]
+  },
+  {
+    icon: CheckLine,
+    bgColor: "#eff8f4",
+    color: "#26ce83",
+    duration: 1500,
+    name: "解决数量",
+    value: 16499,
+    // percent: "+99%",
+    data: [100, 100]
   }
 ];
 
 const getChartData = async () => {
   const { data } = await getHomeData();
-  for (let i = 0; i < data.chartData.length; i++) {
-    chartData[i].name = data.chartData[i].name;
-    chartData[i].value = data.chartData[i].value;
-    // chartData[i].percent = chart[i].percent
-    // chartData[i].data = chart[i].data
-  }
-  return {
-    ...data,
-    chartData
-  };
+  // for (let i = 0; i < data.chartData.length; i++) {
+  //   chartData[i].name = data.chartData[i].name;
+  //   chartData[i].value = data.chartData[i].value;
+  //   // chartData[i].percent = chart[i].percent
+  //   // chartData[i].data = chart[i].data
+  // }
+  return data;
 };
 
 /** 数据统计 */

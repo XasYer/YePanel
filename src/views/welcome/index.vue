@@ -6,7 +6,7 @@
         :key="index"
         v-motion
         class="mb-[18px]"
-        :value="6"
+        :value="4"
         :md="12"
         :sm="12"
         :xs="24"
@@ -28,35 +28,38 @@
               {{ item.name }}
             </span>
             <div
+              v-if="item.total"
               class="w-8 h-8 flex justify-center items-center rounded-md"
               :style="{
                 backgroundColor: isDark ? 'transparent' : item.bgColor
               }"
             >
-              <IconifyIconOffline
+              <!-- <IconifyIconOffline
                 :icon="item.icon"
                 :color="item.color"
                 width="18"
-              />
+              /> -->
+              总计
             </div>
           </div>
-          <div class="flex justify-between items-start mt-3">
+          <div class="flex justify-between items-end mt-3">
             <div class="w-1/2">
               <ReNormalCountTo
-                :duration="item.duration"
+                :duration="2000"
                 :fontSize="'1.6em'"
                 :startVal="100"
                 :endVal="item.value"
               />
-              <p class="font-medium text-green-500">{{ item.percent }}</p>
+              <!-- <p class="font-medium text-green-500">{{ item.percent }}</p> -->
             </div>
-            <ChartLine
+            <div v-if="item.total">{{ item.total }}</div>
+            <!-- <ChartLine
               v-if="item.data.length > 1"
               class="!w-1/2"
               :color="item.color"
               :data="item.data"
             />
-            <ChartRound v-else class="!w-1/2" />
+            <ChartRound v-else class="!w-1/2" /> -->
           </div>
         </el-card>
       </re-col>
@@ -88,6 +91,8 @@
               :userData="weekChartData[curWeek]?.userData"
               :groupData="weekChartData[curWeek]?.groupData"
               :weekData="weekChartData[curWeek]?.weekData"
+              :receiveMsgData="weekChartData[curWeek]?.receiveMsgData"
+              :sendMsgData="weekChartData[curWeek]?.sendMsgData"
             />
           </div>
         </el-card>
@@ -251,6 +256,8 @@ const weekChartData = ref<
     userData: number[];
     groupData: number[];
     weekData: string[];
+    receiveMsgData: number[];
+    sendMsgData: number[];
   }[]
 >([]);
 const callStat = ref([]);
