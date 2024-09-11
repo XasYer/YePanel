@@ -453,6 +453,10 @@ const closeTag = (tag: string) => {
   delete state.value[key][value];
 };
 
+const closePasswordTag = (tag: string) => {
+  delete state.value.web.password[tag];
+};
+
 const closeTokenTag = (tag: string) => {
   const keys = state.value.token as Array<TokenFormProps["formInline"]>;
   const index = keys.findIndex(item => item.uin == tag);
@@ -874,11 +878,11 @@ const showPasswordDialog = (title: string, key: string | null) => {
       </template>
       <template #plus-field-password>
         <el-tag
-          v-for="(val, key) in state.web.password as Array<any>"
+          v-for="(val, key) in state.web.password"
           :key="key"
           class="mx-1 cursor-pointer mt-1"
-          closable
-          @close="closeTag('password:' + key)"
+          :closable="key !== 'default'"
+          @close="closePasswordTag(key)"
           @click="showPasswordDialog('修改', String(key))"
         >
           {{ key }}
