@@ -9,7 +9,7 @@ export type homeDataResult = {
 
 /** 获取主页数据 */
 export const getHomeData = () => {
-  return http.request<homeDataResult>("post", "/getHomeData", {
+  return http.request<homeDataResult>("post", "/get-home-data", {
     data: { token: getToken().accessToken }
   });
 };

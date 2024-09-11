@@ -15,7 +15,7 @@ import {
 } from "@/api/user";
 import { useMultiTagsStoreHook } from "./multiTags";
 import { type DataInfo, setToken, removeToken, userKey } from "@/utils/auth";
-import { setBaseUrlApi } from '@/api/utils'
+import { setBaseUrlApi } from "@/api/utils";
 
 export const useUserStore = defineStore({
   id: "pure-user",
@@ -60,7 +60,7 @@ export const useUserStore = defineStore({
     },
     /** 登入 */
     async loginByUsername({ username, password, baseUrl }) {
-      setBaseUrlApi(baseUrl)
+      setBaseUrlApi(baseUrl);
       return new Promise<UserResult>((resolve, reject) => {
         getLogin({ username, password })
           .then(data => {

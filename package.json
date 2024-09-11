@@ -64,6 +64,7 @@
     "path": "^0.12.7",
     "pinia": "^2.1.7",
     "pinyin-pro": "^3.20.2",
+    "plus-pro-components": "^0.1.16",
     "qs": "^6.12.1",
     "responsive-storage": "^2.2.0",
     "sortablejs": "^1.15.2",

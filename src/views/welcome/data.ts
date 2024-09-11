@@ -8,6 +8,7 @@ import { getHomeData } from "@/api/home";
 const days = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"];
 
 /** 需求人数、提问数量、解决数量、用户满意度 */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const chartData = [
   {
     icon: GroupLine,

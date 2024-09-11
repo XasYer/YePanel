@@ -56,6 +56,9 @@ dependencies:
   pinyin-pro:
     specifier: ^3.20.2
     version: 3.20.2
+  plus-pro-components:
+    specifier: ^0.1.16
+    version: 0.1.16(element-plus@2.7.1)(vue@3.4.25)
   qs:
     specifier: ^6.12.1
     version: 6.12.1
@@ -4637,6 +4640,19 @@ packages:
       pathe: 1.1.2
     dev: false
     optional: true
+
+  /plus-pro-components@0.1.16(element-plus@2.7.1)(vue@3.4.25):
+    resolution: {integrity: sha512-SVjqsnuBjn8wMQihA3ltoKUXx7iX4DtF0KHMYpJLgTNUZDfOzSvQb1vKnubSrFfUpaGFa3c6LSfFpFhzvVfT9Q==}
+    peerDependencies:
+      element-plus: ^2.3.4
+      vue: ^3.2.0
+    dependencies:
+      '@element-plus/icons-vue': 2.3.1(vue@3.4.25)
+      element-plus: 2.7.1(vue@3.4.25)
+      lodash-es: 4.17.21
+      sortablejs: 1.15.2
+      vue: 3.4.25(typescript@5.4.5)
+    dev: false
 
   /popmotion@11.0.5:
     resolution: {integrity: sha512-la8gPM1WYeFznb/JqF4GiTkRRPZsfaj2+kCxqQgr2MJylMmIKUwBfWW8Wa5fml/8gmtlD5yI01MP1QCZPWmppA==}

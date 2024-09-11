@@ -28,7 +28,6 @@
               {{ item.name }}
             </span>
             <div
-              v-if="item.total"
               class="w-8 h-8 flex justify-center items-center rounded-md"
               :style="{
                 backgroundColor: isDark ? 'transparent' : item.bgColor
@@ -39,7 +38,7 @@
                 :color="item.color"
                 width="18"
               /> -->
-              总计
+              <span v-if="item.total">总计</span>
             </div>
           </div>
           <div class="flex justify-between items-end mt-3">
@@ -52,7 +51,7 @@
               />
               <!-- <p class="font-medium text-green-500">{{ item.percent }}</p> -->
             </div>
-            <div v-if="item.total">{{ item.total }}</div>
+            <div>{{ item.total }}</div>
             <!-- <ChartLine
               v-if="item.data.length > 1"
               class="!w-1/2"
@@ -67,7 +66,7 @@
       <re-col
         v-motion
         class="mb-[18px]"
-        :value="18"
+        :value="16"
         :xs="24"
         :initial="{
           opacity: 0,
@@ -101,7 +100,7 @@
       <re-col
         v-motion
         class="mb-[18px]"
-        :value="6"
+        :value="8"
         :xs="24"
         :initial="{
           opacity: 0,
@@ -241,12 +240,7 @@ import { ReNormalCountTo } from "@/components/ReCountTo";
 import { useRenderFlicker } from "@/components/ReFlicker";
 import { ChartBar, ChartLine, ChartRound, ChartPie } from "./components/charts";
 import Segmented, { type OptionsType } from "@/components/ReSegmented";
-import {
-  getChartData,
-  barChartData,
-  progressData,
-  latestNewsData
-} from "./data";
+import { getChartData } from "./data";
 
 const get = (key: any) => key;
 
