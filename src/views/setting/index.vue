@@ -88,16 +88,18 @@ const getData = () => {
         });
       }
       for (const key in state.value.btnSuffix) {
-        const i = state.value.btnSuffix[key].values[0];
-        for (const k of ["input", "callback", "link"]) {
-          if (i[k]) {
-            i.type = k;
-            i.data = i[k];
-            break;
+        state.value.btnSuffix[key].values.forEach((i: any) => {
+          for (const k of ["input", "callback", "link"]) {
+            if (i[k]) {
+              i.type = k;
+              i.data = i[k];
+              break;
+            }
           }
-        }
+        });
       }
     });
+  console.log(state.value);
 };
 
 getData();
@@ -416,21 +418,25 @@ const handleSubmit = (values: FieldValues) => {
       `${i.uin}:${i.appid}:${i.token}:${i.appSecret}:${i.isGroup}:${i.isPrivate}`
   );
   for (const key in data.btnSuffix) {
-    const i = data.btnSuffix[key].values[0];
-    for (const type of ["input", "callback", "link"]) {
-      if (i.type === type) {
-        i[type] = i.data;
-        delete data.btnSuffix[key].values[0].type;
-        delete data.btnSuffix[key].values[0].data;
-        for (const val in data.btnSuffix[key].values[0]) {
-          const v = data.btnSuffix[key].values[0][val];
-          if ((Array.isArray(v) && !v.length) || !v) {
-            delete data.btnSuffix[key].values[0][val];
+    data.btnSuffix[key].values.forEach((i: any) => {
+      for (const type of ["input", "callback", "link"]) {
+        if (i.type === type) {
+          i[type] = i.data;
+          delete i.type;
+          delete i.data;
+          for (const val in i) {
+            const v = i[val];
+            if ((Array.isArray(v) && !v.length) || !v) {
+              delete i[val];
+            }
           }
+          if (!i.show?.type || !i.show.data) {
+            delete i.show;
+          }
+          break;
         }
-        break;
       }
-    }
+    });
   }
   setSetting(data).then(res => {
     if (res.success) {

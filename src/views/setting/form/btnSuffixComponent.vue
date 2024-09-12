@@ -12,12 +12,14 @@ export interface FormProps {
     type: string;
     data: string;
     text: string;
-    style: number;
-    clicked_text: string;
-    send: boolean;
-    permission: string[];
-    showType: string;
-    showData: string;
+    style?: number;
+    clicked_text?: string;
+    send?: boolean;
+    permission?: string[];
+    show?: {
+      type: string;
+      data: string | number;
+    };
   };
 }
 
@@ -30,8 +32,10 @@ const props = withDefaults(defineProps<FormProps>(), {
     clicked_text: "",
     send: false,
     permission: [],
-    showType: "",
-    showData: ""
+    show: {
+      type: "",
+      data: ""
+    }
   })
 });
 
@@ -154,8 +158,8 @@ const columns: PlusColumn[] = [
     prop: "permission"
   },
   {
-    label: "showType",
-    prop: "showType",
+    label: "show.type",
+    prop: "show.type",
     valueType: "select",
     options: [
       {
@@ -168,8 +172,8 @@ const columns: PlusColumn[] = [
     }
   },
   {
-    label: "showData",
-    prop: "showData",
+    label: "show.data",
+    prop: "show.data",
     valueType: "input",
     fieldProps: {
       placeholder: "达成什么条件显示"
@@ -188,7 +192,6 @@ const showInput = () => {
 };
 const handleInputConfirm = () => {
   if (inputValue.value) {
-    console.log(newFormInline.value);
     const keys = newFormInline.value.permission as Array<string>;
     keys.push(inputValue.value);
   }

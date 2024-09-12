@@ -91,12 +91,15 @@ const showDialog = (title: string, index?: number) => {
       clicked_text: "",
       send: false,
       permission: [],
-      showType: "",
-      showData: ""
+      show: {
+        type: "",
+        data: ""
+      }
     }
   };
   if (index > -1 && newFormInline.value.values[index]) {
     props.formInline = newFormInline.value.values[index];
+    props.formInline.send = !!props.formInline.send;
   }
   addDialog({
     width: "25%",
@@ -109,7 +112,11 @@ const showDialog = (title: string, index?: number) => {
         const arr = newFormInline.value.values as Array<
           ComponentFormProps["formInline"]
         >;
-        arr.push(formInline);
+        if (index > -1) {
+          arr.splice(index, 1, formInline);
+        } else {
+          arr.push(formInline);
+        }
       }
     },
     beforeSure: (done, { options, index }) => {
