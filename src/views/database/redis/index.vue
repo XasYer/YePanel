@@ -2,7 +2,7 @@
   <el-card>
     <el-collapse v-model="activeNames" class="text-2xl" @change="handleChange">
       <el-collapse-item title="信息" name="1">
-        <el-descriptions border title="Server" :column="5">
+        <el-descriptions border title="Server" :column="getColumn(5)">
           <el-descriptions-item label="Redis 版本">{{
             redisInfo?.redis_version
           }}</el-descriptions-item>
@@ -21,7 +21,12 @@
             >{{ redisInfo?.config_file }}</el-descriptions-item
           >
         </el-descriptions>
-        <el-descriptions border title="Memory" :column="5" class="mt-4">
+        <el-descriptions
+          border
+          title="Memory"
+          :column="getColumn(5)"
+          class="mt-4"
+        >
           <el-descriptions-item label="当前内存占用">{{
             redisInfo?.used_memory_human
           }}</el-descriptions-item>
@@ -32,7 +37,12 @@
             {{ redisInfo?.mem_allocator }}
           </el-descriptions-item>
         </el-descriptions>
-        <el-descriptions border title="Stats" :column="6" class="mt-4">
+        <el-descriptions
+          border
+          title="Stats"
+          :column="getColumn(6)"
+          class="mt-4"
+        >
           <el-descriptions-item label="接受连接总数">{{
             redisInfo?.total_connections_received
           }}</el-descriptions-item>
@@ -52,7 +62,7 @@
             {{ redisInfo?.keyspace_misses }}
           </el-descriptions-item>
         </el-descriptions>
-        <el-descriptions border title="Cpu" :column="5" class="mt-4">
+        <el-descriptions border title="Cpu" :column="getColumn(5)" class="mt-4">
           <el-descriptions-item label="系统cpu使用率">{{
             redisInfo?.used_cpu_sys
           }}</el-descriptions-item>
@@ -65,7 +75,7 @@
           :key="i"
           border
           :title="i as string"
-          :column="5"
+          :column="getColumn(5)"
           class="mt-4"
         >
           <el-descriptions-item label="key数量">{{
@@ -94,6 +104,14 @@ import {
 defineOptions({
   name: "Redis"
 });
+
+const getColumn = (num: number) => {
+  if (window.innerWidth < 992) {
+    return Math.floor(num / 2);
+  } else {
+    return num;
+  }
+};
 
 const redisInfo = ref<getRedisInfoResult["data"]>();
 const keyspace = ref<{ [key: string]: dbInfo }>({});
