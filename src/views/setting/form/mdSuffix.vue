@@ -37,7 +37,7 @@ const rules = reactive({
   ],
   default: [
     {
-      required: true,
+      required: !newFormInline.value.uin,
       message: "请输入对应参数"
     }
   ]

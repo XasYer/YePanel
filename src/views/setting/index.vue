@@ -152,7 +152,8 @@ const group: PlusFormGroupRow[] = [
           }
         ],
         colProps: {
-          span: 12
+          span: 12,
+          xs: 23
         }
       },
       {
@@ -175,7 +176,8 @@ const group: PlusFormGroupRow[] = [
           }
         ],
         colProps: {
-          span: 12
+          span: 12,
+          xs: 23
         }
       },
       {
@@ -187,7 +189,8 @@ const group: PlusFormGroupRow[] = [
           step: 0.1
         },
         colProps: {
-          span: 12
+          span: 12,
+          xs: 23
         }
       },
       {
@@ -196,7 +199,8 @@ const group: PlusFormGroupRow[] = [
         valueType: "input",
         tooltip: "重启后生效",
         colProps: {
-          span: 11
+          span: 11,
+          xs: 23
         },
         fieldProps: {
           placeholder: "可为空"
@@ -211,7 +215,8 @@ const group: PlusFormGroupRow[] = [
           placeholder: "请输入正则或为空关闭"
         },
         colProps: {
-          span: 23
+          span: 23,
+          xs: 23
         }
       }
     ]
@@ -225,7 +230,8 @@ const group: PlusFormGroupRow[] = [
         valueType: "switch",
         fieldProps,
         colProps: {
-          span: 6
+          span: 6,
+          xs: 12
         }
       },
       {
@@ -235,7 +241,8 @@ const group: PlusFormGroupRow[] = [
         tooltip: "使用其他Bot上传图链",
         fieldProps,
         colProps: {
-          span: 6
+          span: 6,
+          xs: 12
         }
       },
       {
@@ -244,7 +251,8 @@ const group: PlusFormGroupRow[] = [
         valueType: "switch",
         fieldProps,
         colProps: {
-          span: 6
+          span: 6,
+          xs: 12
         }
       },
       {
@@ -254,7 +262,8 @@ const group: PlusFormGroupRow[] = [
         tooltip: "配合ws-plugin的绑定",
         fieldProps,
         colProps: {
-          span: 6
+          span: 6,
+          xs: 12
         }
       },
       {
@@ -263,7 +272,8 @@ const group: PlusFormGroupRow[] = [
         valueType: "switch",
         fieldProps,
         colProps: {
-          span: 6
+          span: 6,
+          xs: 12
         }
       },
       {
@@ -273,7 +283,8 @@ const group: PlusFormGroupRow[] = [
         tooltip: "没有自定义按钮权限请关闭此项",
         fieldProps,
         colProps: {
-          span: 6
+          span: 6,
+          xs: 12
         }
       },
       {
@@ -282,7 +293,8 @@ const group: PlusFormGroupRow[] = [
         valueType: "switch",
         fieldProps,
         colProps: {
-          span: 6
+          span: 6,
+          xs: 12
         }
       },
       {
@@ -291,7 +303,8 @@ const group: PlusFormGroupRow[] = [
         valueType: "switch",
         fieldProps,
         colProps: {
-          span: 6
+          span: 6,
+          xs: 12
         }
       }
     ]
@@ -304,28 +317,32 @@ const group: PlusFormGroupRow[] = [
         prop: "markdown",
         tooltip: "是否开启全局md",
         colProps: {
-          span: 11
+          span: 11,
+          xs: 23
         }
       },
       {
         label: "md模版",
         prop: "customMD",
         colProps: {
-          span: 12
+          span: 12,
+          xs: 23
         }
       },
       {
         label: "md附加值",
         prop: "mdSuffix",
         colProps: {
-          span: 11
+          span: 11,
+          xs: 23
         }
       },
       {
         label: "按钮附加值",
         prop: "btnSuffix",
         colProps: {
-          span: 12
+          span: 12,
+          xs: 23
         }
       }
     ]
@@ -348,7 +365,8 @@ const group: PlusFormGroupRow[] = [
         label: "过滤日志",
         prop: "filterLog",
         colProps: {
-          span: 18
+          span: 18,
+          xs: 23
         }
       }
     ]
@@ -363,7 +381,8 @@ const group: PlusFormGroupRow[] = [
         tooltip: "重启后生效",
         fieldProps,
         colProps: {
-          span: 6
+          span: 6,
+          xs: 23
         }
       },
       {
@@ -372,7 +391,8 @@ const group: PlusFormGroupRow[] = [
         valueType: "input-number",
         tooltip: "为0则无限重连",
         colProps: {
-          span: 8
+          span: 8,
+          xs: 23
         }
       },
       {
@@ -381,7 +401,8 @@ const group: PlusFormGroupRow[] = [
         valueType: "input-number",
         tooltip: "重启后生效",
         colProps: {
-          span: 8
+          span: 8,
+          xs: 23
         }
       }
     ]
@@ -394,7 +415,8 @@ const group: PlusFormGroupRow[] = [
         prop: "token",
         tooltip: "重启后生效",
         colProps: {
-          span: 11
+          span: 11,
+          xs: 23
         }
       },
       {
@@ -402,7 +424,8 @@ const group: PlusFormGroupRow[] = [
         prop: "password",
         tooltip: "重启后生效",
         colProps: {
-          span: 12
+          span: 12,
+          xs: 23
         }
       }
     ]
@@ -471,274 +494,160 @@ const closeTokenTag = (tag: string) => {
   }
 };
 
-const markdownFormRef = ref();
-const showMarkdownDialog = (title: string, key: string | null) => {
-  const formInline = {
+const initData = {
+  markdown: {
     uin: "",
     id: ""
-  };
-  if (key && state.value.markdown[key]) {
-    formInline.uin = key;
-    formInline.id = state.value.markdown[key];
-  }
-  addDialog({
-    width: "25%",
-    title: title + "markdown模版",
-    contentRenderer: () => h(markdown, { ref: markdownFormRef }),
-    props: {
-      // 赋默认值
-      formInline
-    },
-    closeCallBack: ({ options, args }) => {
-      // options.props 是响应式的
-      const { formInline } = options.props as MarkdownFormProps;
-      if (args?.command === "sure") {
-        state.value.markdown[formInline.uin] = formInline.id;
-      }
-    },
-    beforeSure: (done, { options, index }) => {
-      const FormRef = markdownFormRef.value.getRef(options);
-      FormRef.validate((valid: boolean) => {
-        if (valid) {
-          done();
-        }
-      });
-    },
-    draggable: true
-  });
-};
-
-const customMDFormRef = ref();
-const showCustomMDDialog = (title: string, key: string | null) => {
-  const formInline = {
+  },
+  customMD: {
     uin: "",
     id: "",
     keys: []
-  };
-  if (key && state.value.customMD[key]) {
-    formInline.uin = key;
-    formInline.id = state.value.customMD[key].custom_template_id;
-    formInline.keys = state.value.customMD[key].keys;
+  },
+  mdSuffix: {
+    uin: "",
+    val: []
+  },
+  btnSuffix: {
+    uin: "",
+    position: 1,
+    values: []
+  },
+  filterLog: {
+    uin: "",
+    val: []
+  },
+  token: {
+    uin: "",
+    token: "",
+    appid: "",
+    appSecret: "",
+    isGroup: 0,
+    isPrivate: 0
+  },
+  password: {
+    uin: "",
+    password: ""
   }
-  addDialog({
-    width: "25%",
-    title: title + "自定义markdown模版",
-    contentRenderer: () => h(customMD, { ref: customMDFormRef }),
-    props: {
-      // 赋默认值
-      formInline
-    },
-    closeCallBack: ({ options, args }) => {
-      // options.props 是响应式的
-      const { formInline } = options.props as CustomMDFormProps;
-      if (args?.command === "sure") {
-        state.value.customMD[formInline.uin] = {
+};
+
+const getFormInline = (key: string | null, name: string) => {
+  const formInline = clone(initData[name], true);
+  if (
+    key &&
+    ((name === "password" && state.value.web.password[key]) ||
+      state.value[name][key])
+  ) {
+    switch (name) {
+      case "markdown":
+        formInline.uin = key;
+        formInline.id = state.value.markdown[key];
+        break;
+      case "customMD":
+        formInline.uin = key;
+        formInline.id = state.value.customMD[key].custom_template_id;
+        formInline.keys = state.value.customMD[key].keys;
+        break;
+      case "mdSuffix":
+        formInline.uin = key;
+        formInline.val = state.value.mdSuffix[key];
+        break;
+      case "btnSuffix":
+        formInline.position = state.value.btnSuffix[key].position;
+        formInline.values = state.value.btnSuffix[key].values;
+        formInline.uin = key;
+        break;
+      case "filterLog":
+        formInline.uin = key;
+        formInline.val = state.value.filterLog[key];
+        break;
+      case "token":
+        formInline.uin = state.value.token[key].uin;
+        formInline.token = state.value.token[key].token;
+        formInline.appid = state.value.token[key].appid;
+        formInline.appSecret = state.value.token[key].appSecret;
+        formInline.isGroup = state.value.token[key].isGroup;
+        formInline.isPrivate = state.value.token[key].isPrivate;
+        break;
+      case "password":
+        formInline.uin = key;
+        formInline.password = state.value.web.password[key];
+        break;
+      default:
+        break;
+    }
+  }
+  return formInline;
+};
+
+const closeCallBack = ({ options, args }, key: string | null, name: string) => {
+  const { formInline } = options.props;
+  if (args?.command === "sure") {
+    if (name === "token") {
+      key = key ?? "-1";
+    } else {
+      if (!key || key === formInline.uin) {
+        key = formInline.uin;
+      } else if (name === "password") {
+        delete state.value.web.password[key];
+        key = formInline.uin;
+      } else {
+        delete state.value[name][key];
+        key = formInline.uin;
+      }
+    }
+    switch (name) {
+      case "markdown":
+        state.value.markdown[key] = formInline.id;
+        break;
+      case "customMD":
+        state.value.customMD[key] = {
           custom_template_id: formInline.id,
           keys: formInline.keys
         };
-      }
-    },
-    beforeSure: (done, { options, index }) => {
-      const FormRef = customMDFormRef.value.getRef(options);
-      FormRef.validate((valid: boolean) => {
-        if (valid) {
-          done();
-        }
-      });
-    },
-    draggable: true
-  });
-};
-
-const mdSuffixMDFormRef = ref();
-const showMdSuffixDialog = (title: string, key: string | null) => {
-  const props: MdSuffixFormProps = {
-    formInline: {
-      uin: "",
-      val: []
-    }
-  };
-  if (key && state.value.mdSuffix[key]) {
-    props.formInline.uin = key;
-    props.formInline.val = state.value.mdSuffix[key];
-  }
-  addDialog({
-    width: "25%",
-    title: title + "自定义markdown附加值",
-    contentRenderer: () => h(mdSuffix, { ref: mdSuffixMDFormRef }),
-    props,
-    closeCallBack: ({ options, args }) => {
-      // options.props 是响应式的
-      const { formInline } = options.props as MdSuffixFormProps;
-      if (args?.command === "sure") {
-        state.value.mdSuffix[formInline.uin] = formInline.val;
-      }
-    },
-    beforeSure: (done, { options, index }) => {
-      const FormRef = mdSuffixMDFormRef.value.getRef(options);
-      FormRef.validate((valid: boolean) => {
-        if (valid) {
-          done();
-        }
-      });
-    },
-    draggable: true
-  });
-};
-
-const tokenFormRef = ref();
-const showTokenDialog = (title: string, key: string | null) => {
-  const props: TokenFormProps = {
-    formInline: {
-      uin: "",
-      token: "",
-      appid: "",
-      appSecret: "",
-      isGroup: 0,
-      isPrivate: 0
-    }
-  };
-  if (key) {
-    for (const i of state.value.token as any[]) {
-      if (i.uin == key) {
-        props.formInline = i;
-      }
-    }
-  }
-  addDialog({
-    width: "25%",
-    title: title + "Token",
-    contentRenderer: () => h(token, { ref: tokenFormRef }),
-    props,
-    closeCallBack: ({ options, args }) => {
-      // options.props 是响应式的
-      const { formInline } = options.props as TokenFormProps;
-      if (args?.command === "sure") {
-        const token = state.value.token as Array<TokenFormProps["formInline"]>;
-        const index = token.findIndex(item => item.uin == key);
-        if (index > -1) {
-          token[index] = formInline;
-        } else {
-          token.push(formInline);
-        }
-      }
-    },
-    beforeSure: (done, { options, index }) => {
-      const FormRef = tokenFormRef.value.getRef(options);
-      FormRef.validate((valid: boolean) => {
-        if (valid) {
-          done();
-        }
-      });
-    },
-    draggable: true
-  });
-};
-
-const btnSuffixFormRef = ref();
-const showBtnSuffixDialog = (title: string, key: string | null) => {
-  const props = {
-    formInline: {
-      uin: "",
-      position: 1,
-      values: []
-    }
-  };
-  if (key && state.value.btnSuffix[key]) {
-    props.formInline = state.value.btnSuffix[key];
-    props.formInline.uin = key;
-  }
-  addDialog({
-    width: "25%",
-    title: title + "自定义按钮附加值",
-    contentRenderer: () => h(btnSuffix, { ref: btnSuffixFormRef }),
-    props,
-    closeCallBack: ({ options, args }) => {
-      const { formInline } = options.props as BtnSuffixFormProps;
-      if (args?.command === "sure") {
-        console.log(formInline);
-        state.value.btnSuffix[formInline.uin] = {
+        break;
+      case "mdSuffix":
+        state.value.mdSuffix[key] = formInline.val;
+        break;
+      case "btnSuffix":
+        state.value.btnSuffix[key] = {
           position: formInline.position,
           values: formInline.values
         };
-      }
-    },
-    beforeSure: (done, { options, index }) => {
-      const FormRef = btnSuffixFormRef.value.getRef(options);
-      FormRef.validate((valid: boolean) => {
-        if (valid) {
-          done();
+        break;
+      case "filterLog":
+        state.value.filterLog[key] = formInline.val;
+        break;
+      case "token":
+        const token = state.value.token as Array<TokenFormProps["formInline"]>;
+        if (Number(key) > -1) {
+          token[key] = formInline;
+        } else {
+          token.push(formInline);
         }
-      });
-    },
-    draggable: true
-  });
+        break;
+      case "password":
+        state.value.web.password[key] = formInline.password;
+        break;
+      default:
+        break;
+    }
+  }
 };
 
-const filterLogFormRef = ref();
-const showFilterLogDialog = (title: string, key: string | null) => {
-  const formInline = {
-    uin: "",
-    val: []
-  };
-  if (key && state.value.filterLog[key]) {
-    formInline.uin = key;
-    formInline.val = state.value.filterLog[key];
-  }
+const formRef = ref();
+const showDialog = (title: string, key: string | null, content: any) => {
   addDialog({
     width: "25%",
-    title: title + "过滤日志",
-    contentRenderer: () => h(filterLog, { ref: filterLogFormRef }),
+    title,
+    contentRenderer: () => h(content, { ref: formRef }),
     props: {
-      // 赋默认值
-      formInline
+      formInline: getFormInline(key, content.__name)
     },
-    closeCallBack: ({ options, args }) => {
-      // options.props 是响应式的
-      const { formInline } = options.props as FilterLogFormProps;
-      if (args?.command === "sure") {
-        state.value.filterLog[formInline.uin] = formInline.val;
-      }
-    },
+    closeCallBack: ({ options, args }) =>
+      closeCallBack({ options, args }, key, content.__name),
     beforeSure: (done, { options, index }) => {
-      const FormRef = filterLogFormRef.value.getRef(options);
-      FormRef.validate((valid: boolean) => {
-        if (valid) {
-          done();
-        }
-      });
-    },
-    draggable: true
-  });
-};
-
-const passwordFormRef = ref();
-const showPasswordDialog = (title: string, key: string | null) => {
-  const formInline = {
-    uin: "",
-    password: ""
-  };
-  if (key && state.value.web.password[key]) {
-    formInline.uin = key;
-    formInline.password = state.value.web.password[key];
-  }
-  addDialog({
-    width: "25%",
-    title: title + "web密码",
-    contentRenderer: () => h(password, { ref: passwordFormRef }),
-    props: {
-      // 赋默认值
-      formInline
-    },
-    closeCallBack: ({ options, args }) => {
-      // options.props 是响应式的
-      const { formInline } = options.props as PasswordFormProps;
-      if (args?.command === "sure") {
-        state.value.web.password[formInline.uin] = formInline.password;
-      }
-    },
-    beforeSure: (done, { options, index }) => {
-      const FormRef = passwordFormRef.value.getRef();
+      const FormRef = formRef.value.getRef();
       FormRef.validate((valid: boolean) => {
         if (valid) {
           done();
@@ -754,10 +663,9 @@ const showPasswordDialog = (title: string, key: string | null) => {
   <div>
     <PlusForm
       v-model="state"
-      class="w-[1000px] m-auto"
+      class="lg:w-[1000px] m-auto xs:w-full"
       :rules="rules"
       :group="group"
-      :row-props="{ gutter: 10 }"
       label-position="right"
       resetText="重置"
       submitText="保存"
@@ -775,14 +683,14 @@ const showPasswordDialog = (title: string, key: string | null) => {
           class="mx-1 cursor-pointer mt-1"
           :closable="key !== 'template'"
           @close="closeTag('markdown:' + key)"
-          @click="showMarkdownDialog('修改', String(key))"
+          @click="showDialog('修改Markdown模版', String(key), markdown)"
         >
           {{ key }}
         </el-tag>
         <el-button
           class="button-new-tag ml-1"
           size="small"
-          @click="showMarkdownDialog('增加', null)"
+          @click="showDialog('增加Markdown模版', null, markdown)"
         >
           新增
         </el-button>
@@ -794,14 +702,14 @@ const showPasswordDialog = (title: string, key: string | null) => {
           class="mx-1 cursor-pointer mt-1"
           closable
           @close="closeTag('customMD:' + key)"
-          @click="showCustomMDDialog('修改', key)"
+          @click="showDialog('修改自定义Markdown模版', key, customMD)"
         >
           {{ key }}
         </el-tag>
         <el-button
           class="button-new-tag ml-1"
           size="small"
-          @click="showCustomMDDialog('增加', null)"
+          @click="showDialog('增加自定义Markdown模版', null, customMD)"
         >
           新增
         </el-button>
@@ -813,14 +721,14 @@ const showPasswordDialog = (title: string, key: string | null) => {
           class="mx-1 cursor-pointer mt-1"
           closable
           @close="closeTag('mdSuffix:' + key)"
-          @click="showMdSuffixDialog('修改', key)"
+          @click="showDialog('修改Markdown附加值', key, mdSuffix)"
         >
           {{ key }}
         </el-tag>
         <el-button
           class="button-new-tag ml-1"
           size="small"
-          @click="showMdSuffixDialog('增加', null)"
+          @click="showDialog('增加Markdown附加值', null, mdSuffix)"
         >
           新增
         </el-button>
@@ -832,14 +740,14 @@ const showPasswordDialog = (title: string, key: string | null) => {
           class="mx-1 cursor-pointer mt-1"
           closable
           @close="closeTag('btnSuffix:' + key)"
-          @click="showBtnSuffixDialog('修改', key)"
+          @click="showDialog('修改按钮附加值', key, btnSuffix)"
         >
           {{ key }}
         </el-tag>
         <el-button
           class="button-new-tag ml-1"
           size="small"
-          @click="showBtnSuffixDialog('增加', null)"
+          @click="showDialog('增加按钮附加值', null, btnSuffix)"
         >
           新增
         </el-button>
@@ -851,33 +759,33 @@ const showPasswordDialog = (title: string, key: string | null) => {
           class="mx-1 cursor-pointer mt-1"
           closable
           @close="closeTag('filterLog:' + key)"
-          @click="showFilterLogDialog('修改', key)"
+          @click="showDialog('修改过滤日志', key, filterLog)"
         >
           {{ key }}
         </el-tag>
         <el-button
           class="button-new-tag ml-1"
           size="small"
-          @click="showFilterLogDialog('增加', null)"
+          @click="showDialog('增加过滤日志', null, filterLog)"
         >
           新增
         </el-button>
       </template>
       <template #plus-field-token>
         <el-tag
-          v-for="val in state.token as Array<any>"
+          v-for="(val, index) in state.token as Array<any>"
           :key="val.uin"
           class="mx-1 cursor-pointer mt-1"
           closable
           @close="closeTokenTag(val.uin)"
-          @click="showTokenDialog('修改', val.uin)"
+          @click="showDialog('修改Token', String(index), token)"
         >
           {{ val.uin }}
         </el-tag>
         <el-button
           class="button-new-tag ml-1"
           size="small"
-          @click="showTokenDialog('增加', null)"
+          @click="showDialog('增加Token', null, token)"
         >
           新增
         </el-button>
@@ -889,14 +797,14 @@ const showPasswordDialog = (title: string, key: string | null) => {
           class="mx-1 cursor-pointer mt-1"
           :closable="key !== 'default'"
           @close="closePasswordTag(key)"
-          @click="showPasswordDialog('修改', String(key))"
+          @click="showDialog('修改密码', String(key), password)"
         >
           {{ key }}
         </el-tag>
         <el-button
           class="button-new-tag ml-1"
           size="small"
-          @click="showPasswordDialog('增加', null)"
+          @click="showDialog('增加密码', null, password)"
         >
           新增
         </el-button>

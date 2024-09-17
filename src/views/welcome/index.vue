@@ -68,6 +68,7 @@
         class="mb-[18px]"
         :value="16"
         :xs="24"
+        :sm="24"
         :initial="{
           opacity: 0,
           y: 100
@@ -102,6 +103,7 @@
         class="mb-[18px]"
         :value="8"
         :xs="24"
+        :sm="24"
         :initial="{
           opacity: 0,
           y: 100
