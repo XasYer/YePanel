@@ -3,7 +3,7 @@ export default {
   name: "setting",
   meta: {
     title: "设置",
-    icon: "ep:setting"
+    icon: "ant-design:setting-filled"
   },
   children: [
     {
