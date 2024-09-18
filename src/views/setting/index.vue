@@ -638,7 +638,12 @@ const closeCallBack = ({ options, args }, key: string | null, name: string) => {
 const formRef = ref();
 const showDialog = (title: string, key: string | null, content: any) => {
   addDialog({
-    width: "25%",
+    width:
+      window.innerWidth < 992
+        ? "90%"
+        : window.innerWidth <= 1200
+          ? "50%"
+          : "25%",
     title,
     contentRenderer: () => h(content, { ref: formRef }),
     props: {

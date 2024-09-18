@@ -47,6 +47,8 @@
     "url": "https://github.com/xiaoxian521"
   },
   "dependencies": {
+    "@codemirror/lang-json": "^6.0.1",
+    "@codemirror/theme-one-dark": "^6.1.2",
     "@pureadmin/descriptions": "^1.2.1",
     "@pureadmin/table": "^3.1.2",
     "@pureadmin/utils": "^2.4.7",
@@ -54,6 +56,7 @@
     "@vueuse/motion": "^2.1.0",
     "animate.css": "^4.1.1",
     "axios": "^1.6.8",
+    "codemirror": "^6.0.1",
     "dayjs": "^1.11.10",
     "echarts": "^5.5.0",
     "element-plus": "^2.7.1",
@@ -69,6 +72,7 @@
     "responsive-storage": "^2.2.0",
     "sortablejs": "^1.15.2",
     "vue": "^3.4.25",
+    "vue-codemirror": "^6.1.1",
     "vue-router": "^4.3.2",
     "vue-tippy": "^6.4.1",
     "vue-types": "^5.1.1"

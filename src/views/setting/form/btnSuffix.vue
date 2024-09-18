@@ -102,7 +102,12 @@ const showDialog = (title: string, index?: number) => {
     props.formInline.send = !!props.formInline.send;
   }
   addDialog({
-    width: "25%",
+    width:
+      window.innerWidth < 992
+        ? "90%"
+        : window.innerWidth <= 1200
+          ? "50%"
+          : "25%",
     title: title + "按钮",
     contentRenderer: () => h(component, { ref: componentFormRef }),
     props,
