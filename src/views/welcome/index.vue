@@ -116,35 +116,6 @@
           }
         }"
       >
-        <!-- <el-card shadow="never">
-          <div class="flex justify-between">
-            <span class="text-md font-medium">调用统计</span>
-          </div>
-          <div
-            v-for="(item, index) in callStat"
-            :key="index"
-            :class="[
-              'flex',
-              'justify-between',
-              'items-start',
-              index === 0 ? 'mt-8' : 'mt-[2.15rem]'
-            ]"
-            style="margin-top: 15px"
-          >
-            <el-progress
-              :text-inside="true"
-              :percentage="item.percentage"
-              :stroke-width="20"
-              :color="item.color"
-              striped
-              striped-flow
-              :format="() => get(item.name)"
-            />
-            <span class="text-nowrap ml-2 text-text_color_regular text-sm">
-              {{ item.num }}
-            </span>
-          </div>
-        </el-card> -->
         <el-card shadow="never">
           <div class="flex justify-between">
             <span class="text-md font-medium">调用统计</span>
@@ -158,7 +129,7 @@
       <re-col
         v-motion
         class="mb-[18px]"
-        :value="18"
+        :value="10"
         :xs="24"
         :initial="{
           opacity: 0,
@@ -178,12 +149,74 @@
           </div>
           <WelcomeTable class="mt-3" />
         </el-card> -->
+        <el-card v-if="systemInfo" class="bar-card" shadow="never">
+          <div class="flex justify-around">
+            <div>
+              <el-progress
+                type="circle"
+                :percentage="systemInfo.cpu.currentLoad"
+                :stroke-width="15"
+                :color="systemInfo.cpu.color"
+              />
+              <div class="flex justify-center items-center">CPU</div>
+              <div class="flex justify-center items-center">
+                {{ systemInfo.cpu.manufacturer }}&nbsp;{{
+                  systemInfo.cpu.cores
+                }}核&nbsp; {{ systemInfo.cpu.speed }}GHz
+              </div>
+              <div class="flex justify-center items-center">
+                CPU满载率 {{ systemInfo.cpu.fullLoad }}%
+              </div>
+            </div>
+            <div>
+              <el-progress
+                type="circle"
+                :percentage="systemInfo.ram.currentLoad"
+                :stroke-width="15"
+                :color="systemInfo.ram.color"
+              />
+              <div class="flex justify-center items-center">RAM</div>
+              <div class="flex justify-center items-center">
+                {{ systemInfo.ram.active }} / {{ systemInfo.ram.total }}
+              </div>
+            </div>
+            <div>
+              <el-progress
+                type="circle"
+                :percentage="systemInfo.swap.currentLoad"
+                :stroke-width="15"
+                :color="systemInfo.swap.color"
+              />
+              <div class="flex justify-center items-center">SWAP</div>
+              <div class="flex justify-center items-center">
+                {{ systemInfo.swap.used }} / {{ systemInfo.swap.total }}
+              </div>
+            </div>
+            <div v-if="systemInfo.gpu">
+              <el-progress
+                type="circle"
+                :percentage="systemInfo.gpu.utilizationGpu"
+                :stroke-width="15"
+                :color="systemInfo.gpu.color"
+              />
+              <div class="flex justify-center items-center">GPU</div>
+              <div class="flex justify-center items-center">
+                {{ systemInfo.gpu.memoryUsed }}GB /
+                {{ systemInfo.gpu.memoryTotal }}GB
+              </div>
+              <div class="flex justify-center items-center">
+                {{ systemInfo.gpu.vendor }}
+                {{ systemInfo.gpu.temperatureGpu }}°C
+              </div>
+            </div>
+          </div>
+        </el-card>
       </re-col>
 
       <re-col
         v-motion
         class="mb-[18px]"
-        :value="6"
+        :value="14"
         :xs="24"
         :initial="{
           opacity: 0,
@@ -243,8 +276,7 @@ import { useRenderFlicker } from "@/components/ReFlicker";
 import { ChartBar, ChartLine, ChartRound, ChartPie } from "./components/charts";
 import Segmented, { type OptionsType } from "@/components/ReSegmented";
 import { getChartData } from "./data";
-
-const get = (key: any) => key;
+import { getSystemInfo, getSystemInfoResult } from "@/api/home";
 
 const chartData = ref([]);
 const weekChartData = ref<
@@ -257,12 +289,18 @@ const weekChartData = ref<
   }[]
 >([]);
 const callStat = ref([]);
+const systemInfo = ref<getSystemInfoResult["data"]>();
 
 getChartData().then(res => {
-  console.log("res", res);
   chartData.value = res.chartData;
   weekChartData.value = res.weekData;
   callStat.value = res.callStat;
+});
+
+getSystemInfo().then(res => {
+  if (res.success) {
+    systemInfo.value = res.data;
+  }
 });
 
 defineOptions({

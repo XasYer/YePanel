@@ -106,9 +106,15 @@ export type getRedisInfoResult = {
   };
 };
 
+export type getRedisKeysData = {
+  label: string;
+  key: string;
+  children?: Array<getRedisKeysData>;
+};
+
 export type getRedisKeysResult = {
   success: boolean;
-  data: any[];
+  data: getRedisKeysData[];
 };
 
 export type getRedisValueResult = {
@@ -144,9 +150,9 @@ export const getRedisInfo = () => {
 };
 
 /** 获取redis所有key */
-export const getRedisKeys = (sep: string) => {
+export const getRedisKeys = (sep: string, lazy?: boolean) => {
   return http.request<getRedisKeysResult>("post", "/get-redis-keys", {
-    data: { token: getToken().accessToken, sep }
+    data: { token: getToken().accessToken, sep, lazy }
   });
 };
 

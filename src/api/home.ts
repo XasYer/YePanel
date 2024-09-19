@@ -13,3 +13,44 @@ export const getHomeData = () => {
     data: { token: getToken().accessToken }
   });
 };
+
+export type getSystemInfoResult = {
+  success: boolean;
+  data: {
+    cpu: {
+      currentLoad: number;
+      manufacturer: string;
+      cores: number;
+      speed: number;
+      fullLoad: number;
+      color: string;
+    };
+    ram: {
+      currentLoad: number;
+      total: string;
+      active: string;
+      color: string;
+    };
+    swap: {
+      currentLoad: number;
+      total: string;
+      used: string;
+      color: string;
+    };
+    gpu?: {
+      utilizationGpu: number;
+      vendor: string;
+      temperatureGpu: number;
+      memoryTotal: string;
+      memoryUsed: string;
+      color: string;
+    };
+  };
+};
+
+/** 获取系统信息 */
+export const getSystemInfo = () => {
+  return http.request<getSystemInfoResult>("post", "/get-system-info", {
+    data: { token: getToken().accessToken }
+  });
+};

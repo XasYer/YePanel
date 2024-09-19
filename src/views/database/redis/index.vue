@@ -122,44 +122,71 @@
         </el-descriptions>
       </el-collapse-item>
       <el-collapse-item title="数据" name="2">
-        <el-row>
-          <re-col :span="12" :xs="24" class="mb-[10px] mr-[10px]">
-            <el-input
-              v-model="filterText"
-              style="width: 300px"
-              placeholder="请输入key"
-            />
-          </re-col>
-          <re-col :span="12" :xs="24" class="mb-[10px]">
-            <el-button type="primary" @click="handleSearch">搜索</el-button>
-            <el-button type="warning" @click="handleSearch(true)"
-              >重置</el-button
+        <div v-if="!isLoad">
+          <el-row>
+            <re-col :span="12" :xs="24" class="mb-[10px] mr-[10px]">
+              <el-input
+                v-model="filterText"
+                style="width: 300px"
+                placeholder="请输入key"
+              />
+            </re-col>
+            <re-col :span="12" :xs="24" class="mb-[10px]">
+              <el-button type="primary" @click="handleSearch">搜索</el-button>
+              <el-button type="warning" @click="handleSearch(true)"
+                >重置</el-button
+              >
+              <el-button type="success" @click="handleAdd">添加</el-button>
+              <el-popconfirm
+                :title="deleteKeysTitle"
+                width="300px"
+                @confirm="handleDeleteKeys"
+              >
+                <template #reference>
+                  <el-button type="danger" @click="changeDeleteKeysTitle"
+                    >删除所选</el-button
+                  >
+                </template>
+              </el-popconfirm>
+            </re-col>
+          </el-row>
+          <el-tree-v2
+            v-if="treeType === '2'"
+            ref="treeRefV2"
+            :props="props"
+            show-checkbox
+            :height="650"
+            :filter-method="filterNode"
+            @node-click="handleNodeClick"
+          />
+          <el-tree
+            v-else
+            ref="treeRef"
+            :load="loadTree"
+            lazy
+            node-key="key"
+            show-checkbox
+            :filter-node-method="filterNode"
+            @node-click="handleNodeClick"
+          />
+        </div>
+        <div v-else>
+          <el-space direction="vertical" alignment="left">
+            <div>
+              <el-button type="success" @click="getTreeData">
+                点我加载数据
+              </el-button>
+            </div>
+            <el-text class="mx-1" type="warning" size="large"
+              >请注意: 如果redis数据量过大, 可能会导致服务器卡顿</el-text
             >
-            <el-button type="success" @click="handleAdd">添加</el-button>
-            <el-popconfirm
-              :title="deleteKeysTitle"
-              width="300px"
-              @confirm="handleDeleteKeys"
-            >
-              <template #reference>
-                <el-button type="danger" @click="changeDeleteKeysTitle"
-                  >删除所选</el-button
-                >
-              </template>
-            </el-popconfirm>
-          </re-col>
-        </el-row>
-        <el-tree-v2
-          ref="treeRef"
-          :data="data"
-          :props="props"
-          node-key="key"
-          show-checkbox
-          :height="650"
-          :filter-node-method="filterNode"
-          :filter-method="filterNode"
-          @node-click="handleNodeClick"
-        />
+            <el-divider content-position="left">数据加载方式</el-divider>
+            <el-radio-group v-model="treeType">
+              <el-radio value="1">Tree 懒加载模式点击节点时获取数据</el-radio>
+              <el-radio value="2">Tree V2 一次性加载所有数据</el-radio>
+            </el-radio-group>
+          </el-space>
+        </div>
       </el-collapse-item>
     </el-collapse>
   </el-card>
@@ -172,6 +199,7 @@ import {
   getRedisKeys,
   type getRedisInfoResult,
   type dbInfo,
+  type getRedisKeysData,
   getRedisValue,
   setRedisValue,
   deleteRedisKeys
@@ -220,24 +248,34 @@ getRedisInfo().then(res => {
     }
   }
 });
+
+const isLoad = ref(true);
+const treeType = ref("2");
+let treeV2Data = [];
 const getTreeData = () => {
-  getRedisKeys(":").then(res => {
-    data.value = res.data;
-  });
+  isLoad.value = false;
+  if (treeType.value === "2") {
+    getRedisKeys(":").then(res => {
+      treeV2Data = res.data;
+      treeRefV2.value.setData(treeV2Data);
+    });
+  }
 };
+
+const loadTree = (node: TreeNode, resolve: (data: any[]) => void) => {
+  getRedisKeys(node.data?.key || "", true).then(res => resolve(res.data));
+  return;
+};
+
 const activeNames = ref(["1"]);
 
 const filterText = ref("");
-const treeRef = ref<InstanceType<typeof ElTreeV2>>();
+const treeRef = ref<InstanceType<typeof ElTree>>();
+const treeRefV2 = ref<InstanceType<typeof ElTreeV2>>();
 
-const selectNode = ref({
-  key: "",
-  value: "",
-  expire: -1
-});
 const codeMirrorRef = ref<InstanceType<typeof codeMirror>>();
-const handleNodeClick = (data: TreeNode) => {
-  if (!data.children?.length) {
+const handleNodeClick = (data: getRedisKeysData, node: TreeNode) => {
+  if (node.isLeaf) {
     getRedisValue(data.key as string).then(res => {
       try {
         res.data.value = JSON.stringify(JSON.parse(res.data.value), null, 2);
@@ -265,17 +303,27 @@ const handleNodeClick = (data: TreeNode) => {
               // 表示不变
               newData.expire = -2;
             }
+            const isChange = newData.key !== data.key;
             setRedisValue(
               data.key as string,
               newData.value,
               newData.expire,
-              newData.key === data.key ? undefined : newData.key
+              isChange ? newData.key : undefined
             ).then(res => {
               message("保存成功~ Ciallo～(∠・ω< )⌒☆'", {
                 customClass: "el",
                 type: "success"
               });
-              getTreeData();
+              if (isChange) {
+                if (treeType.value === "2") {
+                  delTreeV2Key(data.key);
+                  addTreeV2Key(res.data.key);
+                  treeRefV2.value.setData(treeV2Data);
+                } else {
+                  delTreeKey(data.key);
+                  addTreeKey(res.data.key);
+                }
+              }
             });
           }
         },
@@ -293,10 +341,54 @@ const handleNodeClick = (data: TreeNode) => {
 const handleSearch = (reset: boolean | MouseEvent = false) => {
   if (reset === true) {
     filterText.value = "";
-    treeRef.value.filter("");
-    treeRef.value.setExpandedKeys([]);
+    if (treeType.value === "2") {
+      treeRefV2.value.filter("");
+      treeRefV2.value.setExpandedKeys([]);
+    } else {
+      treeRef.value.filter("");
+    }
   } else {
-    treeRef.value.filter(filterText.value);
+    const ref = treeType.value === "2" ? treeRefV2 : treeRef;
+    ref.value.filter(filterText.value);
+  }
+};
+
+const addTreeKey = (nodeKey: string) => {
+  let keys = null;
+  const arr = nodeKey.split(":");
+  let index = 0;
+  for (const i of arr) {
+    const key = keys ? `${keys}:${i}` : i;
+    if (!treeRef.value.getNode(key)) {
+      treeRef.value.append(
+        {
+          label: i,
+          key,
+          children: [],
+          isLeaf: index === arr.length - 1
+        },
+        keys
+      );
+    }
+    if (!keys) {
+      keys = i;
+    } else {
+      keys += `:${i}`;
+    }
+    index++;
+  }
+};
+
+const delTreeKey = (nodeKey: string) => {
+  let keys = nodeKey;
+  for (const key of nodeKey.split(":").reverse()) {
+    const node = treeRef.value.getNode(keys);
+    if (node?.isLeaf) {
+      treeRef.value.remove(node);
+    }
+    if (keys.includes(":")) {
+      keys = keys.replace(new RegExp(`:${key}$`), "");
+    }
   }
 };
 
@@ -326,7 +418,12 @@ const handleAdd = () => {
             customClass: "el",
             type: "success"
           });
-          getTreeData();
+          if (treeType.value === "2") {
+            addTreeV2Key(res.data.key);
+            treeRefV2.value.setData(treeV2Data);
+          } else {
+            addTreeKey(res.data.key);
+          }
         });
       }
     },
@@ -342,9 +439,10 @@ const handleAdd = () => {
 const checkedKeys = ref<string[]>([]);
 const deleteKeysTitle = ref("确定要删除吗?");
 const changeDeleteKeysTitle = () => {
-  checkedKeys.value = treeRef.value
+  const ref = treeType.value === "2" ? treeRefV2 : treeRef;
+  checkedKeys.value = ref.value
     .getCheckedNodes()
-    .filter(i => !i.children?.length)
+    .filter(i => ref.value.getNode(i.key)?.isLeaf)
     .map(i => i.key);
   deleteKeysTitle.value = `已选择${checkedKeys.value.length}个key,确定要删除所选吗?`;
 };
@@ -362,7 +460,16 @@ const handleDeleteKeys = () => {
         customClass: "el",
         type: "success"
       });
-      getTreeData();
+      if (treeType.value === "2") {
+        for (const i of res.data.successKeys) {
+          delTreeV2Key(i);
+        }
+        treeRefV2.value.setData(treeV2Data);
+      } else {
+        for (const i of res.data.successKeys) {
+          delTreeKey(i);
+        }
+      }
     }
   });
 };
@@ -371,6 +478,78 @@ const filterNode = (value: string, data: any) => {
   return data.key.includes(value);
 };
 
-const data = ref<any[]>([]);
-getTreeData();
+const addTreeV2Key = (nodeKey: string) => {
+  const keys = nodeKey.split(":");
+  let current = treeV2Data;
+
+  for (let i = 0; i < keys.length; i++) {
+    const partKey = keys.slice(0, i + 1).join(":");
+    let node = current.find(item => item.key === partKey);
+
+    if (!node) {
+      node = {
+        label: keys[i],
+        key: partKey,
+        children: []
+      };
+      current.push(node);
+    }
+
+    current = node.children;
+  }
+};
+
+const delTreeV2Key = (nodeKey: string) => {
+  const path = findKeyPath(treeV2Data, nodeKey);
+  if (path) {
+    deleteValueByPath(treeV2Data, path);
+  }
+};
+
+const findKeyPath = (data: getRedisKeysData[], key: string) => {
+  for (const i in data) {
+    const node = data[i];
+    if (node.key === key) {
+      return [i];
+    }
+
+    if (node.children && node.children.length > 0) {
+      const childPath = findKeyPath(node.children, key);
+      if (childPath) {
+        return [i, ...childPath];
+      }
+    }
+  }
+  return null;
+};
+
+const deleteValueByPath = (data: getRedisKeysData[], path: number[]) => {
+  let current = data;
+
+  for (let i = 0; i < path.length - 1; i++) {
+    current = current[path[i]].children;
+  }
+
+  current.splice(path[path.length - 1], 1);
+
+  cleanupEmptyNodes(data, path.slice(0, -1));
+};
+
+const cleanupEmptyNodes = (data: getRedisKeysData[], path: number[]) => {
+  if (path.length === 0) return;
+
+  let current = data;
+
+  for (let i = 0; i < path.length - 1; i++) {
+    current = current[path[i]].children;
+  }
+
+  const parentIndex = path[path.length - 1];
+  const parentNode = current[parentIndex];
+
+  if (parentNode.children.length === 0) {
+    current.splice(parentIndex, 1);
+    cleanupEmptyNodes(data, path.slice(0, -1));
+  }
+};
 </script>
