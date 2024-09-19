@@ -203,7 +203,7 @@
           :body-style="{ padding: '10px 0' }"
           :header="i.title"
         >
-          <el-skeleton :loading="!i.title">
+          <el-skeleton :loading="!i.title" animated>
             <template #template>
               <div class="flex justify-center">
                 <el-skeleton-item
