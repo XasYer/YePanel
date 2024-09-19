@@ -17,35 +17,12 @@ export const getHomeData = () => {
 export type getSystemInfoResult = {
   success: boolean;
   data: {
-    cpu: {
-      currentLoad: number;
-      manufacturer: string;
-      cores: number;
-      speed: number;
-      fullLoad: number;
-      color: string;
-    };
-    ram: {
-      currentLoad: number;
-      total: string;
-      active: string;
-      color: string;
-    };
-    swap: {
-      currentLoad: number;
-      total: string;
-      used: string;
-      color: string;
-    };
-    gpu?: {
-      utilizationGpu: number;
-      vendor: string;
-      temperatureGpu: number;
-      memoryTotal: string;
-      memoryUsed: string;
-      color: string;
-    };
-  };
+    title: string;
+    value: number;
+    color: string;
+    status?: "success" | "exception" | "warning";
+    info: string[];
+  }[];
 };
 
 /** 获取系统信息 */

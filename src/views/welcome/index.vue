@@ -1,15 +1,14 @@
 <template>
   <div>
-    <el-row :gutter="24" justify="space-around">
+    <el-row :gutter="24">
       <re-col
         v-for="(item, index) in chartData"
         :key="index"
         v-motion
         class="mb-[18px]"
         :value="4"
-        :md="12"
         :sm="12"
-        :xs="24"
+        :xs="12"
         :initial="{
           opacity: 0,
           y: 100
@@ -23,43 +22,52 @@
         }"
       >
         <el-card class="line-card" shadow="never">
-          <div class="flex justify-between">
-            <span class="text-md font-medium">
-              {{ item.name }}
-            </span>
-            <div
-              class="w-8 h-8 flex justify-center items-center rounded-md"
-              :style="{
-                backgroundColor: isDark ? 'transparent' : item.bgColor
-              }"
-            >
-              <!-- <IconifyIconOffline
-                :icon="item.icon"
+          <el-skeleton
+            :loading="!item.name"
+            animated
+            :rows="1"
+            style="height: 82px"
+          >
+            <template #default>
+              <div class="flex justify-between">
+                <span class="text-md font-medium">
+                  {{ item.name }}
+                </span>
+                <div
+                  class="w-8 h-8 flex justify-center items-center rounded-md"
+                  :style="{
+                    backgroundColor: isDark ? 'transparent' : item.bgColor
+                  }"
+                >
+                  <!-- <IconifyIconOffline
+                  :icon="item.icon"
+                  :color="item.color"
+                  width="18"
+                /> -->
+                  <span v-if="item.total">总计</span>
+                </div>
+              </div>
+              <div class="flex justify-between items-end mt-3">
+                <div class="w-1/2">
+                  <ReNormalCountTo
+                    :duration="2000"
+                    :fontSize="'1.6em'"
+                    :startVal="100"
+                    :endVal="item.value"
+                  />
+                  <!-- <p class="font-medium text-green-500">{{ item.percent }}</p> -->
+                </div>
+                <div>{{ item.total }}</div>
+                <!-- <ChartLine
+                v-if="item.data.length > 1"
+                class="!w-1/2"
                 :color="item.color"
-                width="18"
-              /> -->
-              <span v-if="item.total">总计</span>
-            </div>
-          </div>
-          <div class="flex justify-between items-end mt-3">
-            <div class="w-1/2">
-              <ReNormalCountTo
-                :duration="2000"
-                :fontSize="'1.6em'"
-                :startVal="100"
-                :endVal="item.value"
+                :data="item.data"
               />
-              <!-- <p class="font-medium text-green-500">{{ item.percent }}</p> -->
-            </div>
-            <div>{{ item.total }}</div>
-            <!-- <ChartLine
-              v-if="item.data.length > 1"
-              class="!w-1/2"
-              :color="item.color"
-              :data="item.data"
-            />
-            <ChartRound v-else class="!w-1/2" /> -->
-          </div>
+              <ChartRound v-else class="!w-1/2" /> -->
+              </div>
+            </template>
+          </el-skeleton>
         </el-card>
       </re-col>
 
@@ -67,6 +75,7 @@
         v-motion
         class="mb-[18px]"
         :value="16"
+        :md="24"
         :xs="24"
         :sm="24"
         :initial="{
@@ -82,19 +91,35 @@
         }"
       >
         <el-card class="bar-card" shadow="never">
-          <div class="flex justify-between">
-            <span class="text-md font-medium">最近用户量</span>
-            <Segmented v-model="curWeek" :options="optionsBasis" />
-          </div>
-          <div class="flex justify-between items-start mt-3">
-            <ChartBar
-              :userData="weekChartData[curWeek]?.userData"
-              :groupData="weekChartData[curWeek]?.groupData"
-              :weekData="weekChartData[curWeek]?.weekData"
-              :receiveMsgData="weekChartData[curWeek]?.receiveMsgData"
-              :sendMsgData="weekChartData[curWeek]?.sendMsgData"
-            />
-          </div>
+          <el-skeleton :loading="!weekChartData.length" animated>
+            <template #default>
+              <div class="flex justify-between">
+                <span class="text-md font-medium">最近用户量</span>
+                <Segmented v-model="curWeek" :options="optionsBasis" />
+              </div>
+              <div class="flex justify-between items-start mt-3">
+                <ChartBar
+                  :userData="weekChartData[curWeek]?.userData"
+                  :groupData="weekChartData[curWeek]?.groupData"
+                  :weekData="weekChartData[curWeek]?.weekData"
+                  :receiveMsgData="weekChartData[curWeek]?.receiveMsgData"
+                  :sendMsgData="weekChartData[curWeek]?.sendMsgData"
+                />
+              </div>
+            </template>
+            <template #template>
+              <el-skeleton-item
+                variant="h1"
+                class="mb-[40px]"
+                style="width: 10%"
+              />
+              <el-skeleton-item
+                variant="rect"
+                class="mb-[30px]"
+                style="width: 100%; height: 300px"
+              />
+            </template>
+          </el-skeleton>
         </el-card>
       </re-col>
 
@@ -103,6 +128,7 @@
         class="mb-[18px]"
         :value="8"
         :xs="24"
+        :md="24"
         :sm="24"
         :initial="{
           opacity: 0,
@@ -117,20 +143,42 @@
         }"
       >
         <el-card shadow="never">
-          <div class="flex justify-between">
-            <span class="text-md font-medium">调用统计</span>
-          </div>
-          <div class="flex justify-between items-start mt-3">
-            <ChartPie :chartData="callStat" />
+          <el-skeleton v-if="!callStat" animated>
+            <template #template>
+              <el-skeleton-item
+                class="mb-[40px]"
+                variant="h1"
+                style="width: 20%"
+              />
+              <div class="flex justify-center">
+                <el-skeleton-item
+                  variant="circle"
+                  class="mb-[30px] flex mt-2"
+                  style="width: 300px; height: 300px"
+                />
+              </div>
+            </template>
+          </el-skeleton>
+          <div v-show="callStat">
+            <div class="flex justify-between">
+              <span class="text-md font-medium">调用统计</span>
+            </div>
+            <div class="flex justify-between items-start mt-3">
+              <ChartPie :chartData="callStat" :loading="!callStat" />
+            </div>
           </div>
         </el-card>
       </re-col>
 
       <re-col
+        v-for="i in systemInfo"
+        :key="i.title"
         v-motion
         class="mb-[18px]"
-        :value="10"
-        :xs="24"
+        :value="3"
+        :md="12"
+        :sm="12"
+        :xs="12"
         :initial="{
           opacity: 0,
           y: 100
@@ -149,67 +197,44 @@
           </div>
           <WelcomeTable class="mt-3" />
         </el-card> -->
-        <el-card v-if="systemInfo" class="bar-card" shadow="never">
-          <div class="flex justify-around">
-            <div>
-              <el-progress
-                type="circle"
-                :percentage="systemInfo.cpu.currentLoad"
-                :stroke-width="15"
-                :color="systemInfo.cpu.color"
-              />
-              <div class="flex justify-center items-center">CPU</div>
-              <div class="flex justify-center items-center">
-                {{ systemInfo.cpu.manufacturer }}&nbsp;{{
-                  systemInfo.cpu.cores
-                }}核&nbsp; {{ systemInfo.cpu.speed }}GHz
+        <el-card
+          class="h-[280px]"
+          shadow="never"
+          :body-style="{ padding: '10px 0' }"
+          :header="i.title"
+        >
+          <el-skeleton :loading="!i.title">
+            <template #template>
+              <div class="flex justify-center">
+                <el-skeleton-item
+                  variant="circle"
+                  style="width: 120px; height: 120px"
+                />
               </div>
-              <div class="flex justify-center items-center">
-                CPU满载率 {{ systemInfo.cpu.fullLoad }}%
+              <div class="p-[20px]">
+                <el-skeleton-item />
+                <el-skeleton-item />
               </div>
-            </div>
-            <div>
-              <el-progress
-                type="circle"
-                :percentage="systemInfo.ram.currentLoad"
-                :stroke-width="15"
-                :color="systemInfo.ram.color"
-              />
-              <div class="flex justify-center items-center">RAM</div>
-              <div class="flex justify-center items-center">
-                {{ systemInfo.ram.active }} / {{ systemInfo.ram.total }}
+            </template>
+            <template #default>
+              <div class="flex justify-center items-center mb-[10px]">
+                <el-progress
+                  type="circle"
+                  :percentage="i.value"
+                  :stroke-width="15"
+                  :color="i.color"
+                  :status="i.status"
+                />
               </div>
-            </div>
-            <div>
-              <el-progress
-                type="circle"
-                :percentage="systemInfo.swap.currentLoad"
-                :stroke-width="15"
-                :color="systemInfo.swap.color"
-              />
-              <div class="flex justify-center items-center">SWAP</div>
-              <div class="flex justify-center items-center">
-                {{ systemInfo.swap.used }} / {{ systemInfo.swap.total }}
+              <div
+                v-for="(info, index) in i.info"
+                :key="index"
+                class="flex justify-center items-center"
+              >
+                {{ info }}
               </div>
-            </div>
-            <div v-if="systemInfo.gpu">
-              <el-progress
-                type="circle"
-                :percentage="systemInfo.gpu.utilizationGpu"
-                :stroke-width="15"
-                :color="systemInfo.gpu.color"
-              />
-              <div class="flex justify-center items-center">GPU</div>
-              <div class="flex justify-center items-center">
-                {{ systemInfo.gpu.memoryUsed }}GB /
-                {{ systemInfo.gpu.memoryTotal }}GB
-              </div>
-              <div class="flex justify-center items-center">
-                {{ systemInfo.gpu.vendor }}
-                {{ systemInfo.gpu.temperatureGpu }}°C
-              </div>
-            </div>
-          </div>
+            </template>
+          </el-skeleton>
         </el-card>
       </re-col>
 
@@ -278,7 +303,8 @@ import Segmented, { type OptionsType } from "@/components/ReSegmented";
 import { getChartData } from "./data";
 import { getSystemInfo, getSystemInfoResult } from "@/api/home";
 
-const chartData = ref([]);
+const chartData = ref<any>(Array.from({ length: 6 }, (_, index) => ({})));
+
 const weekChartData = ref<
   {
     userData: number[];
@@ -288,8 +314,10 @@ const weekChartData = ref<
     sendMsgData: number[];
   }[]
 >([]);
-const callStat = ref([]);
-const systemInfo = ref<getSystemInfoResult["data"]>();
+const callStat = ref(null);
+const systemInfo = ref<getSystemInfoResult["data"]>(
+  Array.from({ length: 5 }, (_, index) => ({})) as any
+);
 
 getChartData().then(res => {
   chartData.value = res.chartData;
