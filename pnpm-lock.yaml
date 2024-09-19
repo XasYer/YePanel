@@ -92,6 +92,9 @@ dependencies:
   vue-types:
     specifier: ^5.1.1
     version: 5.1.1(vue@3.4.25)
+  vue3-danmaku:
+    specifier: ^1.6.1
+    version: 1.6.1(vue@3.4.25)
 
 devDependencies:
   '@commitlint/cli':
@@ -6637,6 +6640,14 @@ packages:
         optional: true
     dependencies:
       is-plain-object: 5.0.0
+      vue: 3.4.25(typescript@5.4.5)
+    dev: false
+
+  /vue3-danmaku@1.6.1(vue@3.4.25):
+    resolution: {integrity: sha512-v7KqMV5WK3mqRSotSuJfnJldsIpilh72nLKKebWGCO7HM4k330QV1f4oje410GfwSx+SrJ+YLeTG8QLJYuKwYg==}
+    peerDependencies:
+      vue: ^3.0.0
+    dependencies:
       vue: 3.4.25(typescript@5.4.5)
     dev: false
 

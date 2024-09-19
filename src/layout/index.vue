@@ -2,6 +2,7 @@
 import "animate.css";
 // 引入 src/components/ReIcon/src/offlineIcon.ts 文件中所有使用addIcon添加过的本地图标
 import "@/components/ReIcon/src/offlineIcon";
+import vueDanmaku from "vue3-danmaku";
 import { setType } from "./types";
 import { useLayout } from "./hooks/useLayout";
 import { useAppStoreHook } from "@/store/modules/app";
@@ -153,10 +154,32 @@ const layoutHeader = defineComponent({
     );
   }
 });
+const danmus = ref(Array.from({ length: 100 }, () => "Ciallo～(∠・ω< )⌒☆"));
+const danmakuRef = ref(null);
+window.addEventListener("click", () => {
+  for (let i = 0; i < 10; i++) {
+    danmakuRef.value.push("Ciallo～(∠・ω< )⌒☆");
+  }
+});
 </script>
 
 <template>
   <div ref="appWrapperRef" :class="['app-wrapper', set.classes]">
+    <vue-danmaku
+      ref="danmakuRef"
+      v-model:danmus="danmus"
+      randomChannel
+      :speeds="150"
+      style="
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        z-index: 9999;
+        pointer-events: none;
+      "
+    />
     <div
       v-show="
         set.device === 'mobile' &&
