@@ -171,7 +171,7 @@
       </re-col>
 
       <re-col
-        v-for="i in systemInfo"
+        v-for="i in systemInfo.visual"
         :key="i.title"
         v-motion
         class="mb-[18px]"
@@ -191,12 +191,6 @@
           }
         }"
       >
-        <!-- <el-card shadow="never" class="h-[580px]">
-          <div class="flex justify-between">
-            <span class="text-md font-medium">数据统计</span>
-          </div>
-          <WelcomeTable class="mt-3" />
-        </el-card> -->
         <el-card
           class="h-[280px]"
           shadow="never"
@@ -205,6 +199,9 @@
         >
           <el-skeleton :loading="!i.title" animated>
             <template #template>
+              <div class="w-[30%] ml-[10%] mb-[15%] mt-[10%]">
+                <el-skeleton-item />
+              </div>
               <div class="flex justify-center">
                 <el-skeleton-item
                   variant="circle"
@@ -241,8 +238,10 @@
       <re-col
         v-motion
         class="mb-[18px]"
-        :value="14"
-        :xs="24"
+        :value="5"
+        :md="12"
+        :sm="12"
+        :xs="12"
         :initial="{
           opacity: 0,
           y: 100
@@ -255,37 +254,108 @@
           }
         }"
       >
-        <!-- <el-card shadow="never">
-          <div class="flex justify-between">
-            <span class="text-md font-medium">最新动态</span>
-          </div>
-          <el-scrollbar max-height="504" class="mt-3">
-            <el-timeline>
-              <el-timeline-item
-                v-for="(item, index) in latestNewsData"
-                :key="index"
-                center
-                placement="top"
-                :icon="
-                  markRaw(
-                    useRenderFlicker({
-                      background: randomGradient({
-                        randomizeHue: true
-                      })
-                    })
-                  )
-                "
-                :timestamp="item.date"
+        <el-card
+          shadow="never"
+          class="h-[280px]"
+          :header="systemInfo.fsSize.length ? 'fsSize' : undefined"
+          :body-style="{ padding: '10px 20px' }"
+        >
+          <el-skeleton :loading="!systemInfo.fsSize.length" animated>
+            <template #template>
+              <div class="w-[20%] mb-[10%] mt-[7%]">
+                <el-skeleton-item />
+              </div>
+              <el-skeleton-item class="mb-[10px]" />
+              <el-skeleton-item />
+            </template>
+            <template #default>
+              <div
+                class="h-[180px] overflow-hidden w-full"
+                @mouseenter="increaseScrollbarWidth"
+                @mouseleave="resetScrollbarWidth"
               >
-                <p class="text-text_color_regular text-sm">
-                  {{
-                    `新增 ${item.requiredNumber} 条问题，${item.resolveNumber} 条已解决`
-                  }}
-                </p>
-              </el-timeline-item>
-            </el-timeline>
-          </el-scrollbar>
-        </el-card> -->
+                <div
+                  v-for="i in systemInfo.fsSize"
+                  :key="i.fs"
+                  class="flex mb-[10px]"
+                >
+                  <el-text tag="b" style="margin-right: 10px">{{
+                    i.mount
+                  }}</el-text>
+                  <el-progress
+                    :stroke-width="15"
+                    :percentage="i.use"
+                    :color="i.color"
+                    text-inside
+                  >
+                    <div class="flex">
+                      <el-text tag="b" class="relative bottom-[2px]"
+                        >{{ i.used }} / {{ i.size }}</el-text
+                      >
+                    </div>
+                  </el-progress>
+                  <el-text tag="b" style="margin-left: 10px"
+                    >{{ i.use }}%</el-text
+                  >
+                </div>
+              </div>
+            </template>
+          </el-skeleton>
+        </el-card>
+      </re-col>
+
+      <re-col
+        v-motion
+        class="mb-[18px]"
+        :value="4"
+        :md="12"
+        :sm="12"
+        :xs="12"
+        :initial="{
+          opacity: 0,
+          y: 100
+        }"
+        :enter="{
+          opacity: 1,
+          y: 0,
+          transition: {
+            delay: 640
+          }
+        }"
+      >
+        <el-card
+          shadow="never"
+          class="h-[280px]"
+          :body-style="{ padding: '10px 20px' }"
+        >
+          <el-skeleton
+            :loading="!systemInfo.info.length"
+            animated
+            :rows="5"
+            class="pt-[20px]"
+          >
+            <template #default>
+              <div
+                class="h-[280px]"
+                @mouseenter="increaseScrollbarWidth"
+                @mouseleave="resetScrollbarWidth"
+              >
+                <div
+                  v-for="i in systemInfo.info"
+                  :key="i.key"
+                  class="flex justify-between"
+                >
+                  <div>
+                    <el-text tag="b"> {{ i.key }}: </el-text>
+                  </div>
+                  <div>
+                    <el-text class="text-right">{{ i.value }}</el-text>
+                  </div>
+                </div>
+              </div>
+            </template>
+          </el-skeleton>
+        </el-card>
       </re-col>
     </el-row>
   </div>
@@ -315,9 +385,11 @@ const weekChartData = ref<
   }[]
 >([]);
 const callStat = ref(null);
-const systemInfo = ref<getSystemInfoResult["data"]>(
-  Array.from({ length: 5 }, (_, index) => ({})) as any
-);
+const systemInfo = ref<getSystemInfoResult["data"]>({
+  visual: Array.from({ length: 5 }, (_, index) => ({})) as any,
+  fsSize: [],
+  info: []
+});
 
 getChartData().then(res => {
   chartData.value = res.chartData;
@@ -346,6 +418,19 @@ const optionsBasis: Array<OptionsType> = [
     label: "30天"
   }
 ];
+
+// 滚动条 6px
+const increaseScrollbarWidth = (event: any) => {
+  console.log(event.target.getBoundingClientRect());
+  if (systemInfo.value.fsSize.length > 6) {
+    console.log(event.target.getBoundingClientRect());
+    event.target.style.width = `${event.target.getBoundingClientRect().width + 6}px`;
+  }
+};
+
+const resetScrollbarWidth = (event: any) => {
+  event.target.style.width = `100%`;
+};
 </script>
 
 <style lang="scss" scoped>
@@ -375,5 +460,24 @@ const optionsBasis: Array<OptionsType> = [
 
 .main-content {
   margin: 20px 20px 0 !important;
+}
+
+.overflow-hidden:hover {
+  overflow: auto;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #f0f0f0;
+  border-radius: 10px;
+  position: absolute;
+  left: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #bec1c5;
 }
 </style>

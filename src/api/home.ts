@@ -17,12 +17,29 @@ export const getHomeData = () => {
 export type getSystemInfoResult = {
   success: boolean;
   data: {
-    title: string;
-    value: number;
-    color: string;
-    status?: "success" | "exception" | "warning";
-    info: string[];
-  }[];
+    visual: {
+      title: string;
+      value: number;
+      color: string;
+      status?: "success" | "exception" | "warning";
+      info: string[];
+    }[];
+    fsSize: {
+      fs: string;
+      type: string;
+      size: string;
+      used: string;
+      available: number;
+      use: number;
+      mount: string;
+      rw: boolean;
+      color: string;
+    }[];
+    info: {
+      key: string;
+      value: string;
+    }[];
+  };
 };
 
 /** 获取系统信息 */
