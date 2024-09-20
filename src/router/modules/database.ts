@@ -11,7 +11,7 @@ export default {
   children: [
     {
       path: "/database/redis",
-      name: "database",
+      name: "redis",
       component: () => import("@/views/database/redis/index.vue"),
       meta: {
         title: "redis",
