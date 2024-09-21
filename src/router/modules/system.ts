@@ -15,6 +15,16 @@ export default {
         showParent: true,
         icon: "ph:terminal-fill"
       }
+    },
+    {
+      path: "/system/realtimeLog",
+      name: "realtimeLog",
+      component: () => import("@/views/system/realtimeLog/index.vue"),
+      meta: {
+        title: "实时日志",
+        showParent: true,
+        icon: "icon-park-solid:log"
+      }
     }
   ]
 } as RouteConfigsTable;

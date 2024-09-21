@@ -9,15 +9,24 @@
         :max="100"
         @change="handleLineSpace"
       />
+      <el-text class="w-[70px]"> 日志等级: </el-text>
+      <el-select v-model="level" style="width: 150px" class="mr-[10px]">
+        <el-option
+          v-for="(item, index) in Object.keys(LevelNumber)"
+          :key="item"
+          :label="item"
+          :value="index"
+        />
+      </el-select>
     </div>
     <div class="h-[70vh]">
       <terminal
         ref="terminalRef"
         name="terminal"
         :context="path"
-        :init-log="init_log"
-        :show-header="false"
+        :enable-fold="false"
         :line-space="lineSpace"
+        :show-header="false"
         :enable-default-command="false"
         @exec-cmd="onExecCmd"
       />
@@ -27,21 +36,44 @@
 
 <script lang="ts" setup>
 import { createWS } from "@/api/system";
-import { onMounted, onUnmounted, ref } from "vue";
+import { onMounted, ref } from "vue";
 import Terminal, { Message, TerminalAsk } from "vue-web-terminal";
 import { TerminalFlash } from "vue-web-terminal";
-import "vue-web-terminal/lib/theme/dark.css";
+import Convert from "ansi-to-html";
+import "./black.css";
 
 defineOptions({
-  name: "terminal"
+  name: "realtimeLog"
 });
 
-const init_log: Array<Message> = [
-  {
-    type: "normal",
-    content: "Terminal Initializing ..."
-  }
-];
+const convert = new Convert();
+
+const color = {
+  tarce: "#999999",
+  debug: "#00aaff",
+  info: "#00cc00",
+  mark: "#999999",
+  warn: "#ffaa00",
+  error: "#ff0000",
+  fatal: "#990000"
+};
+
+const showLevel = {
+  trace: "TRCE",
+  debug: "DBUG",
+  info: "INFO",
+  warn: "WARN",
+  error: "ERRR",
+  fatal: "FATL",
+  mark: "MARK"
+};
+
+const LevelNumber = Object.keys(color).reduce((acc, cur) => {
+  acc[cur] = Object.keys(color).indexOf(cur);
+  return acc;
+}, {});
+
+const level = ref(2);
 
 const lineSpace = ref(15);
 
@@ -55,6 +87,26 @@ const authPass = ref(false);
 
 const socket = ref<WebSocket>(null);
 const flash = ref();
+
+const objectToString = (obj: any) => {
+  if (Array.isArray(obj)) {
+    return "[ " + obj.map(objectToString).join(" ") + " ]";
+  }
+  if (typeof obj === "object") {
+    try {
+      return `{${Object.entries(obj)
+        .map(([key, value]) => {
+          const formattedValue =
+            typeof value === "string" ? `'${value}'` : value;
+          return ` ${key}: ${formattedValue} `;
+        })
+        .join(", ")}}`;
+    } catch (error) {
+      return String(obj);
+    }
+  }
+  return obj;
+};
 
 const onExecCmd = (
   key: string,
@@ -70,26 +122,49 @@ const onExecCmd = (
       type: "normal",
       content: "Authentication in progress..."
     });
-    socket.value = createWS("terminal", {
+    socket.value = createWS("realtimeLog", {
       onmessage: event => {
         try {
           const data = JSON.parse(event.data);
-          if (data.type === "output") {
+          if (data.type === "logger") {
+            if (level.value <= LevelNumber[data.level]) {
+              const html = `<span style="color:${color[data.level]}">[${data.timestamp}][${showLevel[data.level]}]</span>${data.logs
+                .map((i: any) => {
+                  if (typeof i === "string") {
+                    i = convert.toHtml(i).replace(/#00A/g, "#4169e1");
+                    return i;
+                  } else {
+                    return objectToString(i);
+                  }
+                })
+                .join(" ")
+                .replace(/\n|\r/g, "<br>")
+                .replace(/(?<=^|>)([^<]*?)(?=<|$)/g, (i: string) => {
+                  return i.replace(/ /g, "&nbsp;");
+                })}`;
+              terminalRef.value.pushMessage({
+                type: "html",
+                content: html
+              });
+            }
+          } else if (data.type === "console") {
+            const html = data.logs
+              .map((i: any) => {
+                if (typeof i === "string") {
+                  return convert.toHtml(i);
+                } else {
+                  return objectToString(i);
+                }
+              })
+              .join(" ")
+              .replace(/\n|\r/g, "<br>")
+              .replace(/(?<=^|>)([^<]*?)(?=<|$)/g, (i: string) => {
+                return i.replace(/ /g, "&nbsp;");
+              });
             terminalRef.value.pushMessage({
-              type: "normal",
-              content: data.content
+              type: "html",
+              content: html
             });
-          } else if (data.type === "error") {
-            terminalRef.value.pushMessage({
-              type: "normal",
-              content: data.content,
-              class: "error",
-              tag: "error"
-            });
-          } else if (data.type === "directory") {
-            path.value = data.content;
-          } else if (data.type === "close") {
-            flash.value.finish();
           }
         } catch (error) {
           terminalRef.value.pushMessage({
@@ -109,12 +184,6 @@ const onExecCmd = (
           content: "Authentication successful.",
           class: "success"
         });
-        terminalRef.value.pushMessage({
-          type: "normal",
-          content: `tip: 不可以实现SSH客户端, 不能处理tsab、vim等带有其他键盘、鼠标、窗口行为的 ANSI 控制码的指令`,
-          class: "info"
-        });
-        success();
         // 心跳
         setInterval(() => {
           socket.value.send(
@@ -165,28 +234,7 @@ const onExecCmd = (
   }
 };
 
-// 定义全局按键事件的处理函数
-const handleGlobalKeydown = event => {
-  if (event.ctrlKey && event.keyCode === 67) {
-    event.preventDefault();
-    socket.value &&
-      socket.value.send(
-        JSON.stringify({
-          action: "terminate"
-        })
-      );
-  }
-};
-
-// 在组件挂载时添加全局事件监听器
 onMounted(() => {
   terminalRef.value.execute("Ciallo～(∠・ω< )⌒☆");
-  window.addEventListener("keydown", handleGlobalKeydown);
-});
-
-// 在组件卸载时移除全局事件监听器
-onUnmounted(() => {
-  socket.value && socket.value.close();
-  window.removeEventListener("keydown", handleGlobalKeydown);
 });
 </script>
