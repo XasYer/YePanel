@@ -1,5 +1,4 @@
 import { http } from "@/utils/http";
-import { getToken } from "@/utils/auth";
 
 export type dbInfo = {
   keys: string;
@@ -144,22 +143,20 @@ export type deleteRedisKeysResult = {
 
 /** 获取redis数据 */
 export const getRedisInfo = () => {
-  return http.request<getRedisInfoResult>("post", "/get-redis-info", {
-    data: { token: getToken().accessToken }
-  });
+  return http.request<getRedisInfoResult>("post", "/get-redis-info");
 };
 
 /** 获取redis所有key */
 export const getRedisKeys = (sep: string, lazy?: boolean) => {
   return http.request<getRedisKeysResult>("post", "/get-redis-keys", {
-    data: { token: getToken().accessToken, sep, lazy }
+    data: { sep, lazy }
   });
 };
 
 /** 获取redis指定key的值 */
 export const getRedisValue = (key: string) => {
   return http.request<getRedisValueResult>("post", "/get-redis-value", {
-    data: { token: getToken().accessToken, key }
+    data: { key }
   });
 };
 
@@ -171,13 +168,13 @@ export const setRedisValue = (
   newKey?: string
 ) => {
   return http.request<setRedisValueResult>("post", "/set-redis-value", {
-    data: { token: getToken().accessToken, key, value, expire, newKey }
+    data: { key, value, expire, newKey }
   });
 };
 
 /** 删除redis指定key的值 */
 export const deleteRedisKeys = (keys: string[]) => {
   return http.request<deleteRedisKeysResult>("post", "/delete-redis-keys", {
-    data: { token: getToken().accessToken, keys }
+    data: { keys }
   });
 };

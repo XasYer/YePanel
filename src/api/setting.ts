@@ -1,5 +1,4 @@
 import { http } from "@/utils/http";
-import { getToken } from "@/utils/auth";
 
 export type getSettingResult = {
   success: boolean;
@@ -13,13 +12,11 @@ export type setSettingResult = {
 
 /** 获取设置数据 */
 export const getSettingData = () => {
-  return http.request<getSettingResult>("post", "/get-setting-data", {
-    data: { token: getToken().accessToken }
-  });
+  return http.request<getSettingResult>("post", "/get-setting-data");
 };
 
 export const setSetting = data => {
   return http.request<setSettingResult>("post", "/set-setting", {
-    data: { token: getToken().accessToken, data }
+    data: { data }
   });
 };

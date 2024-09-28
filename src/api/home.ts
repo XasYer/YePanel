@@ -1,5 +1,4 @@
 import { http } from "@/utils/http";
-import { getToken } from "@/utils/auth";
 
 export type homeDataResult = {
   success: boolean;
@@ -9,9 +8,7 @@ export type homeDataResult = {
 
 /** 获取主页数据 */
 export const getHomeData = () => {
-  return http.request<homeDataResult>("post", "/get-home-data", {
-    data: { token: getToken().accessToken }
-  });
+  return http.request<homeDataResult>("post", "/get-home-data");
 };
 
 export type getSystemInfoResult = {
@@ -44,7 +41,5 @@ export type getSystemInfoResult = {
 
 /** 获取系统信息 */
 export const getSystemInfo = () => {
-  return http.request<getSystemInfoResult>("post", "/get-system-info", {
-    data: { token: getToken().accessToken }
-  });
+  return http.request<getSystemInfoResult>("post", "/get-system-info");
 };
