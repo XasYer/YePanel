@@ -70,7 +70,7 @@ const data = ref<Props["data"]>(props.data);
 
 if (props.type === "code") {
   const ext = extMap[props.data.ext] || props.data.ext;
-  Promise.all([languages[ext]()])
+  Promise.all([languages[ext]?.()])
     .then(res => {
       const lang = res[0];
       extensions.value = [lang?.default?.language?.() || lezer(), oneDark];

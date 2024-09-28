@@ -427,7 +427,6 @@ const handleDblclick = (row: getDirDataResult["data"]["files"][0]) => {
             props,
             closeCallBack({ options, args }) {
               if (args?.command === "sure") {
-                console.log(diaLogRef.value.getData());
                 setFileData(
                   row.path,
                   diaLogRef.value.getData().content as string
@@ -437,7 +436,6 @@ const handleDblclick = (row: getDirDataResult["data"]["files"][0]) => {
                       customClass: "el",
                       type: "error"
                     });
-                    console.log(res.message);
                   } else {
                     message("保存成功~ Ciallo～(∠・ω< )⌒☆", {
                       customClass: "el",
@@ -455,8 +453,6 @@ const handleDblclick = (row: getDirDataResult["data"]["files"][0]) => {
         type: "warning"
       });
     }
-    // TODO 打开文件
-    console.log("row", row);
   }
 };
 
