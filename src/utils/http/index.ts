@@ -13,6 +13,7 @@ import { stringify } from "qs";
 import NProgress from "../progress";
 import { getToken, formatToken } from "@/utils/auth";
 import { useUserStoreHook } from "@/store/modules/user";
+import { message } from "../message";
 
 // 相关配置请参考：www.axios-js.com/zh-cn/docs/#axios-request-config-1
 const defaultConfig: AxiosRequestConfig = {
@@ -172,6 +173,13 @@ class PureHttp {
           resolve(response);
         })
         .catch(error => {
+          message(`请求${url}失败：${error.message}`, {
+            customClass: "el",
+            type: "error"
+          });
+          if ([401, 403].includes(error.response?.status)) {
+            useUserStoreHook().logOut();
+          }
           reject(error);
         });
     });

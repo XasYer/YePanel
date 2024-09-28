@@ -14,7 +14,7 @@ interface MessageParams {
   dangerouslyUseHTMLString?: boolean;
   /** 消息风格，可选 `el` 、`antd` ，默认 `antd` */
   customClass?: messageStyle;
-  /** 显示时间，单位为毫秒。设为 `0` 则不会自动关闭，`element-plus` 默认是 `3000` ，平台改成默认 `2000` */
+  /** 显示时间，单位为毫秒。设为 `0` 则不会自动关闭，`element-plus` 默认是 `3000` ，平台改成默认 `5000` */
   duration?: number;
   /** 是否显示关闭按钮，默认值 `false` */
   showClose?: boolean;
@@ -50,7 +50,7 @@ const message = (
       type = "info",
       dangerouslyUseHTMLString = false,
       customClass = "antd",
-      duration = 2000,
+      duration = 5000,
       showClose = false,
       center = false,
       offset = 20,

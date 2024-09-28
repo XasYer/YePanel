@@ -463,7 +463,7 @@ const handleSubmit = (values: FieldValues) => {
   }
   setSetting(data).then(res => {
     if (res.success) {
-      message("保存成功~ Ciallo～(∠・ω< )⌒☆'", {
+      message("保存成功~ Ciallo～(∠・ω< )⌒☆", {
         customClass: "el",
         type: "success"
       });

@@ -12,7 +12,6 @@ export default {
       component: () => import("@/views/system/terminal/index.vue"),
       meta: {
         title: "远程终端",
-        showParent: true,
         icon: "ph:terminal-fill"
       }
     },
@@ -22,8 +21,16 @@ export default {
       component: () => import("@/views/system/realtimeLog/index.vue"),
       meta: {
         title: "实时日志",
-        showParent: true,
         icon: "icon-park-solid:log"
+      }
+    },
+    {
+      path: "/system/files",
+      name: "files",
+      component: () => import("@/views/system/files/index.vue"),
+      meta: {
+        title: "文件管理",
+        icon: "mdi:files"
       }
     }
   ]
