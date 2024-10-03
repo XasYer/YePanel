@@ -56,7 +56,7 @@ jobs:
       # 从main分支复制文件到build分支
       - name: Copy files to build branch
         run: |
-          git checkout main -- package.json pnpm-lock.yaml README.md .gitignore index.js
+          git checkout main -- package.json CHANGELOG.md pnpm-lock.yaml README.md .gitignore index.js
 
       # 检查是否有变更
       - name: Check for changes in the repository
