@@ -61,7 +61,7 @@ jobs:
       # 检查是否有变更
       - name: Check for changes in the repository
         run: |
-          if [ -z "$(git status --porcelain)" ]; then
+          if [ -z "$(git diff --cached --name-only)" ] && [ -z "$(git status --porcelain)" ]; then
             echo "No changes detected, ending job."
             exit 0
           fi
@@ -77,7 +77,12 @@ jobs:
       - name: Commit changes
         run: |
           git add .
-          git commit -m "chore(build): $commit_message"
+          if [ -z "$(git diff --cached --name-only)" ]; then
+            echo "No changes detected, ending job."
+            exit 0
+          else
+            git commit -m "chore(build): $commit_message"
+          fi
 
       # 推送到 build 分支
       - name: Push changes
@@ -87,9 +92,20 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           force_with_lease: true
 
+      - name: Create build zip
+        run: |
+          find . \( -path "./node_modules" -o -path "./.git" \) -prune -o -type f -print | zip -@ build.zip
+      
+      - name: Upload build.zip as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-zip
+          path: build.zip
+
       # 更新版本号
       - name: Run release-please
         uses: googleapis/release-please-action@v4
+        id: release_please
         with:
           release-type: node
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -97,3 +113,9 @@ jobs:
           version-file: package.json
           fork: false
           create-release: true
+
+      - name: Upload Release Artifact
+        if: ${{ steps.release_please.outputs.release_created }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload ${{ steps.release_please.outputs.tag_name }} build.zip
