@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.2](https://github.com/XasYer/YePanel/compare/v1.0.1...v1.0.2) (2024-10-03)
+
+
+### Bug Fixes
+
+* build ([14204e1](https://github.com/XasYer/YePanel/commit/14204e17609601a18ccce9ca29f308939febd224))
+
 ## [1.0.1](https://github.com/XasYer/YePanel/compare/v1.0.0...v1.0.1) (2024-10-03)
 
 
