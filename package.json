@@ -1,0 +1,31 @@
+{
+  "name": "YePanel",
+  "version": "0.0.1",
+  "main": "index.js",
+  "author": "XasYer",
+  "type": "module",
+  "scripts": {
+    "start": "node dist/index.js",
+    "dev": "ts-node src/index.ts",
+    "build": "tsc && tsc-alias && node path.js",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "multer": "1.4.5-lts.1",
+    "systeminformation": "^5.23.5"
+  },
+  "devDependencies": {
+    "@stylistic/eslint-plugin-ts": "^2.8.0",
+    "@types/express": "^5.0.0",
+    "@types/lodash": "^4.17.9",
+    "@types/multer": "^1.4.12",
+    "@types/node": "^20.11.19",
+    "@types/ws": "^8.5.10",
+    "@typescript-eslint/eslint-plugin": "^8.8.0",
+    "@typescript-eslint/parser": "^8.8.0",
+    "eslint": "^8.57.0",
+    "ts-node": "^10.9.2",
+    "tsc-alias": "^1.8.8",
+    "typescript": "^5.6.2"
+  }
+}
