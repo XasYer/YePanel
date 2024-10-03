@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "module": "ESNext",             
+    "target": "ESNext",             
+    "moduleResolution": "node",     
+    "outDir": "./lib",             
+    "rootDir": "./src",
+    "baseUrl": "./src", 
+    "strict": true,                 
+    "esModuleInterop": true,        
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "strictBindCallApply": true,
+    "paths": {
+      "@/*": ["*"],
+    }
+  },
+  "include": ["src/**/*", "globals.d.ts"],
+  "exclude": ["node_modules"]
+}

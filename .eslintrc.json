@@ -1,0 +1,40 @@
+{
+    "env": {
+        "es2021": true,
+        "node": true
+    },
+    "extends": [
+        "eslint:recommended",
+        "plugin:@typescript-eslint/recommended"
+    ],
+    "parser": "@typescript-eslint/parser",
+    "parserOptions": {
+        "ecmaVersion": "latest",
+        "sourceType": "module"
+    },
+    "plugins": [
+        "@typescript-eslint",
+        "@stylistic/ts"
+    ],
+    "globals": {
+        "Bot": true,
+        "redis": true,
+        "logger": true,
+        "plugin": true,
+        "Renderer": true,
+        "segment": true
+    },
+    "rules": {
+        "quotes": [
+            "error",
+            "single"
+        ],
+        "semi": [
+            "error",
+            "never"
+        ],
+        "space-infix-ops": "error",
+        "@stylistic/ts/type-annotation-spacing": "error",
+        "@typescript-eslint/ban-ts-comment": "off"
+    }
+}
