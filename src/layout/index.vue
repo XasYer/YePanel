@@ -31,6 +31,7 @@ import setting from "./components/setting/index.vue";
 import Vertical from "./components/sidebar/vertical.vue";
 import Horizontal from "./components/sidebar/horizontal.vue";
 import backTop from "@/assets/svg/back_top.svg?component";
+import { emitter } from "@/utils/mitt";
 
 const appWrapperRef = ref();
 const { isDark } = useDark();
@@ -154,11 +155,23 @@ const layoutHeader = defineComponent({
     );
   }
 });
+const ciallo = ref($storage.configure.ciallo);
+if (ciallo.value === undefined) {
+  const storageConfigure = $storage.configure;
+  storageConfigure.ciallo = true;
+  $storage.configure = storageConfigure;
+  ciallo.value = true;
+}
+emitter.on("tagViewsChange", (tag: string) => {
+  if (tag === "ciallo") {
+    ciallo.value = !ciallo.value;
+  }
+});
 const danmus = ref(Array.from({ length: 100 }, () => "Ciallo～(∠・ω< )⌒☆"));
 const danmakuRef = ref(null);
 window.addEventListener("click", () => {
   for (let i = 0; i < 10; i++) {
-    danmakuRef.value.push("Ciallo～(∠・ω< )⌒☆");
+    danmakuRef.value?.push("Ciallo～(∠・ω< )⌒☆");
   }
 });
 </script>
@@ -166,6 +179,7 @@ window.addEventListener("click", () => {
 <template>
   <div ref="appWrapperRef" :class="['app-wrapper', set.classes]">
     <vue-danmaku
+      v-if="ciallo"
       ref="danmakuRef"
       v-model:danmus="danmus"
       randomChannel

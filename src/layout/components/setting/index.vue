@@ -60,6 +60,7 @@ const markValue = ref($storage.configure?.showModel ?? "smart");
 const logoVal = ref($storage.configure?.showLogo ?? true);
 
 const settings = reactive({
+  ciallo: $storage.configure.ciallo,
   greyVal: $storage.configure.grey,
   weakVal: $storage.configure.weak,
   tabsVal: $storage.configure.hideTabs,
@@ -88,6 +89,12 @@ function storageConfigureChange<T>(key: string, val: T): void {
   storageConfigure[key] = val;
   $storage.configure = storageConfigure;
 }
+
+/** Ciallo～(∠・ω< )⌒☆ */
+const cialloChange = (value): void => {
+  storageConfigureChange("ciallo", value);
+  emitter.emit("tagViewsChange", "ciallo");
+};
 
 /** 灰色模式设置 */
 const greyChange = (value): void => {
@@ -447,6 +454,16 @@ onUnmounted(() => removeMatchMedia);
 
       <p class="mt-5 font-medium text-sm dark:text-white">界面显示</p>
       <ul class="setting">
+        <li>
+          <span class="dark:text-white">{{ "Ciallo～(∠・ω< )⌒☆" }}</span>
+          <el-switch
+            v-model="settings.ciallo"
+            inline-prompt
+            active-text="开"
+            inactive-text="关"
+            @change="cialloChange"
+          />
+        </li>
         <li>
           <span class="dark:text-white">灰色模式</span>
           <el-switch

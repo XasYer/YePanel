@@ -156,6 +156,7 @@ declare global {
       overallStyle?: string;
     };
     configure: {
+      ciallo?: boolean;
       grey?: boolean;
       weak?: boolean;
       hideTabs?: boolean;
