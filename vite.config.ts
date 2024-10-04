@@ -8,7 +8,6 @@ import {
   pathResolve,
   __APP_INFO__
 } from "./build/utils";
-import { getBaseUrlApi } from "@/api/utils";
 
 export default ({ mode }: ConfigEnv): UserConfigExport => {
   const { VITE_CDN, VITE_PORT, VITE_COMPRESSION, VITE_PUBLIC_PATH } =
