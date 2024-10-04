@@ -97,7 +97,8 @@
     "vue-tippy": "^6.4.1",
     "vue-types": "^5.1.1",
     "vue-web-terminal": "3",
-    "vue3-danmaku": "^1.6.1"
+    "vue3-danmaku": "^1.6.1",
+    "vue3-sfc-loader": "^0.9.5"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.3.0",

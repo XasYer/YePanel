@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { h, ref } from "vue";
-import "plus-pro-components/es/components/form/style/css";
 import {
   type PlusColumn,
   type FieldValues,

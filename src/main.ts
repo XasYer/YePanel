@@ -22,6 +22,9 @@ import "element-plus/dist/index.css";
 import "./assets/iconfont/iconfont.js";
 import "./assets/iconfont/iconfont.css";
 
+// 引入plus-pro-components样式
+import "plus-pro-components/es/components/form/style/css";
+
 const app = createApp(App);
 
 // 自定义指令

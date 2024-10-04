@@ -1,12 +1,12 @@
 <template>
   <div>
     <el-row :gutter="24">
-      <re-col
+      <el-col
         v-for="(item, index) in chartData"
         :key="index"
         v-motion
         class="mb-[18px]"
-        :value="4"
+        :xl="4"
         :sm="12"
         :xs="12"
         :initial="{
@@ -39,42 +39,24 @@
                     backgroundColor: isDark ? 'transparent' : item.bgColor
                   }"
                 >
-                  <!-- <IconifyIconOffline
-                  :icon="item.icon"
-                  :color="item.color"
-                  width="18"
-                /> -->
                   <span v-if="item.total">总计</span>
                 </div>
               </div>
               <div class="flex justify-between items-end mt-3">
                 <div class="w-1/2">
-                  <ReNormalCountTo
-                    :duration="2000"
-                    :fontSize="'1.6em'"
-                    :startVal="100"
-                    :endVal="item.value"
-                  />
-                  <!-- <p class="font-medium text-green-500">{{ item.percent }}</p> -->
+                  <div class="text-[1.6em]">{{ item.value }}</div>
                 </div>
                 <div>{{ item.total }}</div>
-                <!-- <ChartLine
-                v-if="item.data.length > 1"
-                class="!w-1/2"
-                :color="item.color"
-                :data="item.data"
-              />
-              <ChartRound v-else class="!w-1/2" /> -->
               </div>
             </template>
           </el-skeleton>
         </el-card>
-      </re-col>
+      </el-col>
 
-      <re-col
+      <el-col
         v-motion
         class="mb-[18px]"
-        :value="16"
+        :xl="16"
         :md="24"
         :xs="24"
         :sm="24"
@@ -95,7 +77,13 @@
             <template #default>
               <div class="flex justify-between">
                 <span class="text-md font-medium">最近用户量</span>
-                <Segmented v-model="curWeek" :options="optionsBasis" />
+                <el-segmented
+                  v-model="curWeek"
+                  :options="[
+                    { label: '7天', value: 0 },
+                    { label: '30天', value: 1 }
+                  ]"
+                />
               </div>
               <div class="flex justify-between items-start mt-3">
                 <ChartBar
@@ -121,12 +109,12 @@
             </template>
           </el-skeleton>
         </el-card>
-      </re-col>
+      </el-col>
 
-      <re-col
+      <el-col
         v-motion
         class="mb-[18px]"
-        :value="8"
+        :xl="8"
         :xs="24"
         :md="24"
         :sm="24"
@@ -168,14 +156,14 @@
             </div>
           </div>
         </el-card>
-      </re-col>
+      </el-col>
 
-      <re-col
+      <el-col
         v-for="i in systemInfo.visual"
         :key="i.title"
         v-motion
         class="mb-[18px]"
-        :value="3"
+        :xl="3"
         :md="12"
         :sm="12"
         :xs="12"
@@ -233,12 +221,12 @@
             </template>
           </el-skeleton>
         </el-card>
-      </re-col>
+      </el-col>
 
-      <re-col
+      <el-col
         v-motion
         class="mb-[18px]"
-        :value="5"
+        :xl="5"
         :md="12"
         :sm="12"
         :xs="12"
@@ -302,12 +290,12 @@
             </template>
           </el-skeleton>
         </el-card>
-      </re-col>
+      </el-col>
 
-      <re-col
+      <el-col
         v-motion
         class="mb-[18px]"
-        :value="4"
+        :xl="4"
         :md="12"
         :sm="12"
         :xs="12"
@@ -356,20 +344,15 @@
             </template>
           </el-skeleton>
         </el-card>
-      </re-col>
+      </el-col>
     </el-row>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, markRaw } from "vue";
-import ReCol from "@/components/ReCol";
 import { useDark, randomGradient } from "./utils";
-import WelcomeTable from "./components/table/index.vue";
-import { ReNormalCountTo } from "@/components/ReCountTo";
-import { useRenderFlicker } from "@/components/ReFlicker";
-import { ChartBar, ChartLine, ChartRound, ChartPie } from "./components/charts";
-import Segmented, { type OptionsType } from "@/components/ReSegmented";
+import { ChartBar, ChartPie } from "./components/charts";
 import { getChartData } from "./data";
 import { getSystemInfo, getSystemInfoResult } from "@/api/home";
 
@@ -410,14 +393,6 @@ defineOptions({
 const { isDark } = useDark();
 
 let curWeek = ref(0); // 0: 7天、1: 30天
-const optionsBasis: Array<OptionsType> = [
-  {
-    label: "7天"
-  },
-  {
-    label: "30天"
-  }
-];
 
 // 滚动条 6px
 const increaseScrollbarWidth = (event: any) => {

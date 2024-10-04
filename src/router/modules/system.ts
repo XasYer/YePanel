@@ -3,7 +3,8 @@ export default {
   name: "system",
   meta: {
     title: "系统",
-    icon: "icon-park-solid:system"
+    icon: "icon-park-solid:system",
+    rank: 1
   },
   children: [
     {
