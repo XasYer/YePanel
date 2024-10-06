@@ -1,1 +1,1 @@
-## QQBot-Plugin WebUI
+## YePanel WebUI

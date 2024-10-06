@@ -14,6 +14,7 @@ import NProgress from "../progress";
 import { getToken, formatToken } from "@/utils/auth";
 import { useUserStoreHook } from "@/store/modules/user";
 import { message } from "../message";
+import { getBaseUrlApi } from "@/api/utils";
 
 // 相关配置请参考：www.axios-js.com/zh-cn/docs/#axios-request-config-1
 const defaultConfig: AxiosRequestConfig = {
@@ -146,11 +147,6 @@ class PureHttp {
     );
   }
 
-  /** 设置基础 URL */
-  public setBaseURL(url: string): void {
-    PureHttp.axiosInstance.defaults.baseURL = url;
-  }
-
   /** 通用请求工具函数 */
   public request<T>(
     method: RequestMethods,
@@ -161,6 +157,7 @@ class PureHttp {
     const config = {
       method,
       url,
+      baseURL: getBaseUrlApi(),
       ...param,
       ...axiosConfig
     } as PureHttpRequestConfig;

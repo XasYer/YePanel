@@ -5,7 +5,6 @@ import NProgress from "@/utils/progress";
 import { buildHierarchyTree } from "@/utils/tree";
 import remainingRouter from "./modules/remaining";
 import { useUserStoreHook } from "@/store/modules/user";
-import { http } from "@/utils/http";
 import { useMultiTagsStoreHook } from "@/store/modules/multiTags";
 import { usePermissionStoreHook } from "@/store/modules/permission";
 import { isUrl, openLink, storageLocal, isAllEmpty } from "@pureadmin/utils";
@@ -32,6 +31,8 @@ import {
   removeToken,
   multipleTabsKey
 } from "@/utils/auth";
+import { useCodeStoreHook } from "@/store/modules/code";
+const codeStore = useCodeStoreHook();
 
 /** 自动导入全部静态路由，无需再手动引入！匹配 src/router/modules 目录（任何嵌套级别）中具有 .ts 扩展名的所有文件，除了 remaining.ts 文件
  * 如何匹配所有文件请看：https://github.com/mrmlnc/fast-glob#basic-syntax
@@ -117,9 +118,9 @@ router.beforeEach((to: ToRouteType, _from, next) => {
     }
   }
   if (isFirstVisit) {
-    console.log('首次访问页面,需要重新登录');
-    // http.setBaseURL('http://127.0.0.1:2536/');
-    useUserStoreHook().logOut()
+    console.log("首次访问页面,需要重新登录");
+    codeStore.clearData();
+    useUserStoreHook().logOut();
     isFirstVisit = false;
   }
   const userInfo = storageLocal().getItem<DataInfo<number>>(userKey);

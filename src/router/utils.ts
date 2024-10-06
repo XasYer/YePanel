@@ -22,6 +22,7 @@ import { userKey, type DataInfo } from "@/utils/auth";
 import { type menuType, routerArrays } from "@/layout/types";
 import { useMultiTagsStoreHook } from "@/store/modules/multiTags";
 import { usePermissionStoreHook } from "@/store/modules/permission";
+import { useCodeStoreHook } from "@/store/modules/code";
 const IFrame = () => import("@/layout/frameView.vue");
 // https://cn.vitejs.dev/guide/features.html#glob-import
 const modulesRoutes = import.meta.glob("/src/views/**/*.{vue,tsx}");
@@ -189,6 +190,8 @@ function handleAsyncRoutes(routeList) {
   addPathMatch();
 }
 
+const codeStore = useCodeStoreHook();
+
 /** 初始化路由（`new Promise` 写法防止在异步请求中造成无限循环）*/
 function initRouter() {
   if (getConfig()?.CachingAsyncRoutes) {
@@ -212,7 +215,17 @@ function initRouter() {
   } else {
     return new Promise(resolve => {
       getAsyncRoutes().then(({ data }) => {
-        handleAsyncRoutes(cloneDeep(data));
+        const router = {
+          path: "/plugin",
+          name: "plugin",
+          meta: {
+            title: "插件",
+            icon: "clarity:plugin-solid"
+          },
+          children: cloneDeep(data.router)
+        };
+        codeStore.setData(data.code);
+        handleAsyncRoutes([router]);
         resolve(router);
       });
     });

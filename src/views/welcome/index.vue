@@ -2,163 +2,6 @@
   <div>
     <el-row :gutter="24">
       <el-col
-        v-for="(item, index) in chartData"
-        :key="index"
-        v-motion
-        class="mb-[18px]"
-        :xl="4"
-        :sm="12"
-        :xs="12"
-        :initial="{
-          opacity: 0,
-          y: 100
-        }"
-        :enter="{
-          opacity: 1,
-          y: 0,
-          transition: {
-            delay: 80 * (index + 1)
-          }
-        }"
-      >
-        <el-card class="line-card" shadow="never">
-          <el-skeleton
-            :loading="!item.name"
-            animated
-            :rows="1"
-            style="height: 82px"
-          >
-            <template #default>
-              <div class="flex justify-between">
-                <span class="text-md font-medium">
-                  {{ item.name }}
-                </span>
-                <div
-                  class="w-8 h-8 flex justify-center items-center rounded-md"
-                  :style="{
-                    backgroundColor: isDark ? 'transparent' : item.bgColor
-                  }"
-                >
-                  <span v-if="item.total">总计</span>
-                </div>
-              </div>
-              <div class="flex justify-between items-end mt-3">
-                <div class="w-1/2">
-                  <div class="text-[1.6em]">{{ item.value }}</div>
-                </div>
-                <div>{{ item.total }}</div>
-              </div>
-            </template>
-          </el-skeleton>
-        </el-card>
-      </el-col>
-
-      <el-col
-        v-motion
-        class="mb-[18px]"
-        :xl="16"
-        :md="24"
-        :xs="24"
-        :sm="24"
-        :initial="{
-          opacity: 0,
-          y: 100
-        }"
-        :enter="{
-          opacity: 1,
-          y: 0,
-          transition: {
-            delay: 400
-          }
-        }"
-      >
-        <el-card class="bar-card" shadow="never">
-          <el-skeleton :loading="!weekChartData.length" animated>
-            <template #default>
-              <div class="flex justify-between">
-                <span class="text-md font-medium">最近用户量</span>
-                <el-segmented
-                  v-model="curWeek"
-                  :options="[
-                    { label: '7天', value: 0 },
-                    { label: '30天', value: 1 }
-                  ]"
-                />
-              </div>
-              <div class="flex justify-between items-start mt-3">
-                <ChartBar
-                  :userData="weekChartData[curWeek]?.userData"
-                  :groupData="weekChartData[curWeek]?.groupData"
-                  :weekData="weekChartData[curWeek]?.weekData"
-                  :receiveMsgData="weekChartData[curWeek]?.receiveMsgData"
-                  :sendMsgData="weekChartData[curWeek]?.sendMsgData"
-                />
-              </div>
-            </template>
-            <template #template>
-              <el-skeleton-item
-                variant="h1"
-                class="mb-[40px]"
-                style="width: 10%"
-              />
-              <el-skeleton-item
-                variant="rect"
-                class="mb-[30px]"
-                style="width: 100%; height: 300px"
-              />
-            </template>
-          </el-skeleton>
-        </el-card>
-      </el-col>
-
-      <el-col
-        v-motion
-        class="mb-[18px]"
-        :xl="8"
-        :xs="24"
-        :md="24"
-        :sm="24"
-        :initial="{
-          opacity: 0,
-          y: 100
-        }"
-        :enter="{
-          opacity: 1,
-          y: 0,
-          transition: {
-            delay: 480
-          }
-        }"
-      >
-        <el-card shadow="never">
-          <el-skeleton v-if="!callStat" animated>
-            <template #template>
-              <el-skeleton-item
-                class="mb-[40px]"
-                variant="h1"
-                style="width: 20%"
-              />
-              <div class="flex justify-center">
-                <el-skeleton-item
-                  variant="circle"
-                  class="mb-[30px] flex mt-2"
-                  style="width: 300px; height: 300px"
-                />
-              </div>
-            </template>
-          </el-skeleton>
-          <div v-show="callStat">
-            <div class="flex justify-between">
-              <span class="text-md font-medium">调用统计</span>
-            </div>
-            <div class="flex justify-between items-start mt-3">
-              <ChartPie :chartData="callStat" :loading="!callStat" />
-            </div>
-          </div>
-        </el-card>
-      </el-col>
-
-      <el-col
         v-for="i in systemInfo.visual"
         :key="i.title"
         v-motion
@@ -350,34 +193,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, markRaw } from "vue";
-import { useDark, randomGradient } from "./utils";
-import { ChartBar, ChartPie } from "./components/charts";
-import { getChartData } from "./data";
+import { ref } from "vue";
 import { getSystemInfo, getSystemInfoResult } from "@/api/home";
 
-const chartData = ref<any>(Array.from({ length: 6 }, (_, index) => ({})));
-
-const weekChartData = ref<
-  {
-    userData: number[];
-    groupData: number[];
-    weekData: string[];
-    receiveMsgData: number[];
-    sendMsgData: number[];
-  }[]
->([]);
-const callStat = ref(null);
 const systemInfo = ref<getSystemInfoResult["data"]>({
   visual: Array.from({ length: 5 }, (_, index) => ({})) as any,
   fsSize: [],
   info: []
-});
-
-getChartData().then(res => {
-  chartData.value = res.chartData;
-  weekChartData.value = res.weekData;
-  callStat.value = res.callStat;
 });
 
 getSystemInfo().then(res => {
@@ -389,10 +211,6 @@ getSystemInfo().then(res => {
 defineOptions({
   name: "Welcome"
 });
-
-const { isDark } = useDark();
-
-let curWeek = ref(0); // 0: 7天、1: 30天
 
 // 滚动条 6px
 const increaseScrollbarWidth = (event: any) => {
