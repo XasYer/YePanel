@@ -1,11 +1,11 @@
 import fs from 'fs'
-import { getToken } from '@/login'
+import { getToken } from '@/api/login'
 import { join, dirname, basename } from 'path'
-import { pluginPath } from '@/utils'
+import { version } from '@/common'
 import type { httpRoute, wsRoute } from '@/types/route'
 
-const httpPath = '/qqbot'
-const wsPath = 'qqbot'
+const httpPath = '/YePanel'
+const wsPath = 'YePanel'
 const corsOptions = {
   'Access-Control-Allow-Methods': 'GET, POST, OPTIONS, PUT, PATCH, DELETE',
   'Access-Control-Allow-Headers': 'X-Requested-With,content-type,authorization',
@@ -53,7 +53,27 @@ async function loadRoutes (directory: string) {
   }
 }
 
-await loadRoutes(join(pluginPath, 'lib'))
+const srcPath = process.env.npm_lifecycle_event === 'dev' ? 'src' : 'lib'
+
+await loadRoutes(join(version.pluginPath, srcPath, 'api'))
+
+// 先用TRSS的express
+const pluginList = fs.readdirSync(`${version.BotPath}/plugins`)
+for (const plugin of pluginList) {
+  const pluginPath = join(version.BotPath, 'plugins', plugin)
+  const YePanelPath = join(pluginPath, 'YePanel')
+  if (fs.statSync(pluginPath).isDirectory() && fs.existsSync(YePanelPath)) {
+    try {
+      const option = (await import(`file://${join(YePanelPath, 'index.js')}?t=${Date.now()}`)).default
+      if (option.api?.length) {
+        for (const i of option.api) {
+          i.url = `/${plugin}${i.url}`
+          httpRoutes.push(i)
+        }
+      }
+    } catch { /* empty */ }
+  }
+}
 
 if (!Array.isArray(Bot.wsf[wsPath])) { Bot.wsf[wsPath] = [] }
 
@@ -71,7 +91,6 @@ for (const i of httpRoutes) {
         res.status(401).send('Unauthorized')
         return
       }
-      req.body.uin = String(uin)
       next()
     },
     (i.handler ? i.handler : (_req, _res, next) => next()),

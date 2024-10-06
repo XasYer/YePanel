@@ -1,10 +1,9 @@
 import fs from 'fs'
 import multer from 'multer'
-// @ts-ignore
 import moment from 'moment'
 import { join, dirname } from 'path'
 import { httpRoute } from '@/types/route'
-import { yunzaiPath, formatBytes } from '@/utils'
+import { utils, version } from '@/common'
 
 const formatTime = (time: Date | number) => moment(time).utcOffset(8).format('YYYY/MM/DD HH:mm')
 
@@ -17,7 +16,7 @@ export default {
       response: ({ body }) => {
         let { path } = body
         if (!path) {
-          path = yunzaiPath
+          path = version.BotPath
         }
         path = path.replace(/\\/g, '/')
         const parentPath = join(path, '..').replace(/\\/g, '/')
@@ -50,7 +49,7 @@ export default {
                 path: filePath,
                 ext: isDir ? 'folder' : name.split('.').pop() as string,
                 isDir,
-                size: isDir ? '' : formatBytes(stat.size),
+                size: isDir ? '' : utils.formatBytes(stat.size),
                 rowSize: isDir ? 0 : stat.size,
                 time: formatTime(stat.mtime),
                 mtimeMs: stat.mtimeMs
@@ -80,7 +79,7 @@ export default {
             name: file!.originalname,
             path: file!.path,
             ext: file!.originalname.split('.').pop(),
-            size: formatBytes(file!.size),
+            size: utils.formatBytes(file!.size),
             rowSize: file!.size,
             time: formatTime(Date.now()),
             mtimeMs: Date.now(),
@@ -125,7 +124,7 @@ export default {
                 path: newName,
                 ext: isDir ? 'folder' : name.split('.').pop(),
                 isDir,
-                size: isDir ? '' : formatBytes(stat.size),
+                size: isDir ? '' : utils.formatBytes(stat.size),
                 rowSize: isDir ? 0 : stat.size,
                 time: formatTime(stat.mtime),
                 mtimeMs: stat.mtimeMs

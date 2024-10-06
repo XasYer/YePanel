@@ -1,7 +1,6 @@
 import _ from 'lodash'
-// @ts-ignore
 import moment from 'moment'
-import { getToken } from '@/login'
+import { tokenAuth } from '@/api/login'
 import { wsRoute } from '@/types/route'
 import { WebSocket } from 'ws'
 
@@ -49,14 +48,11 @@ export default {
     {
       url: '/realtimeLog',
       function: (ws, req) => {
-        if (req.headers?.['sec-websocket-protocol']) {
-          const [accessToken, uin] = req.headers['sec-websocket-protocol'].split('.')
-          if (accessToken !== getToken(uin)) {
-            ws.send('Authentication failed.')
-            ws.close()
-          } else {
-            logMethods.forEach((method) => proxyLogger(method, ws))
-          }
+        if (!tokenAuth(req.headers['sec-websocket-protocol'] || '')) {
+          ws.send('Authentication failed.')
+          ws.close()
+        } else {
+          logMethods.forEach((method) => proxyLogger(method, ws))
         }
         ws.on('message', message => {
           let data

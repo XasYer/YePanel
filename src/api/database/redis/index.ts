@@ -1,5 +1,5 @@
 import { httpRoute } from '@/types/route'
-import { formatDuration } from '@/utils'
+import { utils } from '@/common'
 
 type treeNode = {
   label: string
@@ -94,7 +94,7 @@ export default {
             redisInfo[key.trim()] = value.trim()
           }
         })
-        redisInfo.uptime_formatted = formatDuration(Number(redisInfo.uptime_in_seconds))
+        redisInfo.uptime_formatted = utils.formatDuration(Number(redisInfo.uptime_in_seconds))
         return {
           success: true,
           data: redisInfo

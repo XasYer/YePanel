@@ -2,9 +2,10 @@ import fs from 'fs'
 import os from 'os'
 import { join, resolve } from 'path'
 import { ChildProcessWithoutNullStreams, spawn } from 'child_process'
-import { getToken } from '@/login'
+import { tokenAuth } from '@/api/login'
 import { wsRoute } from '@/types/route'
 import { WebSocket } from 'ws'
+import iconv from 'iconv-lite'
 
 function executeCommand (command: string, args: string[], ws: WebSocket, workingDirectory = './') {
   const isWindows = os.platform() === 'win32'
@@ -27,11 +28,11 @@ function executeCommand (command: string, args: string[], ws: WebSocket, working
     shell
   })
   if (res?.stdout && res?.stderr) {
-    res.stdout.on('data', (data) => {
-      ws.send(JSON.stringify({ type: 'output', content: data.toString(), origin: { command, args } }))
+    res.stdout.on('data', (data: Buffer) => {
+      ws.send(JSON.stringify({ type: 'output', content: iconv.decode(data, 'gbk'), origin: { command, args } }))
     })
     res.stderr.on('data', (data) => {
-      ws.send(JSON.stringify({ type: 'error', content: data.toString(), origin: { command, args } }))
+      ws.send(JSON.stringify({ type: 'error', content: iconv.decode(data, 'gbk'), origin: { command, args } }))
     })
     res.on('error', (error) => {
       ws.send(JSON.stringify({ type: 'error', content: `Error: ${error.message}`, origin: { command, args } }))
@@ -49,14 +50,13 @@ export default {
       url: '/terminal',
       function: (ws, req) => {
         let childProcess: ChildProcessWithoutNullStreams | null = null
-        if (req.headers?.['sec-websocket-protocol']) {
-          const [accessToken, uin] = req.headers['sec-websocket-protocol'].split('.')
-          if (accessToken !== getToken(uin)) {
-            ws.send('Authentication failed.')
-            ws.close()
-          } else {
-            ws.send(JSON.stringify({ type: 'directory', content: process.cwd() }))
-          }
+        if (!tokenAuth(req.headers['sec-websocket-protocol'] || '')) {
+          ws.send('Authentication failed.')
+          ws.close()
+        } else {
+          ws.send(JSON.stringify({ type: 'directory', content: process.cwd() }))
+          // 第一次的ls有异常, 不知道别的会不会
+          executeCommand('ls', [], ({ send: () => {} } as unknown as WebSocket))
         }
         ws.on('message', message => {
           let data

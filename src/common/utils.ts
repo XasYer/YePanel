@@ -1,12 +1,4 @@
-// @ts-ignore
 import moment, { type unitOfTime } from 'moment'
-import { dirname, join } from 'path'
-import { fileURLToPath } from 'url'
-
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = dirname(__filename)
-export const pluginPath = join(__dirname, '..')
-export const yunzaiPath = join(pluginPath, '../..')
 
 export function formatBytes (bytes: number) {
   if (bytes === 0) return '0 B'

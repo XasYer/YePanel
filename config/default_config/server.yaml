@@ -1,0 +1,16 @@
+# 端口
+# 若是TRSS则会使用TRSS的端口 http://ip:TRSSProt/YePanel
+# 否则就是 http://ip:port
+port: 2877
+
+# 密码
+# default对应的账号为Bot.uin, 此时会使用对应Bot的头像和名称
+# 也可以自定义账号 key是对应的账号，password是密码，nickname是昵称，avatarUrl是头像链接，enable是是否启用该账号
+password:
+  default:
+    password: "123456"
+  admin:
+    password: "123456"
+    nickname: 管理员
+    avatarUrl: https://q.qlogo.cn/g?b=qq&s=0&nk=3889000138
+    enable: false
