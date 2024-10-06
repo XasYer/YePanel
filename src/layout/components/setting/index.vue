@@ -93,7 +93,7 @@ function storageConfigureChange<T>(key: string, val: T): void {
 /** Ciallo～(∠・ω< )⌒☆ */
 const cialloChange = (value): void => {
   storageConfigureChange("ciallo", value);
-  emitter.emit("tagViewsChange", "ciallo");
+  emitter.emit("changCiallo", value);
 };
 
 /** 灰色模式设置 */

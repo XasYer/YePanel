@@ -162,10 +162,8 @@ if (ciallo.value === undefined) {
   $storage.configure = storageConfigure;
   ciallo.value = true;
 }
-emitter.on("tagViewsChange", (tag: string) => {
-  if (tag === "ciallo") {
-    ciallo.value = !ciallo.value;
-  }
+emitter.on("changCiallo", (flag: boolean) => {
+  ciallo.value = !ciallo.value;
 });
 const danmus = ref(Array.from({ length: 100 }, () => "Ciallo～(∠・ω< )⌒☆"));
 const danmakuRef = ref(null);
