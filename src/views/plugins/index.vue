@@ -37,6 +37,8 @@ import * as utils from "@pureadmin/utils";
 import * as echarts from "echarts";
 import { PureHttpRequestConfig, RequestMethods } from "@/utils/http/types";
 import { AxiosRequestConfig } from "axios";
+import { IconifyIconOnline } from "@/components/ReIcon";
+
 const codeStore = useCodeStoreHook();
 const route = useRoute();
 
@@ -68,7 +70,8 @@ const moduleCache = {
   echarts: echarts,
   "@message": message,
   "@addDialog": addDialog,
-  "@pureadmin/utils": utils
+  "@pureadmin/utils": utils,
+  iconify: IconifyIconOnline
 };
 
 const componentCount = Object.keys(
