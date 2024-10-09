@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/XasYer/YePanel/compare/v1.1.0...v1.2.0) (2024-10-09)
+
+
+### Features
+
+* 适配guoba.support.js ([04353eb](https://github.com/XasYer/YePanel/commit/04353eb93b00c333c8dae1b917c4b9ca1f74c6e1))
+
 ## [1.1.0](https://github.com/XasYer/YePanel/compare/v1.0.2...v1.1.0) (2024-10-06)
 
 
