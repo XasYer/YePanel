@@ -224,7 +224,7 @@ function initRouter() {
           },
           children: cloneDeep(data.router)
         };
-        codeStore.setData(data.code);
+        codeStore.setData(data as any);
         handleAsyncRoutes([router]);
         resolve(router);
       });

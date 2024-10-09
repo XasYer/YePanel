@@ -2,10 +2,17 @@ import { defineStore } from "pinia";
 import { store } from "../utils";
 
 type stateType = {
-  data: {
+  code: {
     [key: string]: {
       main: string[];
       components: string[];
+    };
+  };
+  guoba: {
+    [key: string]: {
+      pluginInfo: any;
+      schemas: any;
+      data: any;
     };
   };
 };
@@ -13,18 +20,25 @@ type stateType = {
 export const useCodeStore = defineStore({
   id: "code",
   state: (): stateType => ({
-    data: sessionStorage.getItem("data")
+    code: sessionStorage.getItem("data")
       ? JSON.parse(sessionStorage.getItem("data"))
+      : {},
+    guoba: sessionStorage.getItem("guoba")
+      ? JSON.parse(sessionStorage.getItem("guoba"))
       : {}
   }),
   actions: {
-    setData(data: stateType["data"]) {
-      this.data = data;
-      sessionStorage.setItem("data", JSON.stringify(data));
+    setData(data: stateType) {
+      this.code = data.code;
+      this.guoba = data.guoba;
+      sessionStorage.setItem("plugin.code", JSON.stringify(data.code));
+      sessionStorage.setItem("plugin,guoba", JSON.stringify(data.guoba));
     },
     clearData() {
-      this.data = "";
-      sessionStorage.removeItem("data");
+      this.code = {};
+      this.guoba = {};
+      sessionStorage.removeItem("plugin.code");
+      sessionStorage.removeItem("plugin,guoba");
     }
   }
 });

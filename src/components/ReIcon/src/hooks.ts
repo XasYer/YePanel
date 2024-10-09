@@ -44,6 +44,26 @@ export function useRenderIcon(icon: any, attrs?: iconType): Component {
         });
       }
     });
+  } else if (icon.startsWith("http")) {
+    return defineComponent({
+      name: "OnlineIcon",
+      render() {
+        return h("img", {
+          src: icon,
+          style: "width: 18px"
+        });
+      }
+    });
+  } else if (icon.startsWith("data:image")) {
+    return defineComponent({
+      name: "OnlineIcon",
+      render() {
+        return h("img", {
+          src: icon,
+          style: "width: 18px"
+        });
+      }
+    });
   } else {
     // 通过是否存在 : 符号来判断是在线还是本地图标，存在即是在线图标，反之
     return defineComponent({

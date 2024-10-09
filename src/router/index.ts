@@ -105,7 +105,6 @@ export function resetRouter() {
 
 /** 路由白名单 */
 const whiteList = ["/login"];
-let isFirstVisit = true;
 
 const { VITE_HIDE_HOME } = import.meta.env;
 
@@ -116,12 +115,6 @@ router.beforeEach((to: ToRouteType, _from, next) => {
     if (_from.name === undefined || _from.name === "Redirect") {
       handleAliveRoute(to);
     }
-  }
-  if (isFirstVisit) {
-    console.log("首次访问页面,需要重新登录");
-    codeStore.clearData();
-    useUserStoreHook().logOut();
-    isFirstVisit = false;
   }
   const userInfo = storageLocal().getItem<DataInfo<number>>(userKey);
   NProgress.start();

@@ -75,7 +75,7 @@ const moduleCache = {
 };
 
 const componentCount = Object.keys(
-  codeStore.data[pluginName].components
+  codeStore.code[pluginName].components
 ).length;
 const loadedComponentCount = ref(0);
 
@@ -83,7 +83,7 @@ const loadModuleAsync = (fileName: string, target: "components" | "main") => {
   return new Promise((resolve, reject) => {
     loadModule(fileName, {
       getFile: (name: string) => {
-        return codeStore.data[pluginName][target][name.replace(/.vue$/, "")];
+        return codeStore.code[pluginName][target][name.replace(/.vue$/, "")];
       },
       moduleCache,
       addStyle(textContent: string) {
@@ -121,7 +121,7 @@ const loadModuleAsync = (fileName: string, target: "components" | "main") => {
 };
 
 const loadModulesInSequence = async () => {
-  for (const key in codeStore.data[pluginName].components) {
+  for (const key in codeStore.code[pluginName].components) {
     console.log("key", key);
     try {
       await loadModuleAsync(`${key}.vue`, "components");
@@ -142,11 +142,13 @@ watch(loadedComponentCount, () => {
   console.log("componentCount", componentCount);
   if (loadedComponentCount.value === componentCount) {
     console.log("moduleCache", moduleCache);
-    loadModuleAsync(`${route.name.toString()}.vue`, "main").then(component => {
-      console.log("compSuccess");
-      loading.value = false;
-      comp.value = component;
-    });
+    loadModuleAsync(`${route.name.toString().split("/")[1]}.vue`, "main").then(
+      component => {
+        console.log("compSuccess");
+        loading.value = false;
+        comp.value = component;
+      }
+    );
   }
 });
 
@@ -165,5 +167,5 @@ onErrorCaptured((err, vm, info) => {
   return false;
 });
 
-console.log("code", codeStore.data[pluginName]);
+console.log("code", codeStore.code[pluginName]);
 </script>

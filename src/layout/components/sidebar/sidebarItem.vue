@@ -15,12 +15,14 @@ import {
   computed,
   useAttrs
 } from "vue";
+import { useCodeStoreHook } from "@/store/modules/code";
 
 import ArrowUp from "@iconify-icons/ep/arrow-up-bold";
 import EpArrowDown from "@iconify-icons/ep/arrow-down-bold";
 import ArrowLeft from "@iconify-icons/ep/arrow-left-bold";
 import ArrowRight from "@iconify-icons/ep/arrow-right-bold";
 
+const codeStore = useCodeStoreHook();
 const attrs = useAttrs();
 const { layout, isCollapse, tooltipEffect, getDivStyle } = useNav();
 
@@ -102,6 +104,14 @@ function resolvePath(routePath) {
     return path.posix.resolve(props.basePath, routePath);
   }
 }
+
+const getIconAttrs = (name: string) => {
+  const iconColor = codeStore.guoba[name]?.pluginInfo?.iconColor;
+  if (iconColor) {
+    return { color: iconColor };
+  }
+  return undefined;
+};
 </script>
 
 <template>
@@ -127,7 +137,8 @@ function resolvePath(routePath) {
           :is="
             useRenderIcon(
               toRaw(onlyOneChild.meta.icon) ||
-                (props.item.meta && toRaw(props.item.meta.icon))
+                (props.item.meta && toRaw(props.item.meta.icon)),
+              getIconAttrs(props.item.name)
             )
           "
         />
