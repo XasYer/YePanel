@@ -23,6 +23,8 @@ declare global {
     wsf: {
       [key: string]: Array<(ws: WebSocket, req: Request, socket: internal.Duplex, head: Buffer) => void>;
     };
+    gl: Map<string, {[key: string]: any}>;
+    fl: Map<string, {[key: string]: any}>;
     [key: string]: {
       adapter: { name: string}
       avatar: string
