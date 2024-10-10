@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.0](https://github.com/XasYer/YePanel/compare/v1.2.0...v1.3.0) (2024-10-10)
+
+
+### Features
+
+* sqlite数据库查看 ([673590b](https://github.com/XasYer/YePanel/commit/673590b5f088394b2dd208b05927a3cd29f72972))
+
 ## [1.2.0](https://github.com/XasYer/YePanel/compare/v1.1.0...v1.2.0) (2024-10-09)
 
 
