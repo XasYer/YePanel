@@ -178,3 +178,97 @@ export const deleteRedisKeys = (keys: string[]) => {
     data: { keys }
   });
 };
+
+export type getSqlitePathResult = {
+  success: boolean;
+  data: string[];
+};
+
+/** 获取sqlite的db文件路径 */
+export const getSqlitePath = () => {
+  return http.request<getSqlitePathResult>("post", "/get-sqlite-path");
+};
+
+/** 获取指定路径的sqlite的所有表名 */
+export const getSqliteTable = (path: string) => {
+  return http.request<getSqlitePathResult>("post", "/get-sqlite-table", {
+    data: { path }
+  });
+};
+
+export type getSqliteTableDataResult = {
+  success: boolean;
+  data: {
+    [key: string]: any;
+  }[];
+  total: number;
+  tableInfo: {
+    [key: string]: {
+      pk: 0 | 1;
+      name: string;
+      type: string;
+      notnull: 0 | 1;
+      dflt_value: string;
+      autoincrement: boolean;
+    };
+  };
+};
+
+/** 获取指定路径的sqlite的指定表的数据 */
+export const getSqliteTableData = (
+  path: string,
+  table: string,
+  pageNum: number,
+  pageSize: number,
+  search: string
+) => {
+  return http.request<getSqliteTableDataResult>(
+    "post",
+    "/get-sqlite-table-data",
+    {
+      data: { path, table, pageSize, pageNum, search }
+    }
+  );
+};
+
+export type setSqliteTableDataResult = {
+  success: boolean;
+  data: any;
+  message?: string;
+};
+
+/** 设置或添加表的数据 */
+export const setSqliteTableData = (
+  path: string,
+  table: string,
+  data: { [key: string]: any }
+) => {
+  return http.request<setSqliteTableDataResult>(
+    "post",
+    "/set-sqlite-table-data",
+    {
+      data: { path, table, data }
+    }
+  );
+};
+
+export type deleteSqliteTableDataResult = {
+  success: boolean;
+  data: any;
+  message?: string;
+};
+
+/** 删除指定路径的sqlite的指定表的数据 */
+export const deleteSqliteTableData = (
+  path: string,
+  table: string,
+  data: { [key: string]: any }
+) => {
+  return http.request<deleteSqliteTableDataResult>(
+    "post",
+    "/delete-sqlite-table-data",
+    {
+      data: { path, table, data }
+    }
+  );
+};

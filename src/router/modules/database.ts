@@ -15,8 +15,16 @@ export default {
       component: () => import("@/views/database/redis/index.vue"),
       meta: {
         title: "redis",
-        showParent: true,
         icon: "cib:redis"
+      }
+    },
+    {
+      path: "/database/sqlite",
+      name: "sqlite",
+      component: () => import("@/views/database/sqlite/index.vue"),
+      meta: {
+        title: "sqlite",
+        icon: "file-icons:sqlite"
       }
     }
   ]
