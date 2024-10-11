@@ -19,7 +19,7 @@ export async function startServer () {
   await fastify.register(fastifyWebSocket)
   await fastify.register(fastifyMultipart)
   
-  function verifyToken(request:FastifyRequest , reply: FastifyReply, done: (error?: Error | undefined) => void) {
+  function verifyToken(request: FastifyRequest, reply: FastifyReply, done: (error?: Error | undefined) => void) {
     const token = request.headers['authorization'] || request.headers['sec-websocket-protocol'] || (request.query as {accessToken?: string})?.accessToken || ''
   
     if (tokenAuth(token.replace('Bearer ', ''))) {

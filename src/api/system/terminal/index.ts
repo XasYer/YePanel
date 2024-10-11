@@ -50,11 +50,9 @@ export default [
     handler: () => 'Ciallo～(∠・ω< )⌒☆',
     wsHandler: (connection) => {
       let childProcess: ChildProcessWithoutNullStreams | null = null
-      connection.on('open', () => {
-        connection.send(JSON.stringify({ type: 'directory', content: process.cwd() }))
-        // 第一次的ls有异常, 不知道别的会不会
-        executeCommand('ls', [], ({ send: () => {} } as unknown as WebSocket))
-      })
+      connection.send(JSON.stringify({ type: 'directory', content: process.cwd() }))
+      // 第一次的ls有异常, 不知道别的会不会
+      executeCommand('ls', [], ({ send: () => {} } as unknown as WebSocket))
       connection.on('message', message => {
         let data
         try {
