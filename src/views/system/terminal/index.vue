@@ -55,6 +55,7 @@ const authPass = ref(false);
 
 const socket = ref<WebSocket>(null);
 const flash = ref();
+const timer = ref<NodeJS.Timeout>();
 
 const onExecCmd = (
   key: string,
@@ -116,7 +117,7 @@ const onExecCmd = (
         });
         success();
         // 心跳
-        setInterval(() => {
+        timer.value = setInterval(() => {
           socket.value.send(
             JSON.stringify({
               time: Math.floor(Date.now() / 1000),
@@ -136,6 +137,8 @@ const onExecCmd = (
         socket.value = null;
       },
       onclose: event => {
+        clearInterval(timer.value);
+        timer.value = null;
         terminalRef.value.pushMessage({
           type: "normal",
           content: "终端已关闭！",

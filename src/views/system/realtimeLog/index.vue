@@ -108,6 +108,8 @@ const objectToString = (obj: any) => {
   return obj;
 };
 
+const timer = ref<NodeJS.Timeout>(null);
+
 const onExecCmd = (
   key: string,
   command: string,
@@ -185,7 +187,7 @@ const onExecCmd = (
           class: "success"
         });
         // 心跳
-        setInterval(() => {
+        timer.value = setInterval(() => {
           socket.value.send(
             JSON.stringify({
               time: Math.floor(Date.now() / 1000),
@@ -213,6 +215,8 @@ const onExecCmd = (
         });
         flash.value.finish();
         socket.value = null;
+        clearInterval(timer.value);
+        timer.value = null;
       }
     });
   } else {
