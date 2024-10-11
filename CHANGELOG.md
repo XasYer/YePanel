@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.1](https://github.com/XasYer/YePanel/compare/v1.4.0...v1.4.1) (2024-10-11)
+
+
+### Bug Fixes
+
+* terminal不显示路径 ([3dd1e21](https://github.com/XasYer/YePanel/commit/3dd1e21d356a318de3354826ba7586dc61979965))
+
 ## [1.4.0](https://github.com/XasYer/YePanel/compare/v1.3.0...v1.4.0) (2024-10-11)
 
 
