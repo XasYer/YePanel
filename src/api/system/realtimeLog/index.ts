@@ -1,8 +1,7 @@
 import _ from 'lodash'
 import moment from 'moment'
-import { tokenAuth } from '@/api/login'
-import { wsRoute } from '@/types/route'
 import { WebSocket } from 'ws'
+import { RouteOptions } from 'fastify'
 
 const originalLogger = _.cloneDeep(global.logger)
 
@@ -43,38 +42,33 @@ function unproxyLogger (method: 'trace'| 'debug'| 'info'| 'warn'| 'error'| 'fata
   }
 }
 
-export default {
-  ws: [
-    {
-      url: '/realtimeLog',
-      function: (ws, req) => {
-        if (!tokenAuth(req.headers['sec-websocket-protocol'] || '')) {
-          ws.send('Authentication failed.')
-          ws.close()
-        } else {
-          logMethods.forEach((method) => proxyLogger(method, ws))
+export default [
+  {
+    url: '/realtimeLog',
+    method: 'get',
+    handler: () => 'Ciallo～(∠・ω< )⌒☆',
+    wsHandler: (connection) => {
+      logMethods.forEach((method) => proxyLogger(method, connection))
+      connection.on('message', message => {
+        let data
+        try {
+          data = JSON.parse(message.toString())
+        } catch {
+          connection.send(JSON.stringify({ type: 'error', success: false, content: 'Invalid message format' }))
+          return
         }
-        ws.on('message', message => {
-          let data
-          try {
-            data = JSON.parse(message.toString())
-          } catch {
-            ws.send(JSON.stringify({ type: 'error', success: false, content: 'Invalid message format' }))
-            return
-          }
-          const { action } = data
-          switch (action) {
-            // 心跳
-            case 'ping':
-              ws.send(JSON.stringify({ type: 'ping', content: 'pong' }))
-              break
-            default:
-              break
-          }
-        })
-        ws.on('close', () => logMethods.forEach((method) => unproxyLogger(method)))
-        ws.on('error', () => logMethods.forEach((method) => unproxyLogger(method)))
-      }
+        const { action } = data
+        switch (action) {
+          // 心跳
+          case 'ping':
+            connection.send(JSON.stringify({ type: 'ping', content: 'pong' }))
+            break
+          default:
+            break
+        }
+      })
+      connection.on('close', () => logMethods.forEach((method) => unproxyLogger(method)))
+      connection.on('error', () => logMethods.forEach((method) => unproxyLogger(method)))
     }
-  ]
-} as { ws: wsRoute[]}
+  }
+] as RouteOptions[]

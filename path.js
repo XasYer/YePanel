@@ -8,15 +8,15 @@ function replacePaths (dir) {
       replacePaths(filePath)
     } else if (filePath.endsWith('.js')) {
       let content = readFileSync(filePath, 'utf-8')
-      content = content.replace(/from ['"]((\.?\.\/)+.+?)['"]/g, (match, p1) => {
-        if (!p1.endsWith('.js')) {
-          if (existsSync(join(dir, p1, 'index.js'))) {
-            return `from '${p1}/index.js'`
+      content = content.replace(/(from|import) ['"]((\.?\.\/)+.+?)['"]/g, (match, target, name) => {
+        if (!name.endsWith('.js')) {
+          if (existsSync(join(dir, name, 'index.js'))) {
+            return `${target} '${name}/index.js'`
           } else {
-            return `from '${p1}.js'`
+            return `${target} '${name}.js'`
           }
         }
-        return `from '${p1}'`
+        return `${target} '${name}'`
       })
       writeFileSync(filePath, content, 'utf-8')
     }

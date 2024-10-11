@@ -1,9 +1,10 @@
 import { randomUUID } from 'crypto'
-import { httpRoute } from '@/types/route'
+import { RouteOptions } from 'fastify'
 import { config, version } from '@/common'
 import fs from 'fs'
 import { join, extname } from 'path'
 import { setConfigDataCache } from '@/api/plugins'
+import { addCustomRoutes } from '@/api/plugins'
 
 const token: { [uin: string]: string } = {}
 
@@ -19,173 +20,173 @@ export const tokenAuth = (accesstoken: string) => {
   return true
 }
 
-export default {
-  http: [
-    {
-      url: '/login',
-      method: 'post',
-      response: ({ body }: { body: { username: string; password: string } }) => {
-        const { username: uin, password: inputPassword } = body
-        const account = (()=>{
-          const account = config.server.password
-          if (account[uin]?.enable) {
-            return account[uin]
-          } else if (Bot[uin]) {
-            const bot = Bot[uin]
-            return {
-              password: account['default'].password,
-              nickname: account['default'].nickname || bot.nickname,
-              avatar: account['default'].avatar || bot.avatar
-            }
-          } else {
-            return {}
-          }
-        })()
-        if (account.password != inputPassword) {
+export default [
+  {
+    url: '/login',
+    method: 'post',
+    preHandler: (request, reply, done) => done(),
+    handler: ({ body } ) => {
+      const { username: uin, password: inputPassword } = body as { username: string, password: string }
+      const account = (()=>{
+        const account = config.server.password
+        if (account[uin]?.enable) {
+          return account[uin]
+        } else if (Bot[uin]) {
+          const bot = Bot[uin]
           return {
-            message: '账号或密码错误'
+            password: account['default'].password,
+            nickname: account['default'].nickname || bot.nickname,
+            avatar: account['default'].avatar || bot.avatar
           }
+        } else {
+          return {}
         }
-        token[uin] = randomUUID()
+      })()
+      if (account.password != inputPassword) {
         return {
-          success: true,
-          data: {
-            avatar: account.avatar,
-            username: 'admin',
-            nickname: account.nickname,
-            roles: ['admin'],
-            accessToken: token[uin] + '.' + uin,
-            refreshToken: token[uin] + ':refreshToken.' + uin,
-            expires: '2030/10/30 00:00:00'
-          }
+          message: '账号或密码错误'
         }
       }
-    },
-    {
-      url: '/get-async-routes',
-      method: 'get',
-      response: async () => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const data: any = {
-          router: [],
-          code: {},
-          guoba: {}
+      token[uin] = randomUUID()
+      return {
+        success: true,
+        data: {
+          avatar: account.avatar,
+          username: 'admin',
+          nickname: account.nickname,
+          roles: ['admin'],
+          accessToken: token[uin] + '.' + uin,
+          refreshToken: token[uin] + ':refreshToken.' + uin,
+          expires: '2030/10/30 00:00:00'
         }
-        // 读取plugins目录下所有文件名
-        const pluginList = fs.readdirSync(`${version.BotPath}/plugins`)
-        for (const plugin of pluginList) {
-          const pluginPath = join(version.BotPath, 'plugins', plugin)
-          // 判断是否为目录
-          if (fs.statSync(pluginPath).isDirectory()) {
-            const YePanelPath = join(pluginPath, 'YePanel')
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const router: any = {} 
-            // 判断是否存在YePanel目录
-            if (fs.existsSync(YePanelPath)) {
-              try {
-                // 动态导入YePanel目录下的index.js文件
-                const option = (await import(`file://${join(YePanelPath, 'index.js')}?t=${Date.now()}`)).default
-                // 设置一级路由为插件名
-                Object.assign(router, option.router)
-                router.path = `/${plugin}`
-                router.name = plugin
-                // 给二级路由添加插件名的前缀
-                for (const i of router.children) {
-                  i.path = `/${plugin}${i.path}`
-                  i.name = `${plugin}/${i.name}`
-                  i.component = 'plugins/index'
+      }
+    }
+  },
+  {
+    url: '/get-async-routes',
+    method: 'get',
+    handler: async () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const data: any = {
+        router: [],
+        code: {},
+        guoba: {}
+      }
+      // 读取plugins目录下所有文件名
+      const pluginList = fs.readdirSync(`${version.BotPath}/plugins`)
+      for (const plugin of pluginList) {
+        const pluginPath = join(version.BotPath, 'plugins', plugin)
+        // 判断是否为目录
+        if (fs.statSync(pluginPath).isDirectory()) {
+          const YePanelPath = join(pluginPath, 'YePanel')
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const router: any = {} 
+          // 判断是否存在YePanel目录
+          if (fs.existsSync(YePanelPath)) {
+            try {
+              // 动态导入YePanel目录下的index.js文件
+              const option = (await import(`file://${join(YePanelPath, 'index.js')}?t=${Date.now()}`)).default
+              // 设置一级路由为插件名
+              Object.assign(router, option.router)
+              router.path = `/${plugin}`
+              router.name = plugin
+              // 给二级路由添加插件名的前缀
+              for (const i of router.children) {
+                i.path = `/${plugin}${i.path}`
+                i.name = `${plugin}/${i.name}`
+                i.component = 'plugins/index'
+              }
+              data.code[plugin] = { main: {}, components: {} }
+              // 收集Vue页面
+              fs.readdirSync(YePanelPath).forEach(file => {
+                if (file.endsWith('.vue')) {
+                  data.code[plugin].main[file.replace('.vue', '')] = fs.readFileSync(join(YePanelPath, file), 'utf-8')
                 }
-                data.code[plugin] = { main: {}, components: {} }
-                // 收集Vue页面
-                fs.readdirSync(YePanelPath).forEach(file => {
-                  if (file.endsWith('.vue')) {
-                    data.code[plugin].main[file.replace('.vue', '')] = fs.readFileSync(join(YePanelPath, file), 'utf-8')
-                  }
+              })
+              // 收集Vue组件
+              const componentPath = join(YePanelPath, 'components')
+              if (fs.existsSync(componentPath) && fs.statSync(componentPath).isDirectory()) {
+                fs.readdirSync(componentPath).forEach(file => {
+                  data.code[plugin].components[file.replace('.vue', '')] = fs.readFileSync(join(componentPath, file), 'utf-8')
                 })
-                // 收集Vue组件
-                const componentPath = join(YePanelPath, 'components')
-                if (fs.existsSync(componentPath) && fs.statSync(componentPath).isDirectory()) {
-                  fs.readdirSync(componentPath).forEach(file => {
-                    data.code[plugin].components[file.replace('.vue', '')] = fs.readFileSync(join(componentPath, file), 'utf-8')
+              }
+              addCustomRoutes(plugin, option.api)
+            } catch  { /* empty */ }
+          }
+
+          // 判断是否存在guoba.support.js
+          const guobaSupportPath = join(pluginPath, 'guoba.support.js')
+          if (fs.existsSync(guobaSupportPath)) {
+            try {
+              const supportGuoba = (await import(`file://${guobaSupportPath}?t=${Date.now()}`)).supportGuoba
+              const { pluginInfo, configInfo: { schemas, getConfigData, setConfigData } } = supportGuoba()
+              setConfigDataCache(plugin, setConfigData)
+              if (pluginInfo.iconPath) {
+                  try {
+                    const buffer = fs.readFileSync(pluginInfo.iconPath)
+                    const ext = extname(pluginInfo.iconPath)
+                    const base64 = `data:image/${ext.replace('.', '')};base64,${buffer.toString('base64')}`
+                    pluginInfo.iconPath = base64
+                  } catch  {
+                    delete pluginInfo.iconPath
+                  }
+                }
+                if (!Array.isArray(pluginInfo.author)) {
+                  pluginInfo.author = [pluginInfo.author]
+                }
+                if (!Array.isArray(pluginInfo.authorLink)) {
+                  pluginInfo.authorLink = [pluginInfo.authorLink]
+                }
+              data.guoba[plugin] = { pluginInfo, schemas, data: await getConfigData() }
+              // 已经有路由, 并且没有设置页面
+              if (router.name) {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                if (!router.children.some((i: any) => i.name === `${plugin}/setting`)) {
+                  router.children.push({
+                    path: `/${plugin}/setting`,
+                    name: `${plugin}/setting`,
+                    component: 'plugins/setting/index',
+                    meta: {
+                      title: '设置',
+                      icon: pluginInfo.iconPath || pluginInfo.icon,
+                      showParent: true
+                    }
                   })
                 }
-              } catch  { /* empty */ }
-            }
-
-            // 判断是否存在guoba.support.js
-            const guobaSupportPath = join(pluginPath, 'guoba.support.js')
-            if (fs.existsSync(guobaSupportPath)) {
-              try {
-                const supportGuoba = (await import(`file://${guobaSupportPath}?t=${Date.now()}`)).supportGuoba
-                const { pluginInfo, configInfo: { schemas, getConfigData, setConfigData } } = supportGuoba()
-                setConfigDataCache(plugin, setConfigData)
-                if (pluginInfo.iconPath) {
-                    try {
-                      const buffer = fs.readFileSync(pluginInfo.iconPath)
-                      const ext = extname(pluginInfo.iconPath)
-                      const base64 = `data:image/${ext.replace('.', '')};base64,${buffer.toString('base64')}`
-                      pluginInfo.iconPath = base64
-                    } catch  {
-                      delete pluginInfo.iconPath
-                    }
-                  }
-                  if (!Array.isArray(pluginInfo.author)) {
-                    pluginInfo.author = [pluginInfo.author]
-                  }
-                  if (!Array.isArray(pluginInfo.authorLink)) {
-                    pluginInfo.authorLink = [pluginInfo.authorLink]
-                  }
-                data.guoba[plugin] = { pluginInfo, schemas, data: await getConfigData() }
-                // 已经有路由, 并且没有设置页面
-                if (router.name) {
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  if (!router.children.some((i: any) => i.name === `${plugin}/setting`)) {
-                    router.children.push({
+              } else {
+                // 没有路由, 则创建
+                Object.assign(router, {
+                  path: `/${plugin}`,
+                  name: plugin,
+                  meta: {
+                    title: pluginInfo.title,
+                    icon: pluginInfo.iconPath || pluginInfo.icon,
+                  },
+                  children: [
+                    {
                       path: `/${plugin}/setting`,
                       name: `${plugin}/setting`,
                       component: 'plugins/setting/index',
                       meta: {
-                        title: '设置',
+                        title: pluginInfo.title,
                         icon: pluginInfo.iconPath || pluginInfo.icon,
-                        showParent: true
                       }
-                    })
-                  }
-                } else {
-                  // 没有路由, 则创建
-                  Object.assign(router, {
-                    path: `/${plugin}`,
-                    name: plugin,
-                    meta: {
-                      title: pluginInfo.title,
-                      icon: pluginInfo.iconPath || pluginInfo.icon,
-                    },
-                    children: [
-                      {
-                        path: `/${plugin}/setting`,
-                        name: `${plugin}/setting`,
-                        component: 'plugins/setting/index',
-                        meta: {
-                          title: pluginInfo.title,
-                          icon: pluginInfo.iconPath || pluginInfo.icon,
-                        }
-                      }
-                    ]
-                  })
-                }
-              } catch { /* empty */ }
-            }
+                    }
+                  ]
+                })
+              }
+            } catch { /* empty */ }
+          }
 
-            if (router.name) {
-              data.router.push(router)
-            }
+          if (router.name) {
+            data.router.push(router)
           }
         }
-        return {
-          success: true,
-          data
-        }
+      }
+      return {
+        success: true,
+        data
       }
     }
-  ]
-} as { http: httpRoute[] }
+  }
+] as RouteOptions[]

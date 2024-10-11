@@ -2,10 +2,9 @@ import fs from 'fs'
 import os from 'os'
 import { join, resolve } from 'path'
 import { ChildProcessWithoutNullStreams, spawn } from 'child_process'
-import { tokenAuth } from '@/api/login'
-import { wsRoute } from '@/types/route'
 import { WebSocket } from 'ws'
 import iconv from 'iconv-lite'
+import { RouteOptions } from 'fastify'
 
 function executeCommand (command: string, args: string[], ws: WebSocket, workingDirectory = './') {
   const isWindows = os.platform() === 'win32'
@@ -44,65 +43,62 @@ function executeCommand (command: string, args: string[], ws: WebSocket, working
   return res
 }
 
-export default {
-  ws: [
-    {
-      url: '/terminal',
-      function: (ws, req) => {
-        let childProcess: ChildProcessWithoutNullStreams | null = null
-        if (!tokenAuth(req.headers['sec-websocket-protocol'] || '')) {
-          ws.send('Authentication failed.')
-          ws.close()
-        } else {
-          ws.send(JSON.stringify({ type: 'directory', content: process.cwd() }))
-          // 第一次的ls有异常, 不知道别的会不会
-          executeCommand('ls', [], ({ send: () => {} } as unknown as WebSocket))
+export default [
+  {
+    url: '/terminal',
+    method: 'get',
+    handler: () => 'Ciallo～(∠・ω< )⌒☆',
+    wsHandler: (connection) => {
+      let childProcess: ChildProcessWithoutNullStreams | null = null
+      connection.on('open', () => {
+        connection.send(JSON.stringify({ type: 'directory', content: process.cwd() }))
+        // 第一次的ls有异常, 不知道别的会不会
+        executeCommand('ls', [], ({ send: () => {} } as unknown as WebSocket))
+      })
+      connection.on('message', message => {
+        let data
+        try {
+          data = JSON.parse(message.toString())
+        } catch {
+          connection.send(JSON.stringify({ type: 'error', success: false, content: 'Invalid message format' }))
+          return
         }
-        ws.on('message', message => {
-          let data
-          try {
-            data = JSON.parse(message.toString())
-          } catch {
-            ws.send(JSON.stringify({ type: 'error', success: false, content: 'Invalid message format' }))
-            return
-          }
-          const { command, args, action, workingDirectory } = data
-          switch (action) {
-            case 'execute':
-              if (childProcess) {
-                childProcess.kill('SIGINT')
-              }
-              childProcess = executeCommand(command, args, ws, workingDirectory)
-              break
-              // 中断命令
-            case 'terminate':
-              if (childProcess) {
-                childProcess.kill('SIGINT') // 发送中断信号
-                childProcess = null // 清除子进程引用
-                ws.send(JSON.stringify({ type: 'terminated', content: '命令已中断' }))
-              }
-              break
-              // 心跳
-            case 'ping':
-              ws.send(JSON.stringify({ type: 'ping', content: 'pong' }))
-              break
-            default:
-              break
-          }
-        })
-        ws.on('close', () => {
-          if (childProcess) {
-            childProcess.kill('SIGINT')
-            childProcess = null
-          }
-        })
-        ws.on('error', () => {
-          if (childProcess) {
-            childProcess.kill('SIGINT')
-            childProcess = null
-          }
-        })
-      }
+        const { command, args, action, workingDirectory } = data
+        switch (action) {
+          case 'execute':
+            if (childProcess) {
+              childProcess.kill('SIGINT')
+            }
+            childProcess = executeCommand(command, args, connection, workingDirectory)
+            break
+            // 中断命令
+          case 'terminate':
+            if (childProcess) {
+              childProcess.kill('SIGINT') // 发送中断信号
+              childProcess = null // 清除子进程引用
+              connection.send(JSON.stringify({ type: 'terminated', content: '命令已中断' }))
+            }
+            break
+            // 心跳
+          case 'ping':
+            connection.send(JSON.stringify({ type: 'ping', content: 'pong' }))
+            break
+          default:
+            break
+        }
+      })
+      connection.on('close', () => {
+        if (childProcess) {
+          childProcess.kill('SIGINT')
+          childProcess = null
+        }
+      })
+      connection.on('error', () => {
+        if (childProcess) {
+          childProcess.kill('SIGINT')
+          childProcess = null
+        }
+      })
     }
-  ]
-} as { ws: wsRoute[] }
+  }
+] as RouteOptions[]

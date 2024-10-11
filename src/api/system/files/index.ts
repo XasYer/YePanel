@@ -1,20 +1,17 @@
 import fs from 'fs'
-import multer from 'multer'
 import moment from 'moment'
 import { join, dirname } from 'path'
-import { httpRoute } from '@/types/route'
+import { RouteOptions } from 'fastify'
 import { utils, version } from '@/common'
 
 const formatTime = (time: Date | number) => moment(time).utcOffset(8).format('YYYY/MM/DD HH:mm')
 
-export default {
-  http: [
+export default [
     {
       url: '/get-dir-data',
       method: 'post',
-      token: true,
-      response: ({ body }) => {
-        let { path } = body
+      handler: ({ body }) => {
+        let { path } = body as { path: string }
         if (!path) {
           path = version.BotPath
         }
@@ -71,45 +68,54 @@ export default {
     {
       url: '/upload-file',
       method: 'post',
-      token: true,
-      response: ({ file }) => {
-        const res = {
-          success: true,
-          data: {
-            name: file!.originalname,
-            path: file!.path,
-            ext: file!.originalname.split('.').pop(),
-            size: utils.formatBytes(file!.size),
-            rowSize: file!.size,
-            time: formatTime(Date.now()),
-            mtimeMs: Date.now(),
-            isDir: false
-          },
-          message: ''
-        }
-        if (!fs.existsSync(file!.path)) {
-          res.success = false
-          res.message = '上传失败'
-        }
-        return res
-      },
-      handler: multer({
-        storage: multer.diskStorage({
-          destination: function (req, file, cb) {
-            cb(null, req.body.path)
-          },
-          filename: function (req, file, cb) {
-            cb(null, file.originalname)
+      handler: async (request, reply) => {
+        const parts = request.parts()
+        const formData = {
+          path: '',
+          name: '',
+          file: null
+        } as { path: string, name: string, file: Buffer | null }
+        for await (const part of parts) {
+          if (part.type === 'file') {
+            formData.name = part.filename
+            formData.file = await part.toBuffer()
+          } else if (part.fieldname === 'path') {
+            formData.path = (part.value as string)
           }
-        })
-      }).single('file')
+        }
+        const filePath = join(formData.path, formData.name)
+        if (formData.path && formData.name && formData.file) {
+          fs.writeFileSync(filePath, formData.file)
+        }
+        try {
+          const stat = fs.statSync(filePath)
+          const isDir = stat.isDirectory()
+          reply.send({ 
+            success: true,
+            data: {
+              name: formData.name,
+              path: filePath,
+              ext: isDir ? 'folder' : formData.name.split('.').pop(),
+              isDir,
+              size: isDir ? '' : utils.formatBytes(stat.size),
+              rowSize: isDir ? 0 : stat.size,
+              time: formatTime(stat.mtime),
+              mtimeMs: stat.mtimeMs
+            }
+           })
+        } catch (error) {
+          return {
+            success: false,
+            message: (error as Error).message
+          }
+        }
+      },
     },
     {
       url: '/rename-file',
       method: 'post',
-      token: true,
-      response: ({ body }) => {
-        const { path, name, isDir } = body
+      handler: ({ body }) => {
+        const { path, name, isDir } = body as { path: string, name: string, isDir: boolean }
         const newName = join(dirname(path), name)
         try {
           // 如果文件存在就是重命名，不存在就是创建文件
@@ -154,9 +160,8 @@ export default {
     {
       url: '/delete-file',
       method: 'post',
-      token: true,
-      response: ({ body }) => {
-        const { paths } = body
+      handler: ({ body }) => {
+        const { paths } = body as { paths: { path: string, isDir: boolean }[] }
         const errors = []
         for (const { path, isDir } of paths) {
           try {
@@ -178,9 +183,8 @@ export default {
     {
       url: '/move-file',
       method: 'post',
-      token: true,
-      response: ({ body }) => {
-        const { paths, targetPath, action } = body
+      handler: ({ body }) => {
+        const { paths, targetPath, action } = body as { paths: { path: string, name: string, isDir: boolean }[], targetPath: string, action: 'copy' |'move' }
         const errors = []
         for (const { path, name, isDir } of paths) {
           try {
@@ -203,25 +207,24 @@ export default {
     {
       url: '/download-file',
       method: 'post',
-      token: true,
-      contentType: 'application/octet-stream',
-      response: ({ body }, res) => {
-        const { path, name } = body
-        res.setHeader('Content-Type', 'application/octet-stream')
-        res.setHeader('Content-Disposition', `attachment; filename="${name}"`)
+      handler: ({ body }, reply) => {
+        const { path, name } = body as { path: string, name: string }
+        reply.header('Content-Type', 'application/octet-stream')
+        reply.header('Content-Disposition', `attachment; filename="${name}"`)
+    
         const fileStream = fs.createReadStream(path)
-        fileStream.pipe(res)
+    
         fileStream.on('error', (err) => {
-          res.status(500).send(err.message)
+            reply.status(500).send(err.message)
         })
+        reply.send(fileStream)
       }
     },
     {
       url: '/set-file-data',
       method: 'post',
-      token: true,
-      response: ({ body }) => {
-        const { path, data } = body
+      handler: ({ body }) => {
+        const { path, data } = body as { path: string, data: string }
         try {
           fs.writeFileSync(path, data, 'utf-8')
           return {
@@ -235,5 +238,4 @@ export default {
         }
       }
     }
-  ]
-} as { http: httpRoute[]}
+] as RouteOptions[]

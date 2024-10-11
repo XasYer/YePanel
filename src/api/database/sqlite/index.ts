@@ -3,7 +3,7 @@ import fs from 'fs'
 import { join } from 'path'
 // @ts-ignore
 import { Sequelize } from 'sequelize'
-import { httpRoute } from '@/types/route'
+import { RouteOptions } from 'fastify'
 
 type tableInfo = {
   pk: 0 | 1,
@@ -79,142 +79,135 @@ function getFormattedDate () {
   return `${datePart.replace('T', ' ')} ${sign}${offsetHours}:${offsetMinutes}`
 }
 
-export default {
-  http: [
-    {
-      url: '/get-sqlite-path',
-      method: 'post',
-      token: true,
-      response: () => {
+export default [
+  {
+    url: '/get-sqlite-path',
+    method: 'post',
+    handler: () => {
+      return {
+        success: true,
+        data: findSqlitePath('./')
+      }
+    }
+  },
+  {
+    url: '/get-sqlite-table',
+    method: 'post',
+    handler: async ({ body }) => {
+      const { path } = body as { path: string }
+      const sequelize = getSequelize(path).instance
+      const [results]: [{ name: string }[]] = await sequelize.query('SELECT name FROM sqlite_master WHERE type=\'table\';')
+      return {
+        success: true,
+        data: results.map(item => (item.name)).filter(item => item !== 'sqlite_sequence')
+      }
+    }
+  },
+  {
+    url: '/get-sqlite-table-data',
+    method: 'post',
+    handler: async ({ body }) => {
+      const { path, table, pageSize, pageNum, search } = body as { path: string, table: string, pageSize: number, pageNum: number, search: string }
+      const offset = (pageNum * pageSize) - pageSize
+      const { instance: sequelize, total, tableInfo } = getSequelize(path)
+      if (!total[table]) {
+        const [totalResults] = await sequelize.query(`SELECT COUNT(*) AS total FROM ${table};`)
+        total[table] = totalResults[0].total
+      }
+      let count = total[table]
+      if (!tableInfo[table]) {
+        const [tableInfoResults]: [tableInfo[]] = await sequelize.query(`PRAGMA table_info(${table});`)
+        const info: any = {}
+        for (const item of tableInfoResults) {
+          if (item.pk) {
+              const [results] = await sequelize.query(`SELECT sql FROM sqlite_master WHERE type = 'table' AND name = '${table}';`)
+              item.autoincrement = /AUTOINCREMENT/.test(results[0].sql)
+          }
+          info[item.name] = item
+        }
+        tableInfo[table] = info
+      }
+      const sql = `SELECT * FROM ${table} ${search ? `WHERE ${search}` : ''} LIMIT ${pageSize} OFFSET ${offset};`
+      const [results]: [{ [key: string]: any }[]] = await sequelize.query(sql)
+      if (search) {
+        const [searchResults] = await sequelize.query(`SELECT COUNT(*) AS total FROM ${table} WHERE ${search};`)
+        count = searchResults[0].total
+      }
+      return {
+        success: true,
+        data: results,
+        total: count,
+        tableInfo: tableInfo[table]
+      }
+    }
+  },
+  {
+    url: '/set-sqlite-table-data',
+    method: 'post',
+    handler: async ({ body }) => {
+      const { path, table, data } = body as { path: string, table: string, data: { [key: string]: string | number | boolean } }
+      const { instance: sequelize, tableInfo, total } = getSequelize(path)
+      const type = data.createdAt ? 'update' : 'insert'
+      delete data.createdAt
+      delete data.updatedAt
+      const keys = Object.keys(data)
+      const values = Object.values(data)
+      const updatedAt = getFormattedDate()
+      const pk = keys.find(key=> (tableInfo[table] as any)[key].pk) || 'createdAt'
+      // 如果有创建时间就是修改
+      const sql =  type === 'update' ? 
+        `UPDATE ${table} SET ${keys.map((key) => `${key} = ?`).join(', ')}, updatedAt = ? WHERE ${pk} = ?` :
+        `INSERT INTO ${table} (${keys.join(', ')}, createdAt, updatedAt) VALUES (${keys.map(() => '?').join(', ')}, ?, ?)`
+      try {
+        const [results, metadata] = await sequelize.query(
+          sql,
+          {
+            replacements: type === 'update' ? [...values, updatedAt, data[pk] ] : [...values, updatedAt, updatedAt]
+          }
+        )
+        const [totalResults] = await sequelize.query(`SELECT COUNT(*) AS total FROM ${table};`)
+        total[table] = totalResults[0].total
         return {
           success: true,
-          data: findSqlitePath('./')
+          results,
+          metadata
         }
-      }
-    },
-    {
-      url: '/get-sqlite-table',
-      method: 'post',
-      token: true,
-      response: async ({ body }) => {
-        const { path } = body
-        const sequelize = getSequelize(path).instance
-        const [results]: [{ name: string }[]] = await sequelize.query('SELECT name FROM sqlite_master WHERE type=\'table\';')
+      } catch (error) {
         return {
-          success: true,
-          data: results.map(item => (item.name)).filter(item => item !== 'sqlite_sequence')
-        }
-      }
-    },
-    {
-      url: '/get-sqlite-table-data',
-      method: 'post',
-      token: true,
-      response: async ({ body }) => {
-        const { path, table, pageSize, pageNum, search } = body
-        const offset = (pageNum * pageSize) - pageSize
-        const { instance: sequelize, total, tableInfo } = getSequelize(path)
-        if (!total[table]) {
-          const [totalResults] = await sequelize.query(`SELECT COUNT(*) AS total FROM ${table};`)
-          total[table] = totalResults[0].total
-        }
-        let count = total[table]
-        if (!tableInfo[table]) {
-          const [tableInfoResults]: [tableInfo[]] = await sequelize.query(`PRAGMA table_info(${table});`)
-          const info: any = {}
-          for (const item of tableInfoResults) {
-            if (item.pk) {
-                const [results] = await sequelize.query(`SELECT sql FROM sqlite_master WHERE type = 'table' AND name = '${table}';`)
-                item.autoincrement = /AUTOINCREMENT/.test(results[0].sql)
-            }
-            info[item.name] = item
-          }
-          tableInfo[table] = info
-        }
-        const sql = `SELECT * FROM ${table} ${search ? `WHERE ${search}` : ''} LIMIT ${pageSize} OFFSET ${offset};`
-        const [results]: [{ [key: string]: any }[]] = await sequelize.query(sql)
-        if (search) {
-          const [searchResults] = await sequelize.query(`SELECT COUNT(*) AS total FROM ${table} WHERE ${search};`)
-          count = searchResults[0].total
-        }
-        return {
-          success: true,
-          data: results,
-          total: count,
-          tableInfo: tableInfo[table]
-        }
-      }
-    },
-    {
-      url: '/set-sqlite-table-data',
-      method: 'post',
-      token: true,
-      response: async ({ body }) => {
-        const { path, table, data } = body
-        const { instance: sequelize, tableInfo, total } = getSequelize(path)
-        const type = data.createdAt ? 'update' : 'insert'
-        delete data.createdAt
-        delete data.updatedAt
-        const keys = Object.keys(data)
-        const values = Object.values(data)
-        const updatedAt = getFormattedDate()
-        const pk = keys.find(key=> (tableInfo[table] as any)[key].pk) || 'createdAt'
-        // 如果有创建时间就是修改
-        const sql =  type === 'update' ? 
-          `UPDATE ${table} SET ${keys.map((key) => `${key} = ?`).join(', ')}, updatedAt = ? WHERE ${pk} = ?` :
-          `INSERT INTO ${table} (${keys.join(', ')}, createdAt, updatedAt) VALUES (${keys.map(() => '?').join(', ')}, ?, ?)`
-        try {
-          const [results, metadata] = await sequelize.query(
-            sql,
-            {
-              replacements: type === 'update' ? [...values, updatedAt, data[pk] ] : [...values, updatedAt, updatedAt]
-            }
-          )
-          const [totalResults] = await sequelize.query(`SELECT COUNT(*) AS total FROM ${table};`)
-          total[table] = totalResults[0].total
-          return {
-            success: true,
-            results,
-            metadata
-          }
-        } catch (error) {
-          return {
-            success: false,
-            message: (error as Error).message
-          }
-        }
-      }
-    },
-    {
-      url: '/delete-sqlite-table-data',
-      method: 'post',
-      token: true,
-      response: async ({ body }) => {
-        const { path, table, data } = body
-        const { instance: sequelize, tableInfo, total } = getSequelize(path)
-        const keys = Object.keys(data)
-        const pk = keys.find(key=> (tableInfo[table] as any)[key].pk) || 'createdAt'
-        try {
-          const [results, metadata] = await sequelize.query(
-            `DELETE FROM ${table} WHERE ${pk} = ?`,
-            {
-              replacements: [data[pk]]
-            }
-          )
-          const [totalResults] = await sequelize.query(`SELECT COUNT(*) AS total FROM ${table};`)
-          total[table] = totalResults[0].total
-          return {
-            success: true,
-            results,
-            metadata
-          }
-        } catch (error) {
-          return {
-            success: false,
-            message: (error as Error).message
-          }
+          success: false,
+          message: (error as Error).message
         }
       }
     }
-  ]
-} as { http: httpRoute[] }
+  },
+  {
+    url: '/delete-sqlite-table-data',
+    method: 'post',
+    handler: async ({ body }) => {
+      const { path, table, data } = body as { path: string, table: string, data: { [key: string]: string | number | boolean } }
+      const { instance: sequelize, tableInfo, total } = getSequelize(path)
+      const keys = Object.keys(data)
+      const pk = keys.find(key=> (tableInfo[table] as any)[key].pk) || 'createdAt'
+      try {
+        const [results, metadata] = await sequelize.query(
+          `DELETE FROM ${table} WHERE ${pk} = ?`,
+          {
+            replacements: [data[pk]]
+          }
+        )
+        const [totalResults] = await sequelize.query(`SELECT COUNT(*) AS total FROM ${table};`)
+        total[table] = totalResults[0].total
+        return {
+          success: true,
+          results,
+          metadata
+        }
+      } catch (error) {
+        return {
+          success: false,
+          message: (error as Error).message
+        }
+      }
+    }
+  }
+] as RouteOptions[]

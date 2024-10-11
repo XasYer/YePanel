@@ -1,6 +1,4 @@
 # 端口
-# 若是TRSS则会使用TRSS的端口 http://ip:TRSSProt/YePanel
-# 否则就是 http://ip:port
 port: 2877
 
 # 密码
