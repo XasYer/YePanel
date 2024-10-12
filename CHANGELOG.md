@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.5.3](https://github.com/XasYer/YePanel/compare/v1.5.2...v1.5.3) (2024-10-12)
+
+
+### Bug Fixes
+
+* plugin update log ([71775e8](https://github.com/XasYer/YePanel/commit/71775e85784c61c1f63b4376bd88596cf8bed4f4))
+* ts-&gt;js ([167df32](https://github.com/XasYer/YePanel/commit/167df3234a233fa4ff818d35f094ca45f0d278a3))
+
 ## [1.5.2](https://github.com/XasYer/YePanel/compare/v1.5.1...v1.5.2) (2024-10-12)
 
 
