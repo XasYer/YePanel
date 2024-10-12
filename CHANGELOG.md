@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.0](https://github.com/XasYer/YePanel/compare/v1.4.1...v1.5.0) (2024-10-12)
+
+
+### Features
+
+* 首页展示更多信息 ([6db27cd](https://github.com/XasYer/YePanel/commit/6db27cd55e16de1494bd49579dda407deeea745b))
+
 ## [1.4.1](https://github.com/XasYer/YePanel/compare/v1.4.0...v1.4.1) (2024-10-11)
 
 
