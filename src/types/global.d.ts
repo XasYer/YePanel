@@ -1,9 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable no-var */
-import { Application, Request } from 'express'
 import { RedisClientType } from 'redis'
 import { Logger } from 'log4js'
-import { WebSocket } from 'ws'
 
 interface logger extends Logger {
   error: (msg: string, ...args: any[]) => void
@@ -19,18 +17,26 @@ interface logger extends Logger {
 
 declare global {
   var Bot: {
-    express: Application;
-    wsf: {
-      [key: string]: Array<(ws: WebSocket, req: Request, socket: internal.Duplex, head: Buffer) => void>;
-    };
     gl: Map<string, {[key: string]: any}>;
     fl: Map<string, {[key: string]: any}>;
+    adapter: any[]
     [key: string]: {
-      adapter: { name: string}
+      adapter: { name: string }
       avatar: string
       nickname: string
-      fl: Map<string, number>
-      gl: Map<string, number>
+      fl: Map<string, any>
+      gl: Map<string, any>
+      gml: Map<string, any>
+      version: {
+        version: string
+        name: string
+        [key: string]: any
+      }
+      stat: {
+        sent_msg_cnt?: number
+        recv_msg_cnt?: number
+        [key: string]: any
+      }
       dau: {
         dauDB: 'redis'|'level'|false
         all_user: {[key: string]: number, total: number}

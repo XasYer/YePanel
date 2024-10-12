@@ -27,11 +27,20 @@ const BotPackageJson = JSON.parse(fs.readFileSync(join(BotPath, 'package.json'),
 
 const BotVersion = BotPackageJson.version
 
+const BotName = (()=>{
+  if (Array.isArray(global.Bot.uin)) {
+    return 'TRSS'
+  } else {
+    return 'Miao'
+  }
+})()
+
 export {
     pluginVersion,
     pluginName,
     pluginPath,
     BotVersion,
     BotPath,
+    BotName,
     isDev
 }

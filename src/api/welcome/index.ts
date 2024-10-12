@@ -2,22 +2,34 @@ import fs from 'fs'
 import os from 'os'
 import _ from 'lodash'
 import { join } from 'path'
-import { utils } from '@/common'
+import { utils, version } from '@/common'
 import si from 'systeminformation'
 import { RouteOptions } from 'fastify'
+import moment from 'moment'
+import { execSync, ExecSyncOptionsWithStringEncoding } from 'child_process'
 
-
-function getPluginNum () {
-  // 获取插件数量插件包目录包含package.json才被视为一个插件包
+function getPlugins () {
+  // 获取插件数量插件包目录包含package.json或.git目录才被视为一个插件包
   const dir = './plugins'
   const dirArr = fs.readdirSync(dir, { withFileTypes: true })
   const exc = ['example']
-  const plugin = dirArr.filter(i =>
-    i.isDirectory() &&
-    fs.existsSync(join(dir, i.name, 'package.json')) &&
-    !exc.includes(i.name)
-  )
-  const plugins = plugin?.length
+  const plugins = dirArr.map(i => {
+    let hasPackage = false, hasGit = false
+    if (i.isDirectory()) {
+      if (fs.existsSync(join(dir, i.name, 'package.json')) && !exc.includes(i.name)) {
+        hasPackage = true
+      }
+      const gitPath = join(dir, i.name, '.git')
+      if (fs.existsSync(gitPath) && fs.statSync(gitPath).isDirectory()) {
+        hasGit = true
+      }
+    }
+    return {
+      hasPackage,
+      hasGit,
+      name: i.name
+    }
+  }).filter(i => i.hasPackage || i.hasGit)
   // 获取js插件数量，以.js结尾的文件视为一个插件
   const jsDir = join(dir, 'example')
   let js = 0
@@ -26,7 +38,10 @@ function getPluginNum () {
       ?.filter(item => item.endsWith('.js'))
       ?.length
   } catch { /* empty */ }
-  return `${plugins ?? 0} plugins | ${js ?? 0} js`
+  return {
+    info: `${plugins?.length ?? 0} plugins | ${js ?? 0} js`,
+    plugins
+  }
 }
 
 export default [
@@ -158,11 +173,12 @@ export default [
           info: ['没有获取到数据']
         })
       }
-      info.push({ key: '插件数量', value: getPluginNum() })
+      const plugins = getPlugins()
+      info.push({ key: '插件数量', value: plugins.info })
 
       try {
         const packageFile = JSON.parse(fs.readFileSync('./package.json', 'utf-8'))
-        info.push({ key: 'TRSS-Yunzai', value: packageFile.version })
+        info.push({ key: `${version.BotName}-Yunzai`, value: packageFile.version })
       } catch { /* empty */ }
       const { node, v8, git } = await si.versions('node,v8,git')
 
@@ -185,9 +201,116 @@ export default [
             use: Math.round(item.use),
             color: getColor(item.use)
           })),
-          info: info.filter(i => i.value)
+          info: info.filter(i => i.value),
+          plugins: plugins.plugins,
+          BotName: version.BotName
         }
       }
+    }
+  },
+  {
+    url: '/get-bot-info',
+    method: 'post',
+    handler: async () => {
+      const botList = version.BotName === 'TRSS' ? Bot.uin : (Bot?.adapter && Bot.adapter.includes(Bot.uin)) ? Bot.adapter : [Bot.uin]
+      const botInfo = []
+      for (const uin of (botList as string[])) {
+          
+        const bot = Bot[uin]
+        if (!bot) continue
+        const nowDate = moment().format('MMDD')
+        const keys = [
+            `Yz:count:send:msg:bot:${uin}:total`,
+            `Yz:count:receive:msg:bot:${uin}:total`,
+            `Yz:count:send:image:bot:${uin}:total`,
+            `Yz:count:screenshot:day:${nowDate}`
+        ]
+      
+        const values = await redis.mGet(keys) || []
+      
+        botInfo.push({
+          uin: uin,
+          avatar: bot.avatar || `https://q1.qlogo.cn/g?b=qq&s=0&nk=${uin}`,
+          nickname: bot.nickname || '未知',
+          version: bot.version?.version || '未知',
+          platform: bot.version?.name || '未知',
+          sent: values[0] || bot.stat?.sent_msg_cnt || 0,
+          recv: values[1] || bot.stat?.recv_msg_cnt || 0,
+          screenshot: values[2] || values[3] || 0,
+          time: utils.formatDuration(Date.now() / 1000 - bot.stat?.start_time),
+          friend: bot.fl?.size || 0,
+          group: bot.gl?.size || 0,
+          member: Array.from(bot.gml?.values() || []).reduce((acc, curr) => acc + curr.size, 0)
+        })
+      }
+      return {
+        success: true,
+        data: botInfo
+      }
+    }
+  },
+  {
+    url: '/get-message-info',
+    method: 'post',
+    handler: async () => {
+      const data: {
+        sent: number[],
+        recv: number[],
+        time: string[]
+      } = {
+        sent: [],
+        recv: [],
+        time: []
+      }
+      const date = moment().subtract(1, 'days')
+      for (let i = 0; i < 30; i++) {
+        const time = date.format('YYYY:MM:DD')
+        const keys = version.BotName === 'TRSS' ? [
+          `Yz:count:send:msg:total:${time}`,
+          `Yz:count:receive:msg:total:${time}`
+        ] : [`Yz:count:sendMsg:day:${date.format('MMDD')}`]
+        const value: number[] = await redis.mGet(keys)
+        if (value.some(i => i !== null)) {
+          data.sent.unshift(Number(value[0]))
+          data.recv.unshift(Number(value[1]))
+          data.time.unshift(time.replace(/:/g, '-'))
+        }
+        date.add(-1, 'days')
+      }
+      return {
+        success: true,
+        data
+      }
+    }
+  },
+  {
+    url: '/get-update-log',
+    method: 'post',
+    handler: async ({body}) => {
+      const { plugin } = body as { plugin: string }
+      try {
+        const arg: ExecSyncOptionsWithStringEncoding = {
+          encoding: 'utf-8',
+          cwd: plugin ? undefined : join(version.BotPath, 'plugins', plugin)
+        }
+        const exec = (cmd: string) => execSync(cmd, arg).toString().trim()
+        const log = exec('git log -100 --pretty="[%cd] %s" --date=format:"%F %T"')
+        const branch = exec('git branch --show-current')
+        const remote = exec(`git config branch.${branch}.remote`)
+        const url = exec(`git config remote.${remote}.url`)
+        return {
+          success: true,
+          data: {
+            log: log.split('\n'),
+            url: url.toString().replace(/.git$/, '')
+          }
+        }
+      } catch (error) { 
+        return {
+          success: false,
+          message: (error as Error).message
+        }
+       }
     }
   }
 ] as RouteOptions[]
