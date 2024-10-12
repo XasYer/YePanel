@@ -29,6 +29,10 @@ jobs:
       - name: Run build
         run: pnpm run build
 
+      - name: Set timezone to China Standard Time
+        run: |
+          sudo timedatectl set-timezone Asia/Shanghai
+
       - name: setup git config
         run: |
           git config --global user.name 'github-actions[bot]'
