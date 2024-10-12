@@ -291,7 +291,7 @@ export default [
       try {
         const arg: ExecSyncOptionsWithStringEncoding = {
           encoding: 'utf-8',
-          cwd: plugin ? undefined : join(version.BotPath, 'plugins', plugin)
+          cwd: plugin ? join(version.BotPath, 'plugins', plugin) :  undefined
         }
         const exec = (cmd: string) => execSync(cmd, arg).toString().trim()
         const log = exec('git log -100 --pretty="[%cd] %s" --date=format:"%F %T"')
