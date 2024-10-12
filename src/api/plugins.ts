@@ -36,6 +36,9 @@ export type getGuobaDataResult = {
   data: {
     [key: string]: any;
   };
+  schemas: {
+    [key: string]: any;
+  };
 };
 
 export const getGuobaData = (plugin: string) => {

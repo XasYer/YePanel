@@ -11,7 +11,6 @@ type stateType = {
   guoba: {
     [key: string]: {
       pluginInfo: any;
-      schemas: any;
     };
   };
 };
