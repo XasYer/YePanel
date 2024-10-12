@@ -1,5 +1,5 @@
 <template>
-  <el-row justify="center">
+  <el-row v-loading="loading" justify="center">
     <el-col :lg="14" xs="24">
       <el-card class="flex">
         <el-descriptions :column="1">
@@ -95,12 +95,19 @@ import {
   ElText,
   ElTooltip
 } from "element-plus";
-import { getGroupList, getFriendList, setSettingData } from "@/api/plugins";
+import {
+  getGroupList,
+  getFriendList,
+  setSettingData,
+  getGuobaData
+} from "@/api/plugins";
 import { message } from "@/utils/message";
 
 defineOptions({
   name: "plugin-setting"
 });
+
+const loading = ref(true);
 
 const codeStore = useCodeStoreHook();
 const route = useRoute();
@@ -108,7 +115,12 @@ const pluginName = route.path.split("/")[1];
 const pluginInfo = codeStore.guoba[pluginName].pluginInfo;
 const schemas = codeStore.guoba[pluginName].schemas;
 
-const state = ref(clone(codeStore.guoba[pluginName].data, true));
+const state = ref(null);
+
+getGuobaData(pluginName).then(res => {
+  loading.value = false;
+  state.value = res.data;
+});
 const rules = ref({});
 const group = ref<PlusFormGroupRow[]>([]);
 
@@ -166,7 +178,19 @@ schemas.forEach(schema => {
       break;
     case "Select":
       columns.valueType = "select";
-      columns.options = schema.componentProps.options;
+      columns.renderField = (value, onChange) => {
+        return h(ElSelectV2, {
+          value,
+          onChange,
+          filterable: true,
+          tagType: "primary",
+          clearable: true,
+          multiple:
+            schema.componentProps.mode === "multiple" ||
+            schema.componentProps.multiple,
+          options: schema.componentProps.options
+        });
+      };
       break;
     case "RadioGroup":
       columns.valueType = "radio";
@@ -303,8 +327,13 @@ const handleSubmit = () => {
   });
 };
 const handleSubmitError = () => {};
-const getData = () =>
-  clone((state.value = codeStore.guoba[pluginName].data), true);
+const getData = () => {
+  loading.value = true;
+  getGuobaData(pluginName).then(res => {
+    loading.value = false;
+    state.value = res.data;
+  });
+};
 
 onErrorCaptured((err, vm, info) => {
   // const componentName = vm.$options.__name;

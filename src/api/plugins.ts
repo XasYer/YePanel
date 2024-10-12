@@ -30,3 +30,18 @@ export const setSettingData = (plugin: string, data: any) => {
     data
   });
 };
+
+export type getGuobaDataResult = {
+  success: boolean;
+  data: {
+    [key: string]: any;
+  };
+};
+
+export const getGuobaData = (plugin: string) => {
+  return http.request<getGuobaDataResult>("post", `/get-guoba-data`, {
+    data: {
+      plugin
+    }
+  });
+};

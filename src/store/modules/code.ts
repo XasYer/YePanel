@@ -12,7 +12,6 @@ type stateType = {
     [key: string]: {
       pluginInfo: any;
       schemas: any;
-      data: any;
     };
   };
 };
@@ -20,11 +19,11 @@ type stateType = {
 export const useCodeStore = defineStore({
   id: "code",
   state: (): stateType => ({
-    code: sessionStorage.getItem("data")
-      ? JSON.parse(sessionStorage.getItem("data"))
+    code: sessionStorage.getItem("plugin.code")
+      ? JSON.parse(sessionStorage.getItem("plugin.code"))
       : {},
-    guoba: sessionStorage.getItem("guoba")
-      ? JSON.parse(sessionStorage.getItem("guoba"))
+    guoba: sessionStorage.getItem("plugin.guoba")
+      ? JSON.parse(sessionStorage.getItem("plugin.guoba"))
       : {}
   }),
   actions: {
@@ -32,13 +31,13 @@ export const useCodeStore = defineStore({
       this.code = data.code;
       this.guoba = data.guoba;
       sessionStorage.setItem("plugin.code", JSON.stringify(data.code));
-      sessionStorage.setItem("plugin,guoba", JSON.stringify(data.guoba));
+      sessionStorage.setItem("plugin.guoba", JSON.stringify(data.guoba));
     },
     clearData() {
       this.code = {};
       this.guoba = {};
       sessionStorage.removeItem("plugin.code");
-      sessionStorage.removeItem("plugin,guoba");
+      sessionStorage.removeItem("plugin.guoba");
     }
   }
 });
