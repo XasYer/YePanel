@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.2](https://github.com/XasYer/YePanel/compare/v1.5.1...v1.5.2) (2024-10-12)
+
+
+### Bug Fixes
+
+* 按需导入 ([218292e](https://github.com/XasYer/YePanel/commit/218292e535da4479b2b8805159be44aa1832b2ba))
+
 ## [1.5.1](https://github.com/XasYer/YePanel/compare/v1.5.0...v1.5.1) (2024-10-12)
 
 
