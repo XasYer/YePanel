@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.4](https://github.com/XasYer/YePanel/compare/v1.5.3...v1.5.4) (2024-10-12)
+
+
+### Bug Fixes
+
+* build timezone ([7ae70c8](https://github.com/XasYer/YePanel/commit/7ae70c8ab70c1d0bcdd4243c9b097c77751e3f6d))
+
 ## [1.5.3](https://github.com/XasYer/YePanel/compare/v1.5.2...v1.5.3) (2024-10-12)
 
 
