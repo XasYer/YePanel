@@ -119,25 +119,25 @@ export default [
           if (fs.existsSync(guobaSupportPath)) {
             try {
               const supportGuoba = (await import(`file://${guobaSupportPath}?t=${Date.now()}`)).supportGuoba
-              const { pluginInfo, configInfo: { schemas, getConfigData, setConfigData } } = supportGuoba()
+              const { pluginInfo, configInfo: { schemas, setConfigData } } = supportGuoba()
               setConfigDataCache(plugin, setConfigData)
               if (pluginInfo.iconPath) {
-                  try {
-                    const buffer = fs.readFileSync(pluginInfo.iconPath)
-                    const ext = extname(pluginInfo.iconPath)
-                    const base64 = `data:image/${ext.replace('.', '')};base64,${buffer.toString('base64')}`
-                    pluginInfo.iconPath = base64
-                  } catch  {
-                    delete pluginInfo.iconPath
-                  }
+                try {
+                  const buffer = fs.readFileSync(pluginInfo.iconPath)
+                  const ext = extname(pluginInfo.iconPath)
+                  const base64 = `data:image/${ext.replace('.', '')};base64,${buffer.toString('base64')}`
+                  pluginInfo.iconPath = base64
+                } catch  {
+                  delete pluginInfo.iconPath
                 }
-                if (!Array.isArray(pluginInfo.author)) {
-                  pluginInfo.author = [pluginInfo.author]
-                }
-                if (!Array.isArray(pluginInfo.authorLink)) {
-                  pluginInfo.authorLink = [pluginInfo.authorLink]
-                }
-              data.guoba[plugin] = { pluginInfo, schemas, data: await getConfigData() }
+              }
+              if (!Array.isArray(pluginInfo.author)) {
+                pluginInfo.author = [pluginInfo.author]
+              }
+              if (!Array.isArray(pluginInfo.authorLink)) {
+                pluginInfo.authorLink = [pluginInfo.authorLink]
+              }
+              data.guoba[plugin] = { pluginInfo, schemas }
               // 已经有路由, 并且没有设置页面
               if (router.name) {
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { version } from '@/common'
 import { RouteOptions } from 'fastify'
+import { join } from 'path'
 
 /** 缓存每个插件的修改设置方法 */
 const guobaSetConfigDataCache: {
@@ -35,6 +37,20 @@ export default [
           success: true,
           data: Array.from(Bot.fl.values()).map(i=> ({...i, label: `${i.user_name || ''}(${i.user_id})`, value: i.user_id}))
         }
+    }
+  },
+  {
+    url: '/get-guoba-data',
+    method: 'post',
+    handler: async ({body}) => {
+      const { plugin } = body as { plugin: string }
+      const guobaSupportPath = join(version.BotPath, 'plugins', plugin, 'guoba.support.ts')
+      const supportGuoba = (await import(`file://${guobaSupportPath}?t=${Date.now()}`)).supportGuoba
+      const { configInfo: { getConfigData } } = supportGuoba()
+      return {
+        success: true,
+        data: await getConfigData()
+      }
     }
   },
   {

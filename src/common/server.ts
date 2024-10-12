@@ -13,7 +13,9 @@ export async function startServer () {
 
   await fastify.register(fastifyCors, {
     origin: ['*'],
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS']
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    credentials: true
   })
   await fastify.register(fastifyAuth)
   await fastify.register(fastifyWebSocket)
