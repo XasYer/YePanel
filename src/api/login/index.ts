@@ -119,7 +119,7 @@ export default [
           if (fs.existsSync(guobaSupportPath)) {
             try {
               const supportGuoba = (await import(`file://${guobaSupportPath}?t=${Date.now()}`)).supportGuoba
-              const { pluginInfo, configInfo: { schemas, setConfigData } } = supportGuoba()
+              const { pluginInfo, configInfo: { setConfigData } } = supportGuoba()
               setConfigDataCache(plugin, setConfigData)
               if (pluginInfo.iconPath) {
                 try {
@@ -137,7 +137,7 @@ export default [
               if (!Array.isArray(pluginInfo.authorLink)) {
                 pluginInfo.authorLink = [pluginInfo.authorLink]
               }
-              data.guoba[plugin] = { pluginInfo, schemas }
+              data.guoba[plugin] = { pluginInfo }
               // 已经有路由, 并且没有设置页面
               if (router.name) {
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any

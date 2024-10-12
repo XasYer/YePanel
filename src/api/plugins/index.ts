@@ -46,10 +46,11 @@ export default [
       const { plugin } = body as { plugin: string }
       const guobaSupportPath = join(version.BotPath, 'plugins', plugin, 'guoba.support.ts')
       const supportGuoba = (await import(`file://${guobaSupportPath}?t=${Date.now()}`)).supportGuoba
-      const { configInfo: { getConfigData } } = supportGuoba()
+      const { configInfo: { getConfigData, schemas } } = supportGuoba()
       return {
         success: true,
-        data: await getConfigData()
+        data: await getConfigData(),
+        schemas
       }
     }
   },
