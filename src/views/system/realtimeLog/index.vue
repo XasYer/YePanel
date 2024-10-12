@@ -1,24 +1,28 @@
 <template>
   <el-card>
-    <div class="flex mb-[20px]">
-      <el-text>行高: </el-text>
-      <el-input-number
-        v-model="lineSpace"
-        class="mx-[10px]"
-        :min="1"
-        :max="100"
-        @change="handleLineSpace"
-      />
-      <el-text class="w-[70px]"> 日志等级: </el-text>
-      <el-select v-model="level" style="width: 150px" class="mr-[10px]">
-        <el-option
-          v-for="(item, index) in Object.keys(LevelNumber)"
-          :key="item"
-          :label="item"
-          :value="index"
+    <el-row :gutter="10" class="mb-[10px]">
+      <el-col :sm="12" :lg="4" :xs="24" class="mb-[10px] mr-[10px]">
+        <el-text>行高: </el-text>
+        <el-input-number
+          v-model="lineSpace"
+          class="mx-[10px]"
+          :min="1"
+          :max="100"
+          @change="handleLineSpace"
         />
-      </el-select>
-    </div>
+      </el-col>
+      <el-col :sm="12" :lg="4" :xs="24">
+        <el-text class="w-[70px]"> 日志等级: </el-text>
+        <el-select v-model="level" style="width: 150px" class="mr-[10px]">
+          <el-option
+            v-for="(item, index) in Object.keys(LevelNumber)"
+            :key="item"
+            :label="item"
+            :value="index"
+          />
+        </el-select>
+      </el-col>
+    </el-row>
     <div class="h-[70vh]">
       <terminal
         ref="terminalRef"

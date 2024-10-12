@@ -33,9 +33,9 @@
         <component
           :is="widget"
           v-else
-          :message="message"
-          :addDialog="addDialog"
           :request="request"
+          :baseUrl="getBaseUrlApi()"
+          pluginName="Dev"
         />
       </el-col>
     </el-row>
@@ -55,7 +55,11 @@ import * as plusProComponents from "plus-pro-components";
 import * as ElementPlus from "element-plus";
 import { AxiosRequestConfig } from "axios";
 import { PureHttpRequestConfig, RequestMethods } from "@/utils/http/types";
+import { getBaseUrlApi } from "@/api/utils";
 import { http } from "@/utils/http";
+import * as utils from "@pureadmin/utils";
+import * as echarts from "echarts";
+import { IconifyIconOnline } from "@/components/ReIcon";
 defineOptions({
   name: "vue"
 });
@@ -74,10 +78,22 @@ const code = ref(`<template>
 <script lang="ts" setup>
 import { ref } from "vue"
 import { ElCard } from "element-plus";
+import * as echarts from "echarts";
+// https://icon-sets.iconify.design/
+// 使用: <iconify icon="mdi:home" :width="24" :height="24" />
+import iconify from "iconify"
+// https://pure-admin-utils.netlify.app/
+import * as utils from "@pureadmin/utils"
+// Too more please pr or issue...
 
 const props = defineProps({
   // method, url, param, axiosConfig
-  request: Function
+  // 如果需要访问其他api, 可以设置param.baseURL
+  request: Function,
+  // 登录时填写的url
+  baseUrl: String,
+  // 插件名 如果有的话
+  pluginName: String
 })
 
 </${"script"}>`);
@@ -95,7 +111,12 @@ const updateWidget = () => {
       moduleCache: {
         vue: Vue,
         "plus-pro-components": plusProComponents,
-        "element-plus": ElementPlus
+        "element-plus": ElementPlus,
+        echarts: echarts,
+        "@message": message,
+        "@addDialog": addDialog,
+        "@pureadmin/utils": utils,
+        iconify: IconifyIconOnline
       },
       addStyle(textContent) {
         let style = document.getElementById("dev-vue-styles");

@@ -1,123 +1,129 @@
 <template>
   <el-card class="h-[80vh]">
-    <div class="flex mb-[20px] flex-wrap">
-      <el-input v-model="path" style="width: 600px">
-        <template #prepend>
-          <el-dropdown
-            split-button
-            :disabled="!historyPath.length"
-            @command="getData"
-            @click="getData(historyPath.shift())"
-          >
-            <IconifyIconOnline icon="mdi:arrow-left" />
-            <template #dropdown>
-              <el-dropdown-menu>
-                <el-dropdown-item
-                  v-for="item in historyPath"
-                  :key="item"
-                  :command="item"
-                >
-                  {{ item }}
-                </el-dropdown-item>
-              </el-dropdown-menu>
-            </template>
-          </el-dropdown>
-        </template>
-        <template #append>
-          <el-button @click="getData(path)">
-            <IconifyIconOnline icon="mdi:arrow-right" /> </el-button
-        ></template>
-      </el-input>
-      <el-popover :width="400" trigger="click" :visible="uploadVisible">
-        <template #reference>
-          <el-button
-            type="primary"
-            class="ml-[10px]"
-            @click="uploadVisible = true"
-            >上传</el-button
-          >
-        </template>
-        <el-upload
-          ref="uploadRef"
-          drag
-          :action="`${getBaseUrlApi()}/upload-file`"
-          multiple
-          :data="{ path }"
-          show-file-list
-          :auto-upload="false"
-          :headers="{ Authorization: `Bearer ${getToken().accessToken}` }"
-          :on-success="handleUploadSuccess"
-        >
-          <div>
-            <IconifyIconOnline icon="mdi:upload" :width="96" class="m-auto" />
-          </div>
-          <div>拖动文件到此处或点我上传</div>
-          <template #tip>
-            <div class="mt-[10px] text-center">
-              仅支持简单文件上传，请勿上传大文件<br />上传同名文件将会覆盖原文件。
-            </div>
-            <div class="text-right">
-              <el-button
-                text
-                @click="uploadVisible = false && (uploadLoading = false)"
-                >取消</el-button
-              >
-              <el-button
-                type="primary"
-                :loading="uploadLoading"
-                @click="handleUpload"
-              >
-                确认
-              </el-button>
-            </div>
+    <el-row class="flex mb-[20px] flex-wrap">
+      <el-col :xl="7" :sm="12" :lg="7" :xs="24" class="mb-[10px] mr-[10px]">
+        <el-input v-model="path">
+          <template #prepend>
+            <el-dropdown
+              split-button
+              :disabled="!historyPath.length"
+              @command="getData"
+              @click="getData(historyPath.shift())"
+            >
+              <IconifyIconOnline icon="mdi:arrow-left" />
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <el-dropdown-item
+                    v-for="item in historyPath"
+                    :key="item"
+                    :command="item"
+                  >
+                    {{ item }}
+                  </el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
           </template>
-        </el-upload>
-      </el-popover>
-      <el-dropdown trigger="click" @command="newFileOrDir">
-        <el-button type="primary" class="mx-[10px]">新建</el-button>
-        <template #dropdown>
-          <el-dropdown-menu>
-            <el-dropdown-item command="file"> 文件 </el-dropdown-item>
-            <el-dropdown-item command="dir"> 文件夹 </el-dropdown-item>
-          </el-dropdown-menu>
-        </template>
-      </el-dropdown>
-      <el-popconfirm
-        :title="deleteTitle"
-        width="300px"
-        @confirm="handleDelete(selectData)"
-      >
-        <template #reference>
-          <el-button
-            type="danger"
-            :disabled="!selectData.length"
-            @click="changeDeleteTitle(selectData)"
-            >删除</el-button
+          <template #append>
+            <el-button @click="getData(path)">
+              <IconifyIconOnline icon="mdi:arrow-right" /> </el-button
+          ></template>
+        </el-input>
+      </el-col>
+      <el-col :xl="3" :sm="12" :lg="3" :xs="24" class="mb-[10px] mr-[10px]">
+        <el-popover :width="400" trigger="click" :visible="uploadVisible">
+          <template #reference>
+            <el-button
+              type="primary"
+              class="mr-[10px]"
+              @click="uploadVisible = true"
+              >上传</el-button
+            >
+          </template>
+          <el-upload
+            ref="uploadRef"
+            drag
+            :action="`${getBaseUrlApi()}/upload-file`"
+            multiple
+            :data="{ path }"
+            show-file-list
+            :auto-upload="false"
+            :headers="{ Authorization: `Bearer ${getToken().accessToken}` }"
+            :on-success="handleUploadSuccess"
           >
-        </template>
-      </el-popconfirm>
-      <el-button
-        type="primary"
-        :disabled="!selectData.length || action == 'copy'"
-        @click="action = 'copy'"
-        >复制</el-button
-      >
-      <el-button
-        type="primary"
-        :disabled="!selectData.length || action == 'move'"
-        @click="action = 'move'"
-        >移动</el-button
-      >
-      <el-button v-if="action" type="success" @click="handlePaste"
-        >粘贴</el-button
-      >
-      <el-button
-        v-if="selectData.length"
-        type="default"
-        @click="handleCancelSelect"
-        >取消</el-button
-      >
-    </div>
+            <div>
+              <IconifyIconOnline icon="mdi:upload" :width="96" class="m-auto" />
+            </div>
+            <div>拖动文件到此处或点我上传</div>
+            <template #tip>
+              <div class="text-center">
+                仅支持简单文件上传，请勿上传大文件<br />上传同名文件将会覆盖原文件。
+              </div>
+              <div class="text-right">
+                <el-button
+                  text
+                  @click="uploadVisible = false && (uploadLoading = false)"
+                  >取消</el-button
+                >
+                <el-button
+                  type="primary"
+                  :loading="uploadLoading"
+                  @click="handleUpload"
+                >
+                  确认
+                </el-button>
+              </div>
+            </template>
+          </el-upload>
+        </el-popover>
+        <el-dropdown trigger="click" @command="newFileOrDir">
+          <el-button type="primary" class="mr-[10px]">新建</el-button>
+          <template #dropdown>
+            <el-dropdown-menu>
+              <el-dropdown-item command="file"> 文件 </el-dropdown-item>
+              <el-dropdown-item command="dir"> 文件夹 </el-dropdown-item>
+            </el-dropdown-menu>
+          </template>
+        </el-dropdown>
+        <el-popconfirm
+          :title="deleteTitle"
+          width="300px"
+          @confirm="handleDelete(selectData)"
+        >
+          <template #reference>
+            <el-button
+              type="danger"
+              :disabled="!selectData.length"
+              @click="changeDeleteTitle(selectData)"
+              >删除</el-button
+            >
+          </template>
+        </el-popconfirm>
+      </el-col>
+      <el-col :xl="6" :sm="12" :lg="6" :xs="24">
+        <el-button
+          type="primary"
+          :disabled="!selectData.length || action == 'copy'"
+          @click="action = 'copy'"
+          >复制</el-button
+        >
+        <el-button
+          type="primary"
+          :disabled="!selectData.length || action == 'move'"
+          @click="action = 'move'"
+          >移动</el-button
+        >
+        <el-button
+          v-if="selectData.length"
+          type="default"
+          @click="handleCancelSelect"
+          >取消</el-button
+        >
+        <el-button v-if="action" type="success" @click="handlePaste"
+          >粘贴</el-button
+        >
+      </el-col>
+    </el-row>
     <div>
       <el-table
         ref="tableRef"
