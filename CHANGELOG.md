@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.5](https://github.com/XasYer/YePanel/compare/v1.5.4...v1.5.5) (2024-10-14)
+
+
+### Bug Fixes
+
+* 路由icon不使用base64 ([6d170fb](https://github.com/XasYer/YePanel/commit/6d170fb4c60590cf7d691c4eb311be00bb6d3d6d))
+
 ## [1.5.4](https://github.com/XasYer/YePanel/compare/v1.5.3...v1.5.4) (2024-10-12)
 
 
