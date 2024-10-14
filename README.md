@@ -26,14 +26,18 @@
 
    ```sh
    git clone --depth=1 -b build https://github.com/XasYer/YePanel.git ./plugins/YePanel/
-   pnpm install --filter=YePanel
    ```
 
    > 如果你的网络环境较差，无法连接到 Github，可以使用 [GitHub Proxy](https://moeyy.cn/gh-proxy/) 提供的文件代理加速下载服务
    >
    > ```sh
-   > git clone  --depth=1 https://github.moeyy.xyz/https://github.com/XasYer/YePanel.git ./plugins/YePanel/
+   > git clone --depth=1 -b build https://github.moeyy.xyz/https://github.com/XasYer/YePanel.git ./plugins/YePanel/
    > ```
+
+   安装依赖
+   ```sh
+   pnpm install --filter=YePanel
+   ```
 
 2. clone main 分支自行编译 (不推荐)
    ```sh
