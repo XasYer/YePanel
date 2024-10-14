@@ -5,6 +5,9 @@ type Result = {
   data: {
     router: any[];
     code: any;
+    guoba: {
+      [key: string]: any;
+    };
   };
 };
 

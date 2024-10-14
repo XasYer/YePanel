@@ -1,6 +1,8 @@
 import type { iconType } from "./types";
 import { h, defineComponent, type Component } from "vue";
 import { IconifyIconOnline, IconifyIconOffline, FontIcon } from "../index";
+import { getBaseUrlApi } from "@/api/utils";
+import { getToken } from "@/utils/auth";
 
 /**
  * 支持 `iconfont`、自定义 `svg` 以及 `iconify` 中所有的图标
@@ -60,6 +62,20 @@ export function useRenderIcon(icon: any, attrs?: iconType): Component {
       render() {
         return h("img", {
           src: icon,
+          style: "width: 18px"
+        });
+      }
+    });
+  } else if (icon.startsWith("api:")) {
+    const url =
+      getBaseUrlApi().replace(/\/$/, "") +
+      icon.replace("api:", "") +
+      `?accessToken=${getToken().accessToken}`;
+    return defineComponent({
+      name: "OnlineIcon",
+      render() {
+        return h("img", {
+          src: url,
           style: "width: 18px"
         });
       }
