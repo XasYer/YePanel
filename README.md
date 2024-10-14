@@ -58,6 +58,10 @@ YePanel 目前只提供 api 接口，需要登陆官方或第三方面板后才�
 用户名和密码可在`config/server.yaml`中编辑，密码默认为`123456`，用户名可以为任何已登录的 Bot 账号，
 api 接口地址为`http://ip:port`，ip 为服务器公网 ip，port 更换为配置文件中设置的端口。
 
+### 注意
+
+web 面板和 api接口 通常为同步更新，如果届时发现无法登录web面板或出现异常，请先尝试更新插件。
+
 ## 联系方式
 
 - QQ 群: [741577559](http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=IvPaOVo_p-6n--FaLm1v39ML9EZaBRCm&authKey=YPs0p%2FRh8MGPQrWZgn99fk4kGB5PtRAoOYIUqK71FBsBYCDdekxCEHFFHnznpYA1&noverify=0&group_code=741577559)
