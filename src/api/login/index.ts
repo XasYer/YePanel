@@ -2,8 +2,8 @@ import { randomUUID } from 'crypto'
 import { RouteOptions } from 'fastify'
 import { config, version } from '@/common'
 import fs from 'fs'
-import { join, extname } from 'path'
-import { setConfigDataCache } from '@/api/plugins'
+import { join } from 'path'
+import { setConfigDataCache, setPluginIconPath } from '@/api/plugins'
 import { addCustomRoutes } from '@/api/plugins'
 
 const token: { [uin: string]: string } = {}
@@ -122,12 +122,10 @@ export default [
               const { pluginInfo, configInfo: { setConfigData } } = supportGuoba()
               setConfigDataCache(plugin, setConfigData)
               if (pluginInfo.iconPath) {
-                try {
-                  const buffer = fs.readFileSync(pluginInfo.iconPath)
-                  const ext = extname(pluginInfo.iconPath)
-                  const base64 = `data:image/${ext.replace('.', '')};base64,${buffer.toString('base64')}`
-                  pluginInfo.iconPath = base64
-                } catch  {
+                if (fs.existsSync(pluginInfo.iconPath)) {
+                  setPluginIconPath(plugin, pluginInfo.iconPath)
+                  pluginInfo.iconPath = `api:/image/${plugin}`
+                } else {
                   delete pluginInfo.iconPath
                 }
               }

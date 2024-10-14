@@ -2,6 +2,7 @@
 import { version } from '@/common'
 import { RouteOptions } from 'fastify'
 import { join } from 'path'
+import fs from 'fs'
 
 /** 缓存每个插件的修改设置方法 */
 const guobaSetConfigDataCache: {
@@ -16,6 +17,12 @@ const customRoutes: {[key: string]: RouteOptions[]} = {}
 
 export const addCustomRoutes = (plugin: string, routes: RouteOptions[]) => {
   customRoutes[plugin] = routes
+}
+
+const pluginIconPath: {[key: string]: string} = {}
+
+export const setPluginIconPath = (plugin: string, path: string) => {
+  pluginIconPath[plugin] = path
 }
 
 export default [
@@ -70,5 +77,20 @@ export default [
       }
       return { success: true, message}
     }
-  }
+  },
+  {
+    url: '/image/:plugin',
+    method: 'get',
+    handler: (req, reply) => {
+      const { plugin } = req.params as { plugin: string }
+      const iconPath = pluginIconPath[plugin]
+      if (iconPath) {
+        const stream = fs.createReadStream(iconPath)
+        const ext = iconPath.split('.').pop()
+        reply.type(`image/${ext}`).send(stream)
+      } else {
+        reply.code(404).send('Not Found')
+      }
+    }
+  },
 ] as RouteOptions[]
