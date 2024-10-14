@@ -36,7 +36,7 @@
 
    安装依赖
    ```sh
-   pnpm install --filter=YePanel
+   pnpm install --filter=YePanel -P
    ```
 
 2. clone main 分支自行编译 (不推荐)
