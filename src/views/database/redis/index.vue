@@ -47,11 +47,6 @@
           <el-descriptions-item label="已运行时间">{{
             redisInfo?.uptime_formatted
           }}</el-descriptions-item>
-          <el-descriptions-item
-            v-if="redisInfo?.config_file"
-            label="配置文件路径"
-            >{{ redisInfo?.config_file }}</el-descriptions-item
-          >
         </el-descriptions>
         <el-descriptions
           :border="infoBorder"
@@ -178,7 +173,8 @@
               </el-button>
             </div>
             <el-text class="mx-1" type="warning" size="large"
-              >请注意: 如果redis数据量过大, 可能会导致服务器卡顿</el-text
+              >请注意: 如果redis数据量过大, 可能会导致服务器卡顿,
+              此时建议使用懒加载模式</el-text
             >
             <el-divider content-position="left">数据加载方式</el-divider>
             <el-radio-group v-model="treeType">
