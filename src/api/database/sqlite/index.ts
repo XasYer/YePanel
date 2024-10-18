@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import fs from 'fs'
 import { join } from 'path'
-// @ts-ignore
 import { Sequelize } from 'sequelize'
 import { RouteOptions } from 'fastify'
 
@@ -96,7 +95,7 @@ export default [
     handler: async ({ body }) => {
       const { path } = body as { path: string }
       const sequelize = getSequelize(path).instance
-      const [results]: [{ name: string }[]] = await sequelize.query('SELECT name FROM sqlite_master WHERE type=\'table\';')
+      const [results] = await sequelize.query('SELECT name FROM sqlite_master WHERE type=\'table\';') as [{ name: string }[], unknown]
       return {
         success: true,
         data: results.map(item => (item.name)).filter(item => item !== 'sqlite_sequence')
@@ -111,16 +110,16 @@ export default [
       const offset = (pageNum * pageSize) - pageSize
       const { instance: sequelize, total, tableInfo } = getSequelize(path)
       if (!total[table]) {
-        const [totalResults] = await sequelize.query(`SELECT COUNT(*) AS total FROM ${table};`)
+        const [totalResults] = await sequelize.query(`SELECT COUNT(*) AS total FROM ${table};`) as [{ total: number }[], unknown]
         total[table] = totalResults[0].total
       }
       let count = total[table]
       if (!tableInfo[table]) {
-        const [tableInfoResults]: [tableInfo[]] = await sequelize.query(`PRAGMA table_info(${table});`)
+        const [tableInfoResults] = await sequelize.query(`PRAGMA table_info(${table});`) as [tableInfo[], unknown]
         const info: any = {}
         for (const item of tableInfoResults) {
           if (item.pk) {
-              const [results] = await sequelize.query(`SELECT sql FROM sqlite_master WHERE type = 'table' AND name = '${table}';`)
+              const [results] = await sequelize.query(`SELECT sql FROM sqlite_master WHERE type = 'table' AND name = '${table}';`) as [{ sql: string }[], unknown]
               item.autoincrement = /AUTOINCREMENT/.test(results[0].sql)
           }
           info[item.name] = item
@@ -128,9 +127,9 @@ export default [
         tableInfo[table] = info
       }
       const sql = `SELECT * FROM ${table} ${search ? `WHERE ${search}` : ''} LIMIT ${pageSize} OFFSET ${offset};`
-      const [results]: [{ [key: string]: any }[]] = await sequelize.query(sql)
+      const [results] = await sequelize.query(sql) as [{ [key: string]: any }[], unknown]
       if (search) {
-        const [searchResults] = await sequelize.query(`SELECT COUNT(*) AS total FROM ${table} WHERE ${search};`)
+        const [searchResults] = await sequelize.query(`SELECT COUNT(*) AS total FROM ${table} WHERE ${search};`) as [{ total: number }[], unknown]
         count = searchResults[0].total
       }
       return {
@@ -165,7 +164,7 @@ export default [
             replacements: type === 'update' ? [...values, updatedAt, data[pk] ] : [...values, updatedAt, updatedAt]
           }
         )
-        const [totalResults] = await sequelize.query(`SELECT COUNT(*) AS total FROM ${table};`)
+        const [totalResults] = await sequelize.query(`SELECT COUNT(*) AS total FROM ${table};`) as [{ total: number }[], unknown]
         total[table] = totalResults[0].total
         return {
           success: true,
@@ -195,7 +194,7 @@ export default [
             replacements: [data[pk]]
           }
         )
-        const [totalResults] = await sequelize.query(`SELECT COUNT(*) AS total FROM ${table};`)
+        const [totalResults] = await sequelize.query(`SELECT COUNT(*) AS total FROM ${table};`) as [{ total: number }[], unknown]
         total[table] = totalResults[0].total
         return {
           success: true,

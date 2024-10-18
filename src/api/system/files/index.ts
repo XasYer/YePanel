@@ -85,7 +85,7 @@ export default [
         }
         const filePath = join(formData.path, formData.name)
         if (formData.path && formData.name && formData.file) {
-          fs.writeFileSync(filePath, formData.file)
+          fs.writeFileSync(filePath, formData.file as any)
         }
         try {
           const stat = fs.statSync(filePath)

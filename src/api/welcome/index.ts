@@ -269,7 +269,7 @@ export default [
           `Yz:count:send:msg:total:${time}`,
           `Yz:count:receive:msg:total:${time}`
         ] : [`Yz:count:sendMsg:day:${date.format('MMDD')}`]
-        const value: number[] = await redis.mGet(keys)
+        const value: Array<string | null> = await redis.mGet(keys)
         if (value.some(i => i !== null)) {
           data.sent.unshift(Number(value[0]))
           data.recv.unshift(Number(value[1]))
