@@ -18,6 +18,7 @@
     :baseUrl="getBaseUrlApi"
     :pluginName="pluginName"
     :request="request"
+    :accessToken="accessToken"
   />
 </template>
 
@@ -38,6 +39,7 @@ import * as echarts from "echarts";
 import { PureHttpRequestConfig, RequestMethods } from "@/utils/http/types";
 import { AxiosRequestConfig } from "axios";
 import { IconifyIconOnline } from "@/components/ReIcon";
+import { getToken } from "@/utils/auth";
 
 const codeStore = useCodeStoreHook();
 const route = useRoute();
@@ -59,6 +61,8 @@ const request = (
   };
   return http.request(method, url, param, axiosConfig);
 };
+
+const accessToken = getToken().accessToken;
 
 const loadErr = ref("");
 const loading = ref(true);

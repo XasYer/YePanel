@@ -1,7 +1,7 @@
 <template>
   <div>
     <el-row :gutter="24">
-      <el-col v-motion class="mb-[18px]" :xl="16" :md="24" :xs="24" :sm="24">
+      <el-col v-motion class="mb-[18px]" :lg="16" :md="24" :xs="24" :sm="24">
         <el-card class="bar-card" shadow="never">
           <el-skeleton :loading="!messageInfo.time.length" animated>
             <template #default>
@@ -45,7 +45,7 @@
         </el-card>
       </el-col>
 
-      <el-col :xl="8" :md="24" :xs="24" :sm="24" class="mb-[18px]">
+      <el-col :lg="8" :md="24" :xs="24" :sm="24" class="mb-[18px]">
         <el-card class="w-full h-[450px]" shadow="never">
           <el-skeleton :loading="!systemInfo.plugins.length" animated :rows="5">
             <template #default>
@@ -235,7 +235,9 @@
         <el-card shadow="never" class="h-[170px]">
           <el-container>
             <el-aside width="80px" class="flex-c flex-col">
-              <el-avatar :size="80" :src="item.avatar" />
+              <el-avatar :size="80" :src="item.avatar">
+                {{ item.nickname.slice(0, 1) }}
+              </el-avatar>
               <el-tag class="mt-[10px]">{{ item.platform }}</el-tag>
             </el-aside>
             <el-container>
@@ -326,6 +328,7 @@ import { message } from "@/utils/message";
 import { addDialog, closeDialog } from "@/components/ReDialog";
 import { ElScrollbar, ElTimeline, ElTimelineItem } from "element-plus";
 import { openLink } from "@pureadmin/utils";
+import { useHomeStoreHook } from "@/store/modules/home";
 
 const systemInfo = ref<getSystemInfoResult["data"]>({
   visual: Array.from({ length: 5 }, (_, index) => ({})) as any,
@@ -345,11 +348,14 @@ defineOptions({
   name: "Welcome"
 });
 
+const homeStore = useHomeStoreHook();
+
 const botInfo = ref<getBotInfoResult["data"]>([]);
 
 getBotInfo().then(res => {
   if (res.success) {
     botInfo.value = res.data;
+    homeStore.setBotInfo(res.data);
   }
 });
 

@@ -1,26 +1,10 @@
 import { defineStore } from "pinia";
-import {
-  type homeDataType,
-  store,
-  router,
-  resetRouter,
-  routerArrays,
-  storageLocal
-} from "../utils";
-import {
-  type homeDataResult,
-  getHomeData,
-} from "@/api/home";
-import { useMultiTagsStoreHook } from "./multiTags";
-import { setBaseUrlApi } from '@/api/utils'
+import { type homeDataType, store } from "../utils";
 
-export const useUserStore = defineStore({
+export const useHomeStore = defineStore({
   id: "pure-home",
   state: (): homeDataType => ({
-    // 今日统计
-    todayData: {},
-    // 月度统计
-    monthData: {},
+    botInfo: []
   }),
   actions: {
     /** 存储头像 */
@@ -31,9 +15,12 @@ export const useUserStore = defineStore({
     setMonthData(monthData: object) {
       this.monthData = monthData;
     },
+    setBotInfo(botInfo: homeDataType["botInfo"]) {
+      this.botInfo = botInfo;
+    }
   }
 });
 
-export function useUserStoreHook() {
-  return useUserStore(store);
+export function useHomeStoreHook() {
+  return useHomeStore(store);
 }

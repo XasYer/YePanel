@@ -1,3 +1,4 @@
+import type { getBotInfoResult } from "@/api/home";
 import type { RouteRecordName } from "vue-router";
 
 export type cacheType = {
@@ -43,9 +44,9 @@ export type userType = {
   roles?: Array<string>;
   isRemembered?: boolean;
   loginDay?: number;
+  uin?: string;
 };
 
 export type homeDataType = {
-  todayData: object;
-  monthData: object;
-}
+  botInfo: getBotInfoResult["data"];
+};

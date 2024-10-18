@@ -1,6 +1,6 @@
 <template>
   <el-row v-loading="loading" justify="center">
-    <el-col :lg="14" xs="24">
+    <el-col :lg="14" :xs="24">
       <el-card class="flex">
         <el-descriptions :column="1">
           <template #title>
