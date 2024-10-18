@@ -83,6 +83,13 @@ web 面板和 api接口 通常为同步更新，如果届时发现无法登录we
 </details>
 
 <details>
+<summary>沙盒测试</summary>
+
+![沙盒测试](https://cdn.jsdelivr.net/gh/XasYer/YePanel@web/public/sendbox.png)
+
+</details>
+
+<details>
 <summary>远程终端</summary>
 
 ![远程终端](https://cdn.jsdelivr.net/gh/XasYer/YePanel@web/public/terminal.png)
@@ -218,6 +225,8 @@ import * as echarts from "echarts";
 import iconify from "iconify"
 // https://pure-admin-utils.netlify.app/
 import * as utils from "@pureadmin/utils"
+// https://plus-pro-components.com/
+import * as PlusProComponents from 'plus-pro-components'
 // Too more please pr or issue...
 
 const props = defineProps({
@@ -228,7 +237,9 @@ const props = defineProps({
   // 登录时填写的url
   baseUrl: String,
   // 插件文件名
-  pluginName: String
+  pluginName: String,
+  /// 登录后获得的token, 可用于ws鉴权 new WebSocket(url, accessToken)
+  accessToken: String,
 })
 
 </script>
