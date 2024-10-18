@@ -57,6 +57,7 @@ export default [
           roles: ['admin'],
           accessToken: token[uin] + '.' + uin,
           refreshToken: token[uin] + ':refreshToken.' + uin,
+          uin,
           expires: '2030/10/30 00:00:00'
         }
       }

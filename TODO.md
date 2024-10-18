@@ -1,4 +1,10 @@
 # TODO List
 
-- [ ] file: `src/api/database/sqlite/index.ts` api: `/set-sqlite-table-data` add types
-- [ ] file: `src/api/login/index.ts` api: `/get-async-routes` add types
+- [x] 沙盒测试
+    - [ ] 渲染转发消息
+    - [ ] 适配更多发送的消息类型
+    - [ ] 适配更多接收的消息类型
+- [ ] 插件库预览 安装插件 卸载插件
+- [ ] 本体设置
+- [ ] 远程终端手机端不好输入
+- [ ] web增加build分支 可自行拉取到YePanel目录挂载到崽上

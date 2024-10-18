@@ -17,11 +17,18 @@ interface logger extends Logger {
 
 declare global {
   var Bot: {
+    uin: number | string[]
     gl: Map<string, {[key: string]: any}>;
     fl: Map<string, {[key: string]: any}>;
-    adapter: any[]
+    adapter: any[] | any
+    em: (key: string, value: any) => void
+    emit: (event: string, value: any) => void
     [key: string]: {
-      adapter: { name: string }
+      self_id: number | string
+      nickname: string
+      avatar: string
+      uin: number | string
+      adapter: { name: string, id: string, [key: string]: any }
       avatar: string
       nickname: string
       fl: Map<string, any>
@@ -37,7 +44,16 @@ declare global {
         recv_msg_cnt?: number
         [key: string]: any
       }
-      dau: {
+      pickUser: (user_id: string) => any
+      pickFriend: (user_id: string) => any
+      pickGroup: (group_id: string) => any
+      pickMember: (group_id: string, user_id: string) => any
+      sendGroupMsg: (group_id: string, msg: any) => Promise<any>
+      sendPrivateMsg: (user_id: string, msg: any) => Promise<any>
+      getFriendList: () => Map<string, any>
+      getGroupList: () => Map<string, any>
+      getGroupMemberList: (group_id: string) => Map<string, Map<string, any>>
+      dau?: {
         dauDB: 'redis'|'level'|false
         all_user: {[key: string]: number, total: number}
         all_group: {[key: string]: number, total: number}
@@ -46,6 +62,7 @@ declare global {
         monthlyDau: (any) => Promise<any>
         callStat: (any, boolean) => Promise<any>
       }
+      [key: string]: any
     }
   }
   var redis: RedisClientType
