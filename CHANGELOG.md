@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.0](https://github.com/XasYer/YePanel/compare/v1.5.5...v1.6.0) (2024-10-18)
+
+
+### Features
+
+* 沙盒测试 ([1d51584](https://github.com/XasYer/YePanel/commit/1d5158468b2cec3bfadb0a8d992fa459882138d2))
+
 ## [1.5.5](https://github.com/XasYer/YePanel/compare/v1.5.4...v1.5.5) (2024-10-14)
 
 
