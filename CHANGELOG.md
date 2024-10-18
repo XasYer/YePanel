@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.1](https://github.com/XasYer/YePanel/compare/v1.6.0...v1.6.1) (2024-10-18)
+
+
+### Bug Fixes
+
+* 编译错误 ([c3902ca](https://github.com/XasYer/YePanel/commit/c3902cafad12dca2749e102affdc56112e900c98))
+
 ## [1.6.0](https://github.com/XasYer/YePanel/compare/v1.5.5...v1.6.0) (2024-10-18)
 
 
