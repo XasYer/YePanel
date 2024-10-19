@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.7.3](https://github.com/XasYer/YePanel/compare/v1.7.2...v1.7.3) (2024-10-19)
+
+
+### Bug Fixes
+
+* 样式 ([d4ee1ff](https://github.com/XasYer/YePanel/commit/d4ee1ffee3c3dc4b3e87bac09bdae393855982c3))
+* 访问根目录提示 ([bb971ef](https://github.com/XasYer/YePanel/commit/bb971efd89006463941d8102b076b4064bd5664d))
+
 ## [1.7.2](https://github.com/XasYer/YePanel/compare/v1.7.1...v1.7.2) (2024-10-19)
 
 
