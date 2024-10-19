@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.1](https://github.com/XasYer/YePanel/compare/v1.7.0...v1.7.1) (2024-10-19)
+
+
+### Bug Fixes
+
+* 可配置输出调用日志 ([636c20f](https://github.com/XasYer/YePanel/commit/636c20fab03458f6131a14c4c8b1966899fc460f))
+
 ## [1.7.0](https://github.com/XasYer/YePanel/compare/v1.6.1...v1.7.0) (2024-10-19)
 
 
