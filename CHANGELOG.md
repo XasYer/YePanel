@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.2](https://github.com/XasYer/YePanel/compare/v1.7.1...v1.7.2) (2024-10-19)
+
+
+### Bug Fixes
+
+* 获取公网ip ([ab901a7](https://github.com/XasYer/YePanel/commit/ab901a70de624d9fd7535a4b7d6acbc8d68b49bf))
+
 ## [1.7.1](https://github.com/XasYer/YePanel/compare/v1.7.0...v1.7.1) (2024-10-19)
 
 
