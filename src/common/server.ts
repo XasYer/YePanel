@@ -159,7 +159,7 @@ async function getIps () {
   }
   for (const i of url) {
     try {
-      await fetch(i.api).then(res => res.json()).then(res => {
+      const info = await fetch(i.api).then(res => res.json()).then(res => {
         const remote = i.key.split('.').reduce((prev, curr) => prev && prev[curr], res) as string
         if (remote) {
           redis.set(redisKey, remote, { EX: 60 * 60 * 24 * 3})
@@ -167,8 +167,16 @@ async function getIps () {
             local,
             remote
           }
+        } else {
+          return {
+            local,
+            remote: ''
+          }
         }
       })
+      if (info.remote) {
+        return info
+      }
     } catch { /* empty */ }
   }
   return {
