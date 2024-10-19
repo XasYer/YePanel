@@ -1,6 +1,12 @@
 # 端口
 port: 2877
 
+# api请求日志输出 可选request上的参数 或 false 关闭日志输出
+logs:
+  - method
+  - url
+  - body
+
 # 密码
 # default对应的账号为Bot.uin, 此时会使用对应Bot的头像和名称
 # 也可以自定义账号 key是对应的账号，password是密码，nickname是昵称，avatarUrl是头像链接，enable是是否启用该账号

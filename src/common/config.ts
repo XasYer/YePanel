@@ -2,6 +2,7 @@ import YAML from 'yaml'
 import fs from 'node:fs'
 import chokidar, { FSWatcher } from 'chokidar'
 import * as version from './version.js'
+import { FastifyRequest } from 'fastify'
 
 class Config {
   config: {
@@ -24,6 +25,25 @@ class Config {
     for (const file of files) {
       if (!fs.existsSync(`${path}${file}`)) {
         fs.copyFileSync(`${pathDef}${file}`, `${path}${file}`)
+      } else {
+        const config = YAML.parse(fs.readFileSync(`${path}${file}`, 'utf8'))
+        const defaultConfig = YAML.parse(fs.readFileSync(`${pathDef}${file}`, 'utf8'))
+        const configKey = Object.keys(config)
+        const defaultConfigKey = Object.keys(defaultConfig)
+        let isChange = false
+        for (const key of defaultConfigKey) {
+          if (!configKey.includes(key)) {
+            isChange = true
+          } else {
+            defaultConfig[key] = config[key]
+          }
+        }
+        if (isChange) {
+          fs.copyFileSync(`${pathDef}${file}`, `${path}${file}`)
+          for (const key of defaultConfigKey) {
+            this.modify(file.replace('.yaml', ''), key, defaultConfig[key])
+          }
+        }
       }
       this.watch(`${path}${file}`, file.replace('.yaml', ''), 'config')
     }
@@ -32,6 +52,7 @@ class Config {
   /** 服务配置 */
   get server (): { 
     port: number
+    logs: Array<keyof FastifyRequest>
     password: {
         [key: string]: {
             password: string

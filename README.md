@@ -35,6 +35,7 @@
    > ```
 
    安装依赖
+
    ```sh
    pnpm install --filter=YePanel -P
    ```
@@ -54,54 +55,55 @@ YePanel 目前只提供 api 接口，需要登陆官方或第三方面板后才�
 用户名和密码可在`config/server.yaml`中编辑，密码默认为`123456`，用户名可以为任何已登录的 Bot 账号，
 api 接口地址为`http://ip:port`，**ip 为服务器公网 ip，port 更换为配置文件中设置的端口，如果在外网环境中访问面板，需要开放端口**。
 
-使用方式为1或2时, 可以直接访问`http://ip:port`。
+使用方式为 1 或 2 时, 可以直接访问`http://ip:port`。
 
 ### 1. 使用公共面板
 
- [公共地址](http://gh.xasyer.icu/YePanel/)
+[公共地址](http://gh.xasyer.icu/YePanel/)
 
 #### 注意
 
-web 面板和 api接口 通常为同步更新，如果届时发现无法登录web面板或出现异常，请先尝试更新插件。
+web 面板和 api 接口 通常为同步更新，如果届时发现无法登录 web 面板或出现异常，请先尝试更新插件。
 
  <details>
  <summary>chrome打开公共面板显示 `该网页无法正常运作`</summary>
 
-  > [!TIP]
-  > 注意: 要使用`http` 而不是 `https`, 输入网址时需要手动加`http://`
-  > 可先尝试手动添加`http://`再访问, 如`http://gh.xasyer.icu/YePanel/`
+> [!TIP]
+> 注意: 要使用`http` 而不是 `https`, 输入网址时需要手动加`http://`
+> 可先尝试手动添加`http://`再访问, 如`http://gh.xasyer.icu/YePanel/`
 
-  可尝试以下方法:
+可尝试以下方法:
 
-  - 方法一
+- 方法一
 
-    1. 地址栏输入: chrome://settings/content/siteDetails?site=http%3A%2F%2Fgh.xasyer.icu
-    2. 找到不安全内容 选择 允许
-    3. 再打开 http://gh.xasyer.icu/YePanel/
+  1. 地址栏输入: chrome://settings/content/siteDetails?site=http%3A%2F%2Fgh.xasyer.icu
+  2. 找到不安全内容 选择 允许
+  3. 再打开 http://gh.xasyer.icu/YePanel/
 
-  - 方法二
+- 方法二
 
-    1. chrome地址栏输入chrome://net-internals/#hsts
-    2. Delete domain security policies下面的输入框输入https://gh.xasyer.icu/YePanel/ 点击delete
-    3. 重新打开chrome,地址栏输入http://gh.xasyer.icu/YePanel/
+  1. chrome 地址栏输入 chrome://net-internals/#hsts
+  2. Delete domain security policies 下面的输入框输入https://gh.xasyer.icu/YePanel/ 点击 delete
+  3. 重新打开 chrome,地址栏输入http://gh.xasyer.icu/YePanel/
 
  </details>
 
 ### 2. 挂载到崽上
 
-clone gh-pages 分支到plugins目录下以`YePanel-Web`命名, 此时启动时会自动挂载到server.yaml中配置的端口下。
+clone gh-pages 分支到 plugins 目录下以`YePanel-Web`命名, 此时启动时会自动挂载到 server.yaml 中配置的端口下。
 
 ```sh
 git clone --depth=1 -b gh-pages https://github.com/XasYer/YePanel.git ./plugins/YePanel-Web/
 ```
 
-> [!TIP] 
+> [!TIP]
 > 网络问题导致 clone 失败时, 可以使用以下命令克隆
->```sh
+>
+> ```sh
 > git clone --depth=1 -b gh-pages https://github.moeyy.xyz/https://github.com/XasYer/YePanel.git ./pluginsYePanel-Web/
->```
+> ```
 
-~~放到plugins目录蹭一下#全部更新~~
+~~放到 plugins 目录蹭一下#全部更新~~
 
 ### 3. clone web 分支自行编译
 
@@ -114,16 +116,16 @@ pnpm install
 ```
 
 调试
+
 ```sh
 pnpm run dev
 ```
 
 编译
+
 ```sh
 pnpm run build
 ```
-
-
 
 ## 联系方式
 
@@ -272,24 +274,24 @@ export default {
 };
 ```
 
-#### *.vue
+#### \*.vue
 
-``` vue
+```vue
 <template>
-  <el-card> Ciallo～(∠・ω< )⌒☆ </el-card>
+  <el-card> {{ "Ciallo～(∠・ω< )⌒☆" }} </el-card>
 </template>
 
 <script lang="ts" setup>
-import { ref } from "vue"
+import { ref } from "vue";
 import { ElCard } from "element-plus";
 import * as echarts from "echarts";
 // https://icon-sets.iconify.design/
 // 使用: <iconify icon="mdi:home" :width="24" :height="24" />
-import iconify from "iconify"
+import iconify from "iconify";
 // https://pure-admin-utils.netlify.app/
-import * as utils from "@pureadmin/utils"
+import * as utils from "@pureadmin/utils";
 // https://plus-pro-components.com/
-import * as PlusProComponents from 'plus-pro-components'
+import * as PlusProComponents from "plus-pro-components";
 // Too more please pr or issue...
 
 const props = defineProps({
@@ -303,12 +305,11 @@ const props = defineProps({
   pluginName: String,
   /// 登录后获得的token, 可用于ws鉴权 new WebSocket(url, accessToken)
   accessToken: String,
-})
-
+});
 </script>
 ```
 
-#### components文件夹
+#### components 文件夹
 
 此文件夹下可存放`*.vue`组件文件。
 
@@ -331,7 +332,7 @@ const props = defineProps({
 2. 是否访问地址为`http`而不是`https`
 3. 是否填写错端口号或 ip 地址
 
-## 贡献者 
+## 贡献者
 
 > 🌟 星光闪烁，你们的智慧如同璀璨的夜空。感谢所有为 **YePanel** 做出贡献的人！
 
@@ -356,4 +357,4 @@ const props = defineProps({
 
 ## 其他
 
-如果觉得此插件对你有帮助的话,可以点一个star,你的支持就是不断更新的动力~
+如果觉得此插件对你有帮助的话,可以点一个 star,你的支持就是不断更新的动力~

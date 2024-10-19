@@ -33,6 +33,22 @@ export async function startServer () {
       prefix: '/YePanel/'
     })
   }
+
+  fastify.addHook('onResponse', (request, reply, done) => {
+    const keys = config.server.logs
+    if (keys) {
+      const logs = ['[YePanel Server]']
+      for (const i of keys) {
+        const value = i.split('.').reduce((prev, curr) => prev && (prev as any)?.[curr], request)
+        if (value) {
+          logs.push(`${i}:`, objectToString(value))
+        }
+      }
+      logger.mark(chalk.rgb(255, 105, 180)(...logs))
+      logger.mark(chalk.rgb(255, 105, 180)('-'.repeat(30)))
+    }
+    done()
+  })
   
   function verifyToken(request: FastifyRequest, reply: FastifyReply, done: (error?: Error | undefined) => void) {
     const token = request.headers['authorization'] || request.headers['sec-websocket-protocol'] || (request.query as {accessToken?: string})?.accessToken || ''
@@ -159,4 +175,24 @@ async function getIps () {
     local,
     remote: '',
   }
+}
+
+const objectToString = (obj: any): string => {
+  if (Array.isArray(obj)) {
+    return '[ ' + obj.map(objectToString).join(' ') + ' ]'
+  }
+  if (typeof obj === 'object') {
+    try {
+      return `{ ${Object.entries(obj)
+        .map(([key, value]) => {
+          const formattedValue =
+            typeof value === 'string' ? `'${value}'` : value
+          return `${key}: ${formattedValue}`
+        })
+        .join(', ')} }`
+    } catch  {
+      return String(obj)
+    }
+  }
+  return obj
 }
