@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.0](https://github.com/XasYer/YePanel/compare/v1.6.1...v1.7.0) (2024-10-19)
+
+
+### Features
+
+* 可将web面板挂载到本地 ([1f576d7](https://github.com/XasYer/YePanel/commit/1f576d7250250333d179b182c13593a064fbd6ba))
+
 ## [1.6.1](https://github.com/XasYer/YePanel/compare/v1.6.0...v1.6.1) (2024-10-18)
 
 
