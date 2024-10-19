@@ -68,7 +68,6 @@ web 面板和 api 接口 通常为同步更新，如果届时发现无法登录 
  <details>
  <summary>chrome打开公共面板显示 `该网页无法正常运作`</summary>
 
-> [!TIP]
 > 注意: 要使用`http` 而不是 `https`, 输入网址时需要手动加`http://`
 > 可先尝试手动添加`http://`再访问, 如`http://gh.xasyer.icu/YePanel/`
 
@@ -100,7 +99,7 @@ git clone --depth=1 -b gh-pages https://github.com/XasYer/YePanel.git ./plugins/
 > 网络问题导致 clone 失败时, 可以使用以下命令克隆
 >
 > ```sh
-> git clone --depth=1 -b gh-pages https://github.moeyy.xyz/https://github.com/XasYer/YePanel.git ./pluginsYePanel-Web/
+> git clone --depth=1 -b gh-pages https://github.moeyy.xyz/https://github.com/XasYer/YePanel.git ./plugins/YePanel-Web/
 > ```
 
 ~~放到 plugins 目录蹭一下#全部更新~~
