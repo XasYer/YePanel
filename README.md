@@ -51,16 +51,79 @@
 
 YePanel 目前只提供 api 接口，需要登陆官方或第三方面板后才能使用。需要服务器有公网 ip 或 gui，才能访问面板。
 
-[公共地址](http://gh.xasyer.icu/YePanel/)
-
-或 clone web 分支自行编译
-
 用户名和密码可在`config/server.yaml`中编辑，密码默认为`123456`，用户名可以为任何已登录的 Bot 账号，
-api 接口地址为`http://ip:port`，ip 为服务器公网 ip，port 更换为配置文件中设置的端口。
+api 接口地址为`http://ip:port`，**ip 为服务器公网 ip，port 更换为配置文件中设置的端口，如果在外网环境中访问面板，需要开放端口**。
 
-### 注意
+使用方式为1或2时, 可以直接访问`http://ip:port`。
+
+### 1. 使用公共面板
+
+ [公共地址](http://gh.xasyer.icu/YePanel/)
+
+#### 注意
 
 web 面板和 api接口 通常为同步更新，如果届时发现无法登录web面板或出现异常，请先尝试更新插件。
+
+ <details>
+ <summary>chrome打开公共面板显示 `该网页无法正常运作`</summary>
+
+  > [!TIP]
+  > 注意: 要使用`http` 而不是 `https`, 输入网址时需要手动加`http://`
+  > 可先尝试手动添加`http://`再访问, 如`http://gh.xasyer.icu/YePanel/`
+
+  可尝试以下方法:
+
+  - 方法一
+
+    1. 地址栏输入: chrome://settings/content/siteDetails?site=http%3A%2F%2Fgh.xasyer.icu
+    2. 找到不安全内容 选择 允许
+    3. 再打开 http://gh.xasyer.icu/YePanel/
+
+  - 方法二
+
+    1. chrome地址栏输入chrome://net-internals/#hsts
+    2. Delete domain security policies下面的输入框输入https://gh.xasyer.icu/YePanel/ 点击delete
+    3. 重新打开chrome,地址栏输入http://gh.xasyer.icu/YePanel/
+
+ </details>
+
+### 2. 挂载到崽上
+
+clone gh-pages 分支到plugins目录下以`YePanel-Web`命名, 此时启动时会自动挂载到server.yaml中配置的端口下。
+
+```sh
+git clone --depth=1 -b gh-pages https://github.com/XasYer/YePanel.git ./plugins/YePanel-Web/
+```
+
+> [!TIP] 
+> 网络问题导致 clone 失败时, 可以使用以下命令克隆
+>```sh
+> git clone --depth=1 -b gh-pages https://github.moeyy.xyz/https://github.com/XasYer/YePanel.git ./pluginsYePanel-Web/
+>```
+
+~~放到plugins目录蹭一下#全部更新~~
+
+### 3. clone web 分支自行编译
+
+在任意目录下执行以下命令
+
+```sh
+git clone --depth=1 -b web https://github.com/XasYer/YePanel.git
+cd YePanel
+pnpm install
+```
+
+调试
+```sh
+pnpm run dev
+```
+
+编译
+```sh
+pnpm run build
+```
+
+
 
 ## 联系方式
 

@@ -2,13 +2,18 @@ import Fastify, { FastifyReply, FastifyRequest, RouteOptions } from 'fastify'
 import fastifyAuth from '@fastify/auth'
 import fastifyCors from '@fastify/cors'
 import fastifyWebSocket from '@fastify/websocket'
+import fastifyStatic from '@fastify/static'
 import fastifyMultipart from '@fastify/multipart'
 import fs from 'fs'
+import os from 'os'
+// @ts-ignore
+import chalk from 'chalk'
 import { join } from 'path'
 import { version, config } from '@/common'
 import { tokenAuth } from '@/api/login'
 
 export async function startServer () {
+  const start = Date.now()
   const fastify = Fastify()
 
   await fastify.register(fastifyCors, {
@@ -20,6 +25,14 @@ export async function startServer () {
   await fastify.register(fastifyAuth)
   await fastify.register(fastifyWebSocket)
   await fastify.register(fastifyMultipart)
+
+  const webPath =  join(version.BotPath, 'plugins', 'YePanel-Web')
+  if (fs.existsSync(webPath)) {
+    await fastify.register(fastifyStatic, {
+      root: webPath,
+      prefix: '/YePanel/'
+    })
+  }
   
   function verifyToken(request: FastifyRequest, reply: FastifyReply, done: (error?: Error | undefined) => void) {
     const token = request.headers['authorization'] || request.headers['sec-websocket-protocol'] || (request.query as {accessToken?: string})?.accessToken || ''
@@ -82,12 +95,68 @@ export async function startServer () {
     }
   }
   
-  fastify.listen({port: config.server.port, host: '::'}, (err, address) => {
+  fastify.listen({port: config.server.port, host: '::'}, (err) => {
     if (err) {
       logger.error(`YePanel Error starting server: ${err}`)
     } else {
-      logger.info(`YePanel Server listening at ${address}`)
+      getIps().then(res => {
+        const end = Date.now()
+        const logs = [
+          '-'.repeat(30),
+          `YePanel v${version.pluginVersion} Server running successfully on ${end - start}ms`,
+          '内网地址:',
+          ...res.local.map(i => `  - http://${i}:${config.server.port}`), 
+          ...res.remote ? [
+            '外网地址:',
+            `  - http://${res.remote}:${config.server.port}`
+          ] : [],
+          '-'.repeat(30)
+        ]
+        logs.forEach(i => {
+          logger.info(chalk.rgb(255, 105, 180)(i))
+        })
+      })
     }
   })
 }
 
+async function getIps () {
+  const networkInterfaces = os.networkInterfaces()
+  const local = Object.values(networkInterfaces).flat().filter(i => i?.family === 'IPv4' && !i.internal).map(i => i?.address).filter(Boolean) as string[]
+  const url = [
+    {
+      api: 'https://v4.ip.zxinc.org/info.php?type=json',
+      key: 'data.myip'
+    }, 
+    {
+      api: 'https://ipinfo.io/json',
+      key: 'ip'
+    }
+  ]
+  const redisKey = 'YePanel-public-ip'
+  const remote = await redis.get(redisKey) as string | null
+  if (remote) {
+    return {
+      local,
+      remote
+    }
+  }
+  for (const i of url) {
+    try {
+      await fetch(i.api).then(res => res.json()).then(res => {
+        const remote = i.key.split('.').reduce((prev, curr) => prev && prev[curr], res) as string
+        if (remote) {
+          redis.set(redisKey, remote, { EX: 60 * 60 * 24 * 3})
+          return {
+            local,
+            remote
+          }
+        }
+      })
+    } catch { /* empty */ }
+  }
+  return {
+    local,
+    remote: '',
+  }
+}
