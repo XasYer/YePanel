@@ -34,6 +34,15 @@ export default {
         icon: "icon-park-solid:log"
       }
     },
+    // {
+    //   path: "/system/pastLog",
+    //   name: "pastLog",
+    //   component: () => import("@/views/system/pastLog/index.vue"),
+    //   meta: {
+    //     title: "过往日志",
+    //     icon: "octicon:log-16"
+    //   }
+    // },
     {
       path: "/system/files",
       name: "files",

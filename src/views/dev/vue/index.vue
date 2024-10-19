@@ -60,6 +60,7 @@ import { http } from "@/utils/http";
 import * as utils from "@pureadmin/utils";
 import * as echarts from "echarts";
 import { IconifyIconOnline } from "@/components/ReIcon";
+import { getToken } from "@/utils/auth";
 defineOptions({
   name: "vue"
 });
@@ -70,6 +71,8 @@ const request = (
   param: AxiosRequestConfig,
   axiosConfig: PureHttpRequestConfig
 ) => http.request(method, url, param, axiosConfig);
+
+const accessToken = getToken().accessToken;
 
 const code = ref(`<template>
   <el-card> Ciallo～(∠・ω< )⌒☆ </el-card>
@@ -84,6 +87,8 @@ import * as echarts from "echarts";
 import iconify from "iconify"
 // https://pure-admin-utils.netlify.app/
 import * as utils from "@pureadmin/utils"
+// https://plus-pro-components.com/
+import * as PlusProComponents from 'plus-pro-components'
 // Too more please pr or issue...
 
 const props = defineProps({
@@ -93,7 +98,9 @@ const props = defineProps({
   // 登录时填写的url
   baseUrl: String,
   // 插件名 如果有的话
-  pluginName: String
+  pluginName: String,
+  /// 登录后获得的token, 可用于ws鉴权 new WebSocket(url, accessToken)
+  accessToken: String,
 })
 
 </${"script"}>`);

@@ -1,5 +1,8 @@
 import { getToken } from "@/utils/auth";
-let baseUrl = localStorage.getItem("QQBotBaseUrl") || "http://127.0.0.1:2877";
+let baseUrl =
+  localStorage.getItem("QQBotBaseUrl") ||
+  window.location.origin ||
+  "http://127.0.0.1:2877";
 
 export const setBaseUrlApi = (url: string) => {
   baseUrl = url;
@@ -21,7 +24,7 @@ export function createWS(
     onopen?: (this: WebSocket, ev: Event) => any;
   } = {}
 ): WebSocket {
-  const url = getBaseUrlApi().replace(/^https?/, "ws") + "/" + api;
+  const url = getBaseUrlApi().replace(/^http(s)?/, "ws$1") + "/" + api;
   const ws = new WebSocket(url, getToken().accessToken);
   ws.onmessage = onmessage;
   ws.onclose = onclose;

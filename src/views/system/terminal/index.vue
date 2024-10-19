@@ -1,15 +1,24 @@
 <template>
   <el-card>
-    <div class="flex mb-[20px]">
-      <el-text>行高: </el-text>
-      <el-input-number
-        v-model="lineSpace"
-        class="mx-[10px]"
-        :min="1"
-        :max="100"
-        @change="handleLineSpace"
-      />
-    </div>
+    <el-row>
+      <el-col :xs="24" :md="6" :lg="5" :xl="3" class="mb-[10px]">
+        <el-text>行高</el-text>
+        <el-input-number
+          v-model="lineSpace"
+          class="ml-[10px]"
+          :min="1"
+          :max="100"
+          @change="handleLineSpace"
+        />
+      </el-col>
+      <el-col :xs="24" :md="18" :lg="19" :xl="21" class="mb-[10px]">
+        <el-input
+          v-model="inputCmd"
+          placeholder="若终端输入有异常可在此输入命令"
+          @keydown.enter="handleExecCmd"
+        />
+      </el-col>
+    </el-row>
     <div class="h-[70vh]">
       <terminal
         ref="terminalRef"
@@ -178,6 +187,15 @@ const handleGlobalKeydown = event => {
           action: "terminate"
         })
       );
+  }
+};
+
+const inputCmd = ref("");
+
+const handleExecCmd = (event: KeyboardEvent) => {
+  if (inputCmd.value) {
+    terminalRef.value.execute(inputCmd.value);
+    inputCmd.value = "";
   }
 };
 

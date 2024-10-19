@@ -116,6 +116,9 @@
           :key="item"
           :prop="item"
           :label="item"
+          :show-overflow-tooltip="{
+            effect: 'light'
+          }"
         >
           <template #header="scope">
             <div class="flex">
@@ -347,7 +350,7 @@ const handleDelete = (rows: any) => {
 };
 
 const currentPage = ref(1);
-const pageSize = ref(10);
+const pageSize = ref(20);
 
 const handleSizeChange = (size: number) => {
   pageSize.value = size;

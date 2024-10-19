@@ -73,3 +73,25 @@ export const setFileData = (path: string, data: string) => {
     data: { path, data }
   });
 };
+
+export type getLogsListResult = {
+  success: boolean;
+  message?: string;
+  data: string[];
+};
+
+export const getLogList = () => {
+  return http.request<getLogsListResult>("post", "/get-log-list");
+};
+
+export type getLogContentResult = {
+  success: boolean;
+  message?: string;
+  data: string;
+};
+
+export const getLogContent = (name: string) => {
+  return http.request<getLogContentResult>("post", "/get-log-content", {
+    data: { name }
+  });
+};

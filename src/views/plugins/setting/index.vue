@@ -1,58 +1,64 @@
 <template>
   <el-row v-loading="loading" justify="center">
     <el-col :lg="14" :xs="24">
-      <el-card class="flex">
-        <el-descriptions :column="1">
-          <template #title>
-            <div class="flex">
-              <el-image
-                v-if="pluginInfo.iconPath"
-                :src="pluginInfo.iconPath"
-                :width="64"
-                :style="{ width: '64px' }"
-                hide-on-click-modal
-                close-on-press-escape
-                :preview-src-list="[pluginInfo.iconPath]"
-              />
-              <iconify
-                v-else-if="pluginInfo.icon"
-                :icon="pluginInfo.icon"
-                :width="64"
-                :style="{ color: pluginInfo.iconColor }"
-              />
+      <el-affix :offset="-80">
+        <el-card class="flex">
+          <el-descriptions :column="1">
+            <template #title>
+              <div class="flex">
+                <el-image
+                  v-if="pluginInfo.iconPath"
+                  :src="pluginInfo.iconPath"
+                  :width="64"
+                  :style="{ width: '64px' }"
+                  hide-on-click-modal
+                  close-on-press-escape
+                  :preview-src-list="[pluginInfo.iconPath]"
+                />
+                <iconify
+                  v-else-if="pluginInfo.icon"
+                  :icon="pluginInfo.icon"
+                  :width="64"
+                  :style="{ color: pluginInfo.iconColor }"
+                />
+                <el-link
+                  :underline="false"
+                  :href="pluginInfo.link"
+                  target="_blank"
+                  class="ml-3"
+                >
+                  <template #default>
+                    <el-text tag="b" size="large">
+                      {{ pluginInfo.title }}
+                    </el-text>
+                  </template>
+                </el-link>
+              </div>
+            </template>
+            <el-descriptions-item label="作者:">
               <el-link
+                v-for="(item, index) in pluginInfo.author"
+                :key="item"
                 :underline="false"
-                :href="pluginInfo.link"
+                :href="pluginInfo.authorLink[index]"
                 target="_blank"
-                class="ml-3"
+                class="mr-3 mb-1"
               >
-                <template #default>
-                  <el-text tag="b" size="large">
-                    {{ pluginInfo.title }}
-                  </el-text>
-                </template>
+                {{ item }}
               </el-link>
-            </div>
-          </template>
-          <el-descriptions-item label="作者:">
-            <el-link
-              v-for="(item, index) in pluginInfo.author"
-              :key="item"
-              :underline="false"
-              :href="pluginInfo.authorLink[index]"
-              target="_blank"
-              class="mr-3 mb-1"
-            >
-              {{ item }}
-            </el-link>
-          </el-descriptions-item>
-          <el-descriptions-item label="描述:">
-            <el-text>
-              {{ pluginInfo.description }}
-            </el-text>
-          </el-descriptions-item>
-        </el-descriptions>
-      </el-card>
+            </el-descriptions-item>
+            <el-descriptions-item label="描述:">
+              <el-text>
+                {{ pluginInfo.description }}
+              </el-text>
+            </el-descriptions-item>
+            <el-descriptions-item>
+              <el-button @click="getData">重置</el-button>
+              <el-button type="primary" @click="handleSubmit">保存</el-button>
+            </el-descriptions-item>
+          </el-descriptions>
+        </el-card>
+      </el-affix>
       <PlusForm
         v-model="state"
         :rules="rules"
