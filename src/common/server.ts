@@ -32,6 +32,26 @@ export async function startServer () {
       root: webPath,
       prefix: '/YePanel/'
     })
+    fastify.get('/', (request, reply)=>{
+      reply.redirect('/YePanel/')
+    })
+  } else {
+    fastify.get('/', (request, reply) => {
+      reply.type('text/html').send(`<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Ciallo～(∠・ω< )⌒☆</title>
+  </head>
+  <body>
+    <div>
+      <h1>Ciallo～(∠・ω< )⌒☆</h1>
+      <p>如果看到了这个页面, 说明YePanel已经启动成功了, 公共面板api请填写此url</p>
+      <a href="http://gh.XasYer.icu/YePanel/" target="_blank">跳转到公共面板</a>
+    </div>
+  </body>
+</html>`)
+      })
   }
 
   fastify.addHook('onResponse', (request, reply, done) => {
