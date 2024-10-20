@@ -6,10 +6,10 @@ import fs from 'fs'
 export default [
   {
     method: 'get',
-    url: '/sendbox',
+    url: '/sandbox',
     handler: () => 'Ciallo～(∠・ω< )⌒☆',
     wsHandler: (connection) => {
-      let uin: string = 'YePanel.sendbox.'
+      let uin: string = 'YePanel.sandbox.'
       connection.on('message', (message) => {
         let data
         try {
@@ -82,7 +82,7 @@ function createSendbox(id: string, nickname: string, avatar: string, ws: WebSock
     'Yvonne',
     'Zoe'
   ]
-  const key = 'YePanel.sendbox.'
+  const key = 'YePanel.sandbox.'
   const uin = key + id
   const bot = Bot[uin] || {}
   Bot[uin] = {
@@ -91,12 +91,12 @@ function createSendbox(id: string, nickname: string, avatar: string, ws: WebSock
     nickname: key + (nickname || bot.nickname || id),
     avatar: avatar || bot.avatar || '',
     adapter: {
-      id: 'sendbox',
+      id: 'sandbox',
       name: 'YePanel'
     },
     version: {
       version: version.pluginVersion,
-      id: 'sendbox',
+      id: 'sandbox',
       name: 'YePanel'
     },
     stat: {
@@ -175,7 +175,7 @@ function createSendbox(id: string, nickname: string, avatar: string, ws: WebSock
       })
       return acc
     }, new Map()),
-    gl: ['sendbox.group'].reduce((acc, cur) => {
+    gl: ['sandbox.group'].reduce((acc, cur) => {
       acc.set(cur, {
         group_id: cur,
         group_name: cur,
@@ -183,7 +183,7 @@ function createSendbox(id: string, nickname: string, avatar: string, ws: WebSock
       })
       return acc
     }, new Map()),
-    gml: ['sendbox.group'].reduce((acc, cur) => {
+    gml: ['sandbox.group'].reduce((acc, cur) => {
       acc.set(cur, nameList.reduce((acc, cur) => {
         acc.set(cur, {
           user_id: cur,
@@ -213,7 +213,7 @@ function createSendbox(id: string, nickname: string, avatar: string, ws: WebSock
 }
 
 function createMessage(id: string, userId: string, groupId: string, content: string, permission: 'owner' | 'admin' | 'user' | 'master' = 'user'){
-  const key = 'YePanel.sendbox.'
+  const key = 'YePanel.sandbox.'
   const uin = key + id
   const bot = Bot[uin]
   const e = {
