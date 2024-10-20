@@ -209,7 +209,6 @@ const addUser = () => {
     selfId: userStore.uin,
     userId
   });
-  /** 默认权限为普通用户 Alice 为主人 */
   permission.value[userId] = "user";
   msgData.value.private[userId] = [];
 };
