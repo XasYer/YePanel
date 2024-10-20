@@ -8,9 +8,9 @@ export default {
   },
   children: [
     {
-      path: "/system/sendbox",
-      name: "sendbox",
-      component: () => import("@/views/system/sendbox/index.vue"),
+      path: "/system/sandbox",
+      name: "sandbox",
+      component: () => import("@/views/system/sandbox/index.vue"),
       meta: {
         title: "沙盒调试",
         icon: "mage:hour-glass-fill"

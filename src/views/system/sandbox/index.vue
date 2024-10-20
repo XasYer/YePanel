@@ -137,7 +137,7 @@ import { message } from "@/utils/message";
 import { createWS } from "@/api/utils";
 
 defineOptions({
-  name: "sendbox"
+  name: "sandbox"
 });
 
 const userStore = useUserStoreHook();
@@ -277,7 +277,7 @@ const handleKeyDown = (event: KeyboardEvent) => {
           type: "message",
           uin: userStore.uin,
           userId: selectUser.value,
-          groupId: activeName.value === "group" ? "sendbox.group" : undefined,
+          groupId: activeName.value === "group" ? "sandbox.group" : undefined,
           content: msg.value,
           permission: permission.value[selectUser.value]
         })
@@ -362,7 +362,7 @@ const loading = ref(true);
 const socket = ref<WebSocket>(null);
 onMounted(() => {
   window.addEventListener("resize", updateWidth);
-  socket.value = createWS("sendbox", {
+  socket.value = createWS("sandbox", {
     onopen(ev) {
       socket.value.send(
         JSON.stringify({
