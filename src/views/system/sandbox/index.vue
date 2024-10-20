@@ -308,6 +308,7 @@ const state = ref({
   sendType: sendType.value,
   permission: "master"
 });
+
 const columns: PlusColumn[] = [
   {
     // 群主只能有一个

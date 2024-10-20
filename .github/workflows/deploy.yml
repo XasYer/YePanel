@@ -56,5 +56,6 @@ jobs:
           target_branch: gh-pages
           build_dir: dist
           commit_message: ${{ env.COMMIT_MSG }}
+          keep_history: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
