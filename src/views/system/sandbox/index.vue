@@ -230,15 +230,6 @@ const handleSelectMenu = (index: string) => {
   };
 };
 
-// TODO: 还需要分不同的bot 可能需要转换成对象
-// 顺便把主页的头像链接没有就undefined,然后用名字首字母代替 这里就不用判断正则了
-// 好像可以把userID默认为第一个主人,或者添加用户的时候请求一下,去获取群聊和主人的ID,(第一个,群聊可能有很多)
-// 群聊可以不分Bot,但是不同Bot可能在一个群
-// 或者直接注册一个Bot,然后新建不同的user
-// 还是新建一个bot吧
-// 设置页面就设置权限,比如主人,管理员,群主
-
-//  页面显示<br> addMsg方法里替换,每次调用addMsg
 const msgData = ref<{
   private: {
     [key: string]: {
