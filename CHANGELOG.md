@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.4](https://github.com/XasYer/YePanel/compare/v1.7.3...v1.7.4) (2024-10-20)
+
+
+### Bug Fixes
+
+* sandbox ([0e25172](https://github.com/XasYer/YePanel/commit/0e25172b890e4d6b144fb53792889a235bd6f95f))
+
 ## [1.7.3](https://github.com/XasYer/YePanel/compare/v1.7.2...v1.7.3) (2024-10-19)
 
 
