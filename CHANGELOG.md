@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.8.7](https://github.com/XasYer/YePanel/compare/v1.8.6...v1.8.7) (2024-10-22)
+
+
+### Bug Fixes
+
+* 不判断有没有数据 ([da37360](https://github.com/XasYer/YePanel/commit/da3736085d7bc1eb6df3b7fd544d330213eb85aa))
+
 ## [1.8.6](https://github.com/XasYer/YePanel/compare/v1.8.5...v1.8.6) (2024-10-22)
 
 
