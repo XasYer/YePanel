@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.8.6](https://github.com/XasYer/YePanel/compare/v1.8.5...v1.8.6) (2024-10-22)
+
+
+### Bug Fixes
+
+* 配置账号头像未生效 ([48ff34f](https://github.com/XasYer/YePanel/commit/48ff34f0632dbc537711f73c7370b69c089585d2))
+
 ## [1.8.5](https://github.com/XasYer/YePanel/compare/v1.8.4...v1.8.5) (2024-10-22)
 
 
