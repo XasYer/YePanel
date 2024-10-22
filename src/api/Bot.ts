@@ -3,33 +3,17 @@ import { http } from "@/utils/http";
 export type ChartData = {
   name: string;
   value: number;
-};
-export type RankData = {
-  [key: string]: ChartData[];
-};
+}[];
 
 export type getRankDataResult = {
   success: boolean;
-  data: RankData;
-};
-
-export type getStatsDataResult = {
-  success: boolean;
   data: {
-    countChart: {
-      sent: number[];
-      recv: number[];
-      plugin: number[];
-      time: string[];
-    };
-    rankChart: {
-      pluginUse: RankData;
-      pluginSent: RankData;
-      userSent: RankData;
-      userRecv: RankData;
-      groupRecv: RankData;
-      groupSent: RankData;
-    };
+    pluginUse: ChartData | false;
+    pluginSent: ChartData | false;
+    userSent: ChartData | false;
+    userRecv: ChartData | false;
+    groupRecv: ChartData | false;
+    groupSent: ChartData | false;
   };
 };
 
@@ -46,6 +30,14 @@ export type getCountChartDataResult = {
 /** 数量统计表 */
 export const getCountChartData = () => {
   return http.request<getCountChartDataResult>("post", "/get-stats-count-data");
+};
+
+export const getRankChartData = (time: string) => {
+  return http.request<getRankDataResult>("post", "/get-stats-rank-data", {
+    data: {
+      time
+    }
+  });
 };
 
 export const getRankPluginUse = () => {

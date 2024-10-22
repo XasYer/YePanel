@@ -5,13 +5,53 @@
         <el-card class="bar-card" shadow="never">
           <div class="flex justify-between">
             <span class="text-md font-medium">消息统计</span>
-            <el-segmented
-              v-model="curWeek"
-              :options="[
-                { label: '7天', value: 0 },
-                { label: '30天', value: 1 }
-              ]"
-            />
+            <div>
+              <el-popover
+                placement="left-start"
+                title="设置"
+                :width="300"
+                trigger="click"
+              >
+                <template #reference>
+                  <el-button
+                    class="mr-2"
+                    :icon="Setting"
+                    @click="settingVisible = !settingVisible"
+                  />
+                </template>
+                <template #default>
+                  <div class="flex mb-2">
+                    <el-text class="w-[80px]">饼图样式</el-text>
+                    <el-select v-model="select.style">
+                      <el-option
+                        v-for="item in options.style"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value"
+                      />
+                    </el-select>
+                  </div>
+                  <div class="flex">
+                    <el-text class="w-[80px]">饼图日期</el-text>
+                    <el-select v-model="select.time" @change="handleSelect">
+                      <el-option
+                        v-for="item in options.time"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value"
+                      />
+                    </el-select>
+                  </div>
+                </template>
+              </el-popover>
+              <el-segmented
+                v-model="curWeek"
+                :options="[
+                  { label: '7天', value: 0 },
+                  { label: '30天', value: 1 }
+                ]"
+              />
+            </div>
           </div>
           <div class="flex justify-between items-start mt-3">
             <count-chart
@@ -55,7 +95,7 @@
 
       <el-col
         v-for="item in sortKeys"
-        :key="item"
+        :key="item.key"
         class="mb-[18px]"
         :xl="8"
         :xs="24"
@@ -65,38 +105,32 @@
         <el-card shadow="never">
           <div>
             <div class="flex justify-between">
-              <span class="text-md font-medium">{{
-                rankTimeData[item].name
-              }}</span>
-              <el-select
-                v-model="rankTimeData[item].select"
-                style="width: 150px"
-              >
-                <el-option
-                  v-for="i in rankTimeData[item].data"
-                  :key="i"
-                  :label="i"
-                  :value="i"
-                />
-              </el-select>
+              <span class="text-md font-medium">{{ item.name }}</span>
             </div>
             <div class="flex justify-between items-start mt-3">
               <rank-chart
-                v-show="rankTimeData[item].select"
-                :data="rankChartData[item][rankTimeData[item].select]"
-                :time="rankTimeData[item].select"
-                :name="rankTimeData[item].name"
+                v-show="rankChartData[item.key].length"
+                :data="rankChartData[item.key]"
+                :name="item.name"
+                :style="select.style"
               />
               <div
-                v-if="!rankTimeData[item].select"
+                v-if="rankChartData[item.key] === false"
                 class="flex-c w-full h-[300px]"
               >
-                <el-result
-                  icon="info"
-                  :title="`未开启${rankTimeData[item].name}统计`"
-                >
+                <el-result icon="info" :title="`未开启${item.name}统计`">
                   <template #sub-title>
                     <p>如果需要此统计, 请在stats.yaml中设置 {{ item }}: true</p>
+                  </template>
+                </el-result>
+              </div>
+              <div
+                v-if="rankChartData[item.key].length === 0"
+                class="flex-c w-full h-[300px]"
+              >
+                <el-result icon="info" :title="`没有当日数据`">
+                  <template #sub-title>
+                    <p>{{ select.time }}</p>
                   </template>
                 </el-result>
               </div>
@@ -111,21 +145,46 @@
 <script setup lang="ts">
 import {
   getCountChartData,
-  getRankGroupRecv,
-  getRankGroupSent,
-  getRankPluginSent,
-  getRankPluginUse,
-  getRankUserRecv,
-  getRankUserSent,
-  getStatsDataResult
+  getCountChartDataResult,
+  getRankChartData,
+  getRankDataResult
 } from "@/api/Bot";
 import { ref } from "vue";
 import CountChart from "./components/CountChart.vue";
 import RankChart from "./components/RankChart.vue";
+import { Setting } from "@element-plus/icons-vue";
+import dayjs from "dayjs";
 
 const loading = ref(true);
+const settingVisible = ref(false);
 
-const countChartData = ref<getStatsDataResult["data"]["countChart"]>({
+const getLast7Days = () => {
+  const dates = [];
+  for (let i = 0; i < 7; i++) {
+    const date = dayjs().subtract(i, "day").format("YYYY-MM-DD");
+    dates.push({ label: date, value: date });
+  }
+  return dates;
+};
+
+const options = {
+  style: [
+    { label: "基础饼图", value: "Base" },
+    { label: "南丁格尔玫瑰图", value: "Nightingale" },
+    { label: "环形图", value: "Doughnut" }
+  ],
+  time: getLast7Days()
+};
+
+const select = ref<{
+  style: "Base" | "Nightingale" | "Doughnut";
+  time: string;
+}>({
+  style: "Base",
+  time: options.time[0].value
+});
+
+const countChartData = ref<getCountChartDataResult["data"]>({
   sent: [],
   recv: [],
   plugin: [],
@@ -133,54 +192,21 @@ const countChartData = ref<getStatsDataResult["data"]["countChart"]>({
 });
 
 const sortKeys = [
-  "pluginUse",
-  "userSent",
-  "groupSent",
-  "pluginSent",
-  "userRecv",
-  "groupRecv"
+  { key: "pluginUse", name: "插件使用排行" },
+  { key: "userSent", name: "用户发送消息排行" },
+  { key: "groupSent", name: "群组发送消息排行" },
+  { key: "pluginSent", name: "插件发送消息排行" },
+  { key: "userRecv", name: "用户接收消息排行" },
+  { key: "groupRecv", name: "群组接收消息排行" }
 ];
 
-const rankChartData = ref<getStatsDataResult["data"]["rankChart"]>({
-  pluginUse: {},
-  userSent: {},
-  groupSent: {},
-  pluginSent: {},
-  userRecv: {},
-  groupRecv: {}
-});
-
-const rankTimeData = ref({
-  pluginUse: {
-    name: "插件调用排行",
-    select: "",
-    data: []
-  },
-  pluginSent: {
-    name: "插件发送消息排行",
-    select: "",
-    data: []
-  },
-  userSent: {
-    name: "用户发送消息排行",
-    select: "",
-    data: []
-  },
-  userRecv: {
-    name: "用户接收消息排行",
-    select: "",
-    data: []
-  },
-  groupRecv: {
-    name: "群组接收消息排行",
-    select: "",
-    data: []
-  },
-  groupSent: {
-    name: "群组发送消息排行",
-    select: "",
-    data: []
-  }
+const rankChartData = ref<getRankDataResult["data"]>({
+  pluginUse: [],
+  userSent: [],
+  groupSent: [],
+  pluginSent: [],
+  userRecv: [],
+  groupRecv: []
 });
 
 getCountChartData().then(res => {
@@ -190,65 +216,21 @@ getCountChartData().then(res => {
   loading.value = false;
 });
 
-getRankPluginUse().then(res => {
+getRankChartData(select.value.time).then(res => {
   if (res.success) {
-    rankChartData.value.pluginUse = res.data;
-    const keys = Object.keys(res.data);
-    rankTimeData.value.pluginUse.data = keys;
-    rankTimeData.value.pluginUse.select = keys[0];
+    rankChartData.value = res.data;
   }
   loading.value = false;
 });
 
-getRankPluginSent().then(res => {
-  if (res.success) {
-    rankChartData.value.pluginSent = res.data;
-    const keys = Object.keys(res.data);
-    rankTimeData.value.pluginSent.data = keys;
-    rankTimeData.value.pluginSent.select = keys[0];
-  }
-  loading.value = false;
-});
-
-getRankGroupRecv().then(res => {
-  if (res.success) {
-    rankChartData.value.groupRecv = res.data;
-    const keys = Object.keys(res.data);
-    rankTimeData.value.groupRecv.data = keys;
-    rankTimeData.value.groupRecv.select = keys[0];
-  }
-  loading.value = false;
-});
-
-getRankGroupSent().then(res => {
-  if (res.success) {
-    rankChartData.value.groupSent = res.data;
-    const keys = Object.keys(res.data);
-    rankTimeData.value.groupSent.data = keys;
-    rankTimeData.value.groupSent.select = keys[0];
-  }
-  loading.value = false;
-});
-
-getRankUserRecv().then(res => {
-  if (res.success) {
-    rankChartData.value.userRecv = res.data;
-    const keys = Object.keys(res.data);
-    rankTimeData.value.userRecv.data = keys;
-    rankTimeData.value.userRecv.select = keys[0];
-  }
-  loading.value = false;
-});
-
-getRankUserSent().then(res => {
-  if (res.success) {
-    rankChartData.value.userSent = res.data;
-    const keys = Object.keys(res.data);
-    rankTimeData.value.userSent.data = keys;
-    rankTimeData.value.userSent.select = keys[0];
-  }
-  loading.value = false;
-});
+const handleSelect = () => {
+  getRankChartData(select.value.time).then(res => {
+    if (res.success) {
+      rankChartData.value = res.data;
+    }
+    loading.value = false;
+  });
+};
 
 const curWeek = ref(1);
 </script>

@@ -7,13 +7,13 @@ const props = defineProps({
     type: Array as PropType<{ value: number; name: string }[]>,
     required: true
   },
-  time: {
-    type: String,
-    required: true
-  },
   name: {
     type: String,
     required: true
+  },
+  style: {
+    type: String as PropType<"Base" | "Nightingale" | "Doughnut">,
+    default: "Nightingale"
   }
 });
 
@@ -28,7 +28,7 @@ const chartRef = ref();
 const { setOptions } = useECharts(chartRef, { theme });
 
 watch(
-  () => props.data,
+  () => [props.data, props.style],
   async () => {
     await nextTick(); // 确保DOM更新完成后再执行
     setOptions({
@@ -53,14 +53,24 @@ watch(
         {
           name: props.name,
           type: "pie",
-          roseType: "area",
-          radius: ["20%", "70%"],
-          avoidLabelOverlap: false,
-          itemStyle: {
-            borderRadius: 10,
-            borderColor: "#fff",
-            borderWidth: 2
-          },
+          ...(props.style === "Nightingale"
+            ? {
+                roseType: "area",
+                radius: ["20%", "70%"],
+                avoidLabelOverlap: false,
+                itemStyle: {
+                  borderRadius: 10,
+                  borderColor: "#fff",
+                  borderWidth: 2
+                }
+              }
+            : {
+                ...(props.style === "Doughnut"
+                  ? {
+                      radius: ["40%", "75%"]
+                    }
+                  : {})
+              }),
           data: props.data,
           label: {
             formatter: function (params) {
