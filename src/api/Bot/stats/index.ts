@@ -108,8 +108,8 @@ function getName (id: string, type: 'group' | 'user'): string {
 }
 
 function incr (key: string) {
-  redis.incr(key).then(i => {
-    if (i === 1) {
+  redis.incr(key).then((i: number) => {
+    if (i == 1) {
       redis.expire(key, 60 * 60 * 24 * 31).catch(() => {})
     }
   }).catch(() => {})
