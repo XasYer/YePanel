@@ -82,6 +82,7 @@ jobs:
         run: |
           rm -rf node_modules
           git add .
+          git reset build.zip
           if [ -z "$(git diff --cached --name-only)" ]; then
             echo "No changes detected"
             exit 0
