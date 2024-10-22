@@ -3,8 +3,7 @@ import { RouteOptions } from 'fastify'
 import { config, version } from '@/common'
 import fs from 'fs'
 import { join } from 'path'
-import { setConfigDataCache, setPluginIconPath } from '@/api/plugins'
-import { addCustomRoutes } from '@/api/plugins'
+import { setConfigDataCache, setPluginIconPath, addCustomRoutes } from '@/api/plugins'
 
 const token: { [uin: string]: string } = {}
 
@@ -25,18 +24,18 @@ export default [
     url: '/login',
     method: 'post',
     preHandler: (request, reply, done) => done(),
-    handler: ({ body } ) => {
+    handler: ({ body }) => {
       const { username: uin, password: inputPassword } = body as { username: string, password: string }
-      const account = (()=>{
+      const account = (() => {
         const account = config.server.password
         if (account[uin]?.enable) {
           return account[uin]
         } else if (Bot[uin]) {
           const bot = Bot[uin]
           return {
-            password: account['default'].password,
-            nickname: account['default'].nickname || bot.nickname,
-            avatar: account['default'].avatar || bot.avatar
+            password: account.default.password,
+            nickname: account.default.nickname || bot.nickname,
+            avatarUrl: account.default.avatarUrl || bot.avatar
           }
         } else {
           return {}
@@ -51,7 +50,7 @@ export default [
       return {
         success: true,
         data: {
-          avatar: account.avatar,
+          avatar: account.avatarUrl,
           username: 'admin',
           nickname: account.nickname,
           roles: ['admin'],
@@ -81,7 +80,7 @@ export default [
         if (fs.statSync(pluginPath).isDirectory()) {
           const YePanelPath = join(pluginPath, 'YePanel')
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const router: any = {} 
+          const router: any = {}
           // 判断是否存在YePanel目录
           if (fs.existsSync(YePanelPath)) {
             try {
@@ -112,7 +111,7 @@ export default [
                 })
               }
               addCustomRoutes(plugin, option.api)
-            } catch  { /* empty */ }
+            } catch { /* empty */ }
           }
 
           // 判断是否存在guoba.support.js
@@ -159,7 +158,7 @@ export default [
                   name: plugin,
                   meta: {
                     title: pluginInfo.title,
-                    icon: pluginInfo.iconPath || pluginInfo.icon,
+                    icon: pluginInfo.iconPath || pluginInfo.icon
                   },
                   children: [
                     {
@@ -168,7 +167,7 @@ export default [
                       component: 'plugins/setting/index',
                       meta: {
                         title: pluginInfo.title,
-                        icon: pluginInfo.iconPath || pluginInfo.icon,
+                        icon: pluginInfo.iconPath || pluginInfo.icon
                       }
                     }
                   ]

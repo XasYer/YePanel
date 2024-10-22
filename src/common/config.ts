@@ -59,7 +59,7 @@ class Config {
         [key: string]: {
             password: string
             nickname: string
-            avatar: string
+            avatarUrl: string
             enable: boolean
         }
     }
