@@ -154,6 +154,13 @@ pnpm run build
 </details>
 
 <details>
+<summary>数据统计</summary>
+
+![数据统计](https://cdn.jsdelivr.net/gh/XasYer/YePanel@web/public/stats.png)
+
+</details>
+
+<details>
 <summary>远程终端</summary>
 
 ![远程终端](https://cdn.jsdelivr.net/gh/XasYer/YePanel@web/public/terminal.png)
