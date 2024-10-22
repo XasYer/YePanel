@@ -67,8 +67,20 @@ jobs:
         run: |
           git checkout main -- package.json CHANGELOG.md pnpm-lock.yaml README.md index.js config
 
+
+      - name: 创建 build.zip
+        run: |
+          find . -path "./.git" -prune -o -type f -print | zip -@ build.zip
+
+      - name: 上传 build.zip
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-zip
+          path: build.zip
+
       - name: 根据main分支的commit信息生成提交消息
         run: |
+          rm -rf node_modules
           git add .
           if [ -z "$(git diff --cached --name-only)" ]; then
             echo "No changes detected"
@@ -83,16 +95,6 @@ jobs:
           branch: build
           github_token: ${{ secrets.GITHUB_TOKEN }}
           force_with_lease: true
-
-      - name: 创建 build.zip
-        run: |
-          find . -path "./.git" -prune -o -type f -print | zip -@ build.zip
-
-      - name: 上传 build.zip
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-zip
-          path: build.zip
 
       - name: 更新版本号
         uses: googleapis/release-please-action@v4
