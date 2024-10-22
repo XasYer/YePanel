@@ -109,7 +109,16 @@
 </template>
 
 <script setup lang="ts">
-import { getStatsData, getStatsDataResult } from "@/api/Bot";
+import {
+  getCountChartData,
+  getRankGroupRecv,
+  getRankGroupSent,
+  getRankPluginSent,
+  getRankPluginUse,
+  getRankUserRecv,
+  getRankUserSent,
+  getStatsDataResult
+} from "@/api/Bot";
 import { ref } from "vue";
 import CountChart from "./components/CountChart.vue";
 import RankChart from "./components/RankChart.vue";
@@ -174,15 +183,69 @@ const rankTimeData = ref({
   }
 });
 
-getStatsData().then(res => {
+getCountChartData().then(res => {
   if (res.success) {
-    countChartData.value = res.data.countChart;
-    rankChartData.value = res.data.rankChart;
-    for (const key of Object.keys(rankTimeData.value)) {
-      const keys = Object.keys(rankChartData.value[key]);
-      rankTimeData.value[key].data = keys;
-      rankTimeData.value[key].select = keys[0];
-    }
+    countChartData.value = res.data;
+  }
+  loading.value = false;
+});
+
+getRankPluginUse().then(res => {
+  if (res.success) {
+    rankChartData.value.pluginUse = res.data;
+    const keys = Object.keys(res.data);
+    rankTimeData.value.pluginUse.data = keys;
+    rankTimeData.value.pluginUse.select = keys[0];
+  }
+  loading.value = false;
+});
+
+getRankPluginSent().then(res => {
+  if (res.success) {
+    rankChartData.value.pluginSent = res.data;
+    const keys = Object.keys(res.data);
+    rankTimeData.value.pluginSent.data = keys;
+    rankTimeData.value.pluginSent.select = keys[0];
+  }
+  loading.value = false;
+});
+
+getRankGroupRecv().then(res => {
+  if (res.success) {
+    rankChartData.value.groupRecv = res.data;
+    const keys = Object.keys(res.data);
+    rankTimeData.value.groupRecv.data = keys;
+    rankTimeData.value.groupRecv.select = keys[0];
+  }
+  loading.value = false;
+});
+
+getRankGroupSent().then(res => {
+  if (res.success) {
+    rankChartData.value.groupSent = res.data;
+    const keys = Object.keys(res.data);
+    rankTimeData.value.groupSent.data = keys;
+    rankTimeData.value.groupSent.select = keys[0];
+  }
+  loading.value = false;
+});
+
+getRankUserRecv().then(res => {
+  if (res.success) {
+    rankChartData.value.userRecv = res.data;
+    const keys = Object.keys(res.data);
+    rankTimeData.value.userRecv.data = keys;
+    rankTimeData.value.userRecv.select = keys[0];
+  }
+  loading.value = false;
+});
+
+getRankUserSent().then(res => {
+  if (res.success) {
+    rankChartData.value.userSent = res.data;
+    const keys = Object.keys(res.data);
+    rankTimeData.value.userSent.data = keys;
+    rankTimeData.value.userSent.select = keys[0];
   }
   loading.value = false;
 });
