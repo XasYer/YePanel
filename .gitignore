@@ -3,3 +3,4 @@ test
 **/test.ts
 node_modules
 config/config
+lib

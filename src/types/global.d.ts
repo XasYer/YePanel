@@ -23,6 +23,9 @@ declare global {
     adapter: any[] | any
     em: (key: string, value: any) => void
     emit: (event: string, value: any) => void
+    on: (event: string, listener: (value: any) => void) => void
+    pickGroup: (group_id: string) => any
+    pickUser: (user_id: string) => any
     [key: string]: {
       self_id: number | string
       nickname: string

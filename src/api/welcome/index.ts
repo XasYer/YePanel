@@ -14,7 +14,8 @@ function getPlugins () {
   const dirArr = fs.readdirSync(dir, { withFileTypes: true })
   const exc = ['example']
   const plugins = dirArr.map(i => {
-    let hasPackage = false, hasGit = false
+    let hasPackage = false
+    let hasGit = false
     if (i.isDirectory()) {
       if (fs.existsSync(join(dir, i.name, 'package.json')) && !exc.includes(i.name)) {
         hasPackage = true
@@ -215,7 +216,6 @@ export default [
       const botList = version.BotName === 'TRSS' ? Bot.uin : (Bot?.adapter && Bot.adapter.includes(Bot.uin)) ? Bot.adapter : [Bot.uin]
       const botInfo = []
       for (const uin of (botList as string[])) {
-          
         const bot = Bot[uin]
         if (!bot) continue
         const nowDate = moment().format('MMDD')
@@ -225,11 +225,11 @@ export default [
             `Yz:count:send:image:bot:${uin}:total`,
             `Yz:count:screenshot:day:${nowDate}`
         ]
-      
+
         const values = await redis.mGet(keys) || []
-      
+
         botInfo.push({
-          uin: uin,
+          uin,
           avatar: bot.avatar,
           nickname: bot.nickname || '未知',
           version: bot.version?.version || '未知',
@@ -265,10 +265,15 @@ export default [
       const date = moment().subtract(1, 'days')
       for (let i = 0; i < 30; i++) {
         const time = date.format('YYYY:MM:DD')
-        const keys = version.BotName === 'TRSS' ? [
+        const keys = version.BotName === 'TRSS'
+          ? [
           `Yz:count:send:msg:total:${time}`,
           `Yz:count:receive:msg:total:${time}`
-        ] : [`Yz:count:sendMsg:day:${date.format('MMDD')}`]
+            ]
+          : [
+            `Yz:count:sendMsg:day:${date.format('MMDD')}`,
+            `YePanel:recv:${time}`
+            ]
         const value: Array<string | null> = await redis.mGet(keys)
         if (value.some(i => i !== null)) {
           data.sent.unshift(Number(value[0]))
@@ -286,12 +291,12 @@ export default [
   {
     url: '/get-update-log',
     method: 'post',
-    handler: async ({body}) => {
+    handler: async ({ body }) => {
       const { plugin } = body as { plugin: string }
       try {
         const arg: ExecSyncOptionsWithStringEncoding = {
           encoding: 'utf-8',
-          cwd: plugin ? join(version.BotPath, 'plugins', plugin) :  undefined
+          cwd: plugin ? join(version.BotPath, 'plugins', plugin) : undefined
         }
         const exec = (cmd: string) => execSync(cmd, arg).toString().trim()
         const log = exec('git log -100 --pretty="[%cd] %s" --date=format:"%F %T"')
@@ -305,12 +310,12 @@ export default [
             url: url.toString().replace(/.git$/, '')
           }
         }
-      } catch (error) { 
+      } catch (error) {
         return {
           success: false,
           message: (error as Error).message
         }
-       }
+      }
     }
   }
 ] as RouteOptions[]

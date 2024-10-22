@@ -8,10 +8,12 @@ class Config {
   config: {
     [key: string]: object
   } = {}
+
   /** 监听文件 */
   watcher: {
     [key: string]: FSWatcher
   } = { }
+
   constructor () {
     this.initCfg()
   }
@@ -50,7 +52,7 @@ class Config {
   }
 
   /** 服务配置 */
-  get server (): { 
+  get server (): {
     port: number
     logs: Array<keyof FastifyRequest>
     password: {
@@ -61,8 +63,26 @@ class Config {
             enable: boolean
         }
     }
-  } {
+    } {
     return this.getDefOrConfig('server')
+  }
+
+  get stats (): {
+    countChart: {
+      sent: boolean
+      recv: boolean
+      plugin: boolean
+    },
+    rankChart: {
+      groupSent: boolean
+      groupRecv: boolean
+      userSent: boolean
+      userRecv: boolean
+      pluginUse: boolean
+      pluginSent: boolean
+    }
+    } {
+    return this.getDefOrConfig('stats')
   }
 
   /** 默认配置和用户配置 */
@@ -132,54 +152,51 @@ class Config {
 }
 
 class YamlReader {
-    filePath: string
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    document: any
-    /**
-       * 创建一个YamlReader实例。
-       * @param filePath - 文件路径
-       */
-    constructor (filePath: string) {
-      this.filePath = filePath
-      this.document = this.parseDocument()
-    }
-  
-    /**
-       * 解析YAML文件并返回Document对象，保留注释。
-       * @returns {Document} 包含YAML数据和注释的Document对象
-       */
-    parseDocument () {
-      const fileContent = fs.readFileSync(this.filePath, 'utf8')
-      return YAML.parseDocument(fileContent)
-    }
-  
-    /**
-     * 修改指定参数的值。
-     * @param key - 参数键名
-     * @param value - 新的参数值
-     */
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    set (key: string, value: any) {
-      this.document.set(key, value)
-      this.write()
-    }
-  
-    /**
-     * 从YAML文件中删除指定参数。
-     * @param key - 要删除的参数键名
-     */
-    rm (key: string) {
-      this.document.delete(key)
-      this.write()
-    }
-  
-    /**
-       * 将更新后的Document对象写入YAML文件中。
-       */
-    write () {
-      fs.writeFileSync(this.filePath, this.document.toString(), 'utf8')
-    }
+  filePath: string
+  document: any
+  /**
+   * 创建一个YamlReader实例。
+   * @param filePath - 文件路径
+   */
+  constructor (filePath: string) {
+    this.filePath = filePath
+    this.document = this.parseDocument()
   }
-  
+
+  /**
+   * 解析YAML文件并返回Document对象，保留注释。
+   * @returns {Document} 包含YAML数据和注释的Document对象
+   */
+  parseDocument () {
+    const fileContent = fs.readFileSync(this.filePath, 'utf8')
+    return YAML.parseDocument(fileContent)
+  }
+
+  /**
+   * 修改指定参数的值。
+   * @param key - 参数键名
+   * @param value - 新的参数值
+   */
+  set (key: string, value: any) {
+    this.document.set(key, value)
+    this.write()
+  }
+
+  /**
+   * 从YAML文件中删除指定参数。
+   * @param key - 要删除的参数键名
+   */
+  rm (key: string) {
+    this.document.delete(key)
+    this.write()
+  }
+
+  /**
+   * 将更新后的Document对象写入YAML文件中。
+   */
+  write () {
+    fs.writeFileSync(this.filePath, this.document.toString(), 'utf8')
+  }
+}
 
 export default new Config()

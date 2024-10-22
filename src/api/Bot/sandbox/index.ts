@@ -14,7 +14,7 @@ export default [
         let data
         try {
           data = JSON.parse(message.toString())
-        } catch  {
+        } catch {
           connection.send(JSON.stringify({ type: 'error', success: false, content: 'Invalid message format' }))
           return
         }
@@ -31,7 +31,7 @@ export default [
             break
         }
       })
-      connection.on('close', ()=>{
+      connection.on('close', () => {
         delete Bot[uin]
         if (version.BotName === 'Miao') {
           if (Array.isArray(Bot.adapter)) {
@@ -46,14 +46,14 @@ export default [
             (Bot.uin as string[]).splice(index, 1)
           }
         }
-        
+
         logger.mark(`${uin} 已断开连接`)
       })
     }
   }
 ] as RouteOptions[]
 
-function createSendbox(id: string, nickname: string, avatar: string, ws: WebSocket): void {
+function createSendbox (id: string, nickname: string, avatar: string, ws: WebSocket): void {
   const nameList = [
     'Alice',
     'Ben',
@@ -110,8 +110,8 @@ function createSendbox(id: string, nickname: string, avatar: string, ws: WebSock
         sendMsg: (message: string) => {
           return this.sendPrivateMsg(userId, message)
         },
-        makeForwardMsg(msg: any) { 
-          return { type: 'node', data: msg } 
+        makeForwardMsg (msg: any) {
+          return { type: 'node', data: msg }
         },
         getInfo () {
           return info
@@ -129,8 +129,8 @@ function createSendbox(id: string, nickname: string, avatar: string, ws: WebSock
         sendMsg: (message: string) => {
           return this.sendGroupMsg(group_id, message)
         },
-        makeForwardMsg(msg: any) { 
-          return { type: 'node', data: msg } 
+        makeForwardMsg (msg: any) {
+          return { type: 'node', data: msg }
         },
         getInfo () {
           return info
@@ -149,14 +149,14 @@ function createSendbox(id: string, nickname: string, avatar: string, ws: WebSock
       }
     },
     sendPrivateMsg (userId: string, message: any) {
-      ws.send?.(JSON.stringify({ type:'friend', id: userId, content: dealMessage(message) }))
+      ws.send?.(JSON.stringify({ type: 'friend', id: userId, content: dealMessage(message) }))
       logger.info(`${logger.blue(`[${uin} => ${userId}]`)} 发送私聊消息：${JSON.stringify(message).replace(/data:image\/png;base64,.*?(,|]|")/g, 'base64://...$1')}`)
-      return new Promise((resolve) => resolve({message_id: Date.now()}))
+      return new Promise((resolve) => resolve({ message_id: Date.now() }))
     },
     sendGroupMsg (groupId: string, message: string) {
-      ws.send?.(JSON.stringify({ type:'group', id: groupId, content: dealMessage(message) }))
+      ws.send?.(JSON.stringify({ type: 'group', id: groupId, content: dealMessage(message) }))
       logger.info(`${logger.blue(`[${uin} => ${groupId}]`)} 发送群聊消息：${JSON.stringify(message).replace(/data:image\/png;base64,.*?(,|]|")/g, 'base64://...$1')}`)
-      return new Promise((resolve) => resolve({message_id: Date.now()}))
+      return new Promise((resolve) => resolve({ message_id: Date.now() }))
     },
     getFriendList () {
       return this.fl
@@ -164,7 +164,7 @@ function createSendbox(id: string, nickname: string, avatar: string, ws: WebSock
     getGroupList () {
       return this.gl
     },
-    getGroupMemberList (group_id: string){
+    getGroupMemberList (group_id: string) {
       return this.gml.get(group_id) || new Map()
     },
     fl: nameList.reduce((acc, cur) => {
@@ -194,7 +194,7 @@ function createSendbox(id: string, nickname: string, avatar: string, ws: WebSock
         return acc
       }, new Map()))
       return acc
-    }, new Map()),
+    }, new Map())
   }
   if (version.BotName === 'Miao') {
     if (!Bot.adapter) {
@@ -212,39 +212,41 @@ function createSendbox(id: string, nickname: string, avatar: string, ws: WebSock
   }
 }
 
-function createMessage(id: string, userId: string, groupId: string, content: string, permission: 'owner' | 'admin' | 'user' | 'master' = 'user'){
+function createMessage (id: string, userId: string, groupId: string, content: string, permission: 'owner' | 'admin' | 'user' | 'master' = 'user') {
   const key = 'YePanel.sandbox.'
   const uin = key + id
   const bot = Bot[uin]
   const e = {
     bot: Bot[uin],
-    adapter : bot.version,
+    adapter: bot.version,
     message_id: Date.now(),
     sender: {
       user_id: userId,
       nickname: userId,
-      role: permission,
+      role: permission
     },
     nickname: userId,
     user_id: userId,
     self_id: uin,
     time: Date.now(),
-    message: [{type: 'text', text: content}],
+    message: [{ type: 'text', text: content }],
     raw_message: content,
     isMaster: permission === 'master',
     post_type: 'message',
-    ...groupId ? {
-      message_type: 'group',
-      sub_type: 'normal',
-      group_id: groupId,
-      group_name: groupId,
-    } : {
-      message_type: 'private',
-      sub_type: 'friend',
-    },
+    ...groupId
+      ? {
+          message_type: 'group',
+          sub_type: 'normal',
+          group_id: groupId,
+          group_name: groupId
+        }
+      : {
+          message_type: 'private',
+          sub_type: 'friend'
+        },
     friend: bot.pickFriend(userId),
     group: groupId ? bot.pickGroup(groupId) : undefined,
-    member: (groupId && userId) ? bot.pickMember(groupId, userId) : undefined,
+    member: (groupId && userId) ? bot.pickMember(groupId, userId) : undefined
   }
   let event = `${e.post_type}.${e.message_type}.${e.sub_type}`
   logger.info(`${logger.blue(`[${e.self_id}]`)} ${groupId ? '群' : '好友'}消息：[${groupId ? groupId + ', ' : ''}${e.nickname}] ${e.raw_message}`)
@@ -261,7 +263,7 @@ function createMessage(id: string, userId: string, groupId: string, content: str
   }
 }
 
-function dealMessage(message: any) {
+function dealMessage (message: any) {
   if (!Array.isArray(message)) message = [message]
   for (const i in message) {
     if (typeof message[i] !== 'object') {
@@ -278,12 +280,12 @@ function dealMessage(message: any) {
         if (message[i].file.startsWith?.('file://')) {
           try {
             message[i].file = fs.readFileSync(message[i].file.replace('file://', ''))
-          } catch  {
+          } catch {
             try {
               message[i].file = fs.readFileSync(message[i].file.replace('file:///', ''))
-            } catch  {
+            } catch {
               message[i].file = ''
-             }
+            }
           }
         }
         if (message[i].file.startsWith?.('base64')) {

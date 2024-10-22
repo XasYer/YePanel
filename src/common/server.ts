@@ -26,13 +26,13 @@ export async function startServer () {
   await fastify.register(fastifyWebSocket)
   await fastify.register(fastifyMultipart)
 
-  const webPath =  join(version.BotPath, 'plugins', 'YePanel-Web')
+  const webPath = join(version.BotPath, 'plugins', 'YePanel-Web')
   if (fs.existsSync(webPath)) {
     await fastify.register(fastifyStatic, {
       root: webPath,
       prefix: '/YePanel/'
     })
-    fastify.get('/', (request, reply)=>{
+    fastify.get('/', (request, reply) => {
       reply.redirect('/YePanel/')
     })
   } else {
@@ -51,7 +51,7 @@ export async function startServer () {
     </div>
   </body>
 </html>`)
-      })
+    })
   }
 
   fastify.addHook('onResponse', (request, reply, done) => {
@@ -69,20 +69,20 @@ export async function startServer () {
     }
     done()
   })
-  
-  function verifyToken(request: FastifyRequest, reply: FastifyReply, done: (error?: Error | undefined) => void) {
-    const token = request.headers['authorization'] || request.headers['sec-websocket-protocol'] || (request.query as {accessToken?: string})?.accessToken || ''
-  
+
+  function verifyToken (request: FastifyRequest, reply: FastifyReply, done: (error?: Error | undefined) => void) {
+    const token = request.headers.authorization || request.headers['sec-websocket-protocol'] || (request.query as {accessToken?: string})?.accessToken || ''
+
     if (tokenAuth(token.replace('Bearer ', ''))) {
       done()
     } else {
       done(new Error('Unauthorized'))
     }
   }
-  
+
   async function loadRoutes (directory: string) {
     const items = fs.readdirSync(directory)
-  
+
     for (const item of items) {
       const fullPath = join(directory, item)
       const stat = fs.statSync(fullPath)
@@ -103,9 +103,9 @@ export async function startServer () {
       }
     }
   }
-  
+
   const srcPath = version.isDev ? 'src' : 'lib'
-  
+
   await loadRoutes(join(version.pluginPath, srcPath, 'api'))
 
   // 加载插件的路由
@@ -130,8 +130,8 @@ export async function startServer () {
       } catch { /* empty */ }
     }
   }
-  
-  fastify.listen({port: config.server.port, host: '::'}, (err) => {
+
+  fastify.listen({ port: config.server.port, host: '::' }, (err) => {
     if (err) {
       logger.error(`YePanel Error starting server: ${err}`)
     } else {
@@ -141,11 +141,13 @@ export async function startServer () {
           '-'.repeat(30),
           `YePanel v${version.pluginVersion} Server running successfully on ${end - start}ms`,
           '内网地址:',
-          ...res.local.map(i => `  - http://${i}:${config.server.port}`), 
-          ...res.remote ? [
-            '外网地址:',
+          ...res.local.map(i => `  - http://${i}:${config.server.port}`),
+          ...res.remote
+            ? [
+                '外网地址:',
             `  - http://${res.remote}:${config.server.port}`
-          ] : [],
+              ]
+            : [],
           '-'.repeat(30)
         ]
         logs.forEach(i => {
@@ -163,13 +165,13 @@ async function getIps () {
     {
       api: 'https://v4.ip.zxinc.org/info.php?type=json',
       key: 'data.myip'
-    }, 
+    },
     {
       api: 'https://ipinfo.io/json',
       key: 'ip'
     }
   ]
-  const redisKey = 'YePanel-public-ip'
+  const redisKey = 'YePanel:ip'
   const remote = await redis.get(redisKey) as string | null
   if (remote) {
     return {
@@ -182,7 +184,7 @@ async function getIps () {
       const info = await fetch(i.api).then(res => res.json()).then(res => {
         const remote = i.key.split('.').reduce((prev, curr) => prev && prev[curr], res) as string
         if (remote) {
-          redis.set(redisKey, remote, { EX: 60 * 60 * 24 * 3})
+          redis.set(redisKey, remote, { EX: 60 * 60 * 24 * 3 })
           return {
             local,
             remote
@@ -201,7 +203,7 @@ async function getIps () {
   }
   return {
     local,
-    remote: '',
+    remote: ''
   }
 }
 
@@ -218,7 +220,7 @@ const objectToString = (obj: any): string => {
           return `${key}: ${formattedValue}`
         })
         .join(', ')} }`
-    } catch  {
+    } catch {
       return String(obj)
     }
   }

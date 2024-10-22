@@ -10,104 +10,91 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: 拉取代码
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: 安装node
         uses: actions/setup-node@v4
         with:
           node-version: 20.10.0
 
-      - name: Setup pnpm
+      - name: 安装pnpm
         uses: pnpm/action-setup@v2
         with:
           version: 9.0.2
 
-      - name: Install dependencies
+      - name: 安装依赖
         run: pnpm install
 
-      - name: Run build
+      - name: 编译
         run: pnpm run build
 
-      - name: Set timezone to China Standard Time
+      - name: 设置时区
         run: |
           sudo timedatectl set-timezone Asia/Shanghai
 
-      - name: setup git config
+      - name: 设置git用户名和邮箱
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-        
-      # 存储编译后的lib文件夹
-      - name: Stash uncommitted changes
-        run: |
-          git stash push -u -m "stash lib folder"
 
-      # 切换到 build 分支
-      - name: Checkout build branch
+      - name: 创建临时文件夹存储编译后的lib文件夹
+        run: |
+          mkdir ./../temp
+
+      - name: 复制编译后的lib文件夹到临时文件夹
+        run: |
+          cp -r ./lib ./../temp/lib
+
+      - name: 切换到 build 分支
         run: |
           git fetch origin build
           git checkout build
 
-      # 复制编译后的lib文件夹到 build 分支
-      - name: Apply stashed changes
+      - name: 删除build分支上的lib文件夹
         run: |
-          if [ -d "lib" ]; then
-            git rm -rf lib
-          fi
-          git stash pop
+          rm -rf lib
 
-      # 从main分支复制文件到build分支
-      - name: Copy files to build branch
+      - name: 复制编译后的lib文件夹到 build 分支
+        run: |
+          cp -r ./../temp/lib ./
+
+      - name: 删除临时文件夹
+        run: |
+          rm -rf ./../temp
+
+      - name: 从main分支复制文件到build分支
         run: |
           git checkout main -- package.json CHANGELOG.md pnpm-lock.yaml README.md .gitignore index.js config
 
-      # 检查是否有变更
-      - name: Check for changes in the repository
-        run: |
-          if [ -z "$(git diff --cached --name-only)" ] && [ -z "$(git status --porcelain)" ]; then
-            echo "No changes detected, ending job."
-            exit 0
-          fi
-
-      # 获取上次提交的消息
-      - name: Get the last commit message from main branch
-        id: get_commit_message
-        run: |
-          LAST_COMMIT_MSG=$(git log -1 --pretty=%B main | tr -d '\n' | sed 's/"/\\"/g')
-          echo "commit_message=$LAST_COMMIT_MSG" >> $GITHUB_ENV
-
-      # 根据main分支的提交消息
-      - name: Commit changes
+      - name: 根据main分支的commit信息生成提交消息
         run: |
           git add .
           if [ -z "$(git diff --cached --name-only)" ]; then
-            echo "No changes detected, ending job."
+            echo "No changes detected"
             exit 0
           else
-            git commit -m "chore(build): $commit_message"
+            git commit -m "chore(build): ${{ github.event.head_commit.message }}"
           fi
 
-      # 推送到 build 分支
-      - name: Push changes
+      - name: 推送到 build 分支
         uses: ad-m/github-push-action@master
         with:
           branch: build
           github_token: ${{ secrets.GITHUB_TOKEN }}
           force_with_lease: true
 
-      - name: Create build zip
+      - name: 创建 build.zip
         run: |
           find . \( -path "./node_modules" -o -path "./.git" \) -prune -o -type f -print | zip -@ build.zip
-      
-      - name: Upload build.zip as artifact
+
+      - name: 上传 build.zip
         uses: actions/upload-artifact@v3
         with:
           name: build-zip
           path: build.zip
 
-      # 更新版本号
-      - name: Run release-please
+      - name: 更新版本号
         uses: googleapis/release-please-action@v4
         id: release_please
         with:
@@ -118,7 +105,7 @@ jobs:
           fork: false
           create-release: true
 
-      - name: Upload Release Artifact
+      - name: 上传 release
         if: ${{ steps.release_please.outputs.release_created }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
