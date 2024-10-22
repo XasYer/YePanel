@@ -1,0 +1,1 @@
+import{v as t}from"./index-BsffL5E7.js";import"./index-CGb8cgid.js";import"./index-BbRa0nN8.js";import"./index-Dl3st5bm.js";import"./index-BHZvl7EN.js";import"./index-Deo99pCF.js";const a={language:t,ext:"vue"};export{a as default};
