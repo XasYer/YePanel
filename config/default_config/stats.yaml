@@ -1,0 +1,26 @@
+# 以下数据均由YePanel统计, 设置为ture即开启统计功能
+# 若改动, 需重启生效
+
+# 数量统计图表, 在一个图表中
+countChart:
+  # 发送消息次数
+  sent: true
+  # 接收消息次数
+  recv: true
+  # 插件触发次数
+  plugin: false
+
+# 排行榜统计图表, 每一项为一个图表
+rankChart:
+  # 插件触发次数排行
+  pluginUse: false
+  # 插件发送消息排行
+  pluginSent: false
+  # 群聊接收消息排行
+  groupRecv: false
+  # 群聊发送消息排行
+  groupSent: false
+  # 用户接收消息排行
+  userRecv: false
+  # 用户发送消息排行
+  userSent: false
