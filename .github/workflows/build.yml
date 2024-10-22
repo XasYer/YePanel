@@ -65,7 +65,7 @@ jobs:
 
       - name: 从main分支复制文件到build分支
         run: |
-          git checkout main -- package.json CHANGELOG.md pnpm-lock.yaml README.md .gitignore index.js config
+          git checkout main -- package.json CHANGELOG.md pnpm-lock.yaml README.md index.js config
 
       - name: 根据main分支的commit信息生成提交消息
         run: |
