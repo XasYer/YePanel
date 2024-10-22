@@ -101,6 +101,7 @@
         :xs="24"
         :md="24"
         :sm="24"
+        :lg="12"
       >
         <el-card shadow="never">
           <div>
