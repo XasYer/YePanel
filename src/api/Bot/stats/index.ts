@@ -244,7 +244,7 @@ export default [
         }
       }
       const date = moment()
-      for (let i = 0; i < 30; i++) {
+      for (let i = 0; i < 7; i++) {
         const time = date.format('YYYY:MM:DD')
         const timeKey = time.replace(/:/g, '-')
         const rkey = `YePanel:plugin:use:${time}:`
@@ -272,7 +272,7 @@ export default [
         }
       }
       const date = moment()
-      for (let i = 0; i < 30; i++) {
+      for (let i = 0; i < 7; i++) {
         const time = date.format('YYYY:MM:DD')
         const timeKey = time.replace(/:/g, '-')
         const rkey = `YePanel:plugin:sent:${time}:`
@@ -300,7 +300,7 @@ export default [
         }
       }
       const date = moment()
-      for (let i = 0; i < 30; i++) {
+      for (let i = 0; i < 7; i++) {
         const time = date.format('YYYY:MM:DD')
         const timeKey = time.replace(/:/g, '-')
         const MATCH = (() => {
@@ -336,7 +336,7 @@ export default [
         }
       }
       const date = moment()
-      for (let i = 0; i < 30; i++) {
+      for (let i = 0; i < 7; i++) {
         const time = date.format('YYYY:MM:DD')
         const timeKey = time.replace(/:/g, '-')
         const MATCH = (() => {
@@ -372,7 +372,7 @@ export default [
         }
       }
       const date = moment()
-      for (let i = 0; i < 30; i++) {
+      for (let i = 0; i < 7; i++) {
         const time = date.format('YYYY:MM:DD')
         const timeKey = time.replace(/:/g, '-')
         const MATCH = (() => {
@@ -408,7 +408,7 @@ export default [
         }
       }
       const date = moment()
-      for (let i = 0; i < 30; i++) {
+      for (let i = 0; i < 7; i++) {
         const time = date.format('YYYY:MM:DD')
         const timeKey = time.replace(/:/g, '-')
         const MATCH = (() => {
