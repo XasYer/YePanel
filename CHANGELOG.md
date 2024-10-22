@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.8.0](https://github.com/XasYer/YePanel/compare/v1.7.4...v1.8.0) (2024-10-22)
+
+
+### Features
+
+* 数据统计 ([144a9ce](https://github.com/XasYer/YePanel/commit/144a9ce0866a3866692a43b88a0ac091b1ecd2e4))
+
+
+### Bug Fixes
+
+* build ([a371129](https://github.com/XasYer/YePanel/commit/a3711291ec869da6d99da91779de3dd60af25e01))
+
 ## [1.7.4](https://github.com/XasYer/YePanel/compare/v1.7.3...v1.7.4) (2024-10-20)
 
 
