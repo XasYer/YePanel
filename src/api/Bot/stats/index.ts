@@ -12,12 +12,12 @@ if (version.BotName === 'Miao') {
 
     // 接收群消息数量
     if (e.group_id && config.stats.rankChart.groupRecv) {
-      incr(`YePanel:recv:group:${e.group_id}:${day}`)
+      incr(`YePanel:recv:group:${e.group_id}:${day}`, 31)
     }
 
     // 接收用户消息数量
     if (e.user_id && config.stats.rankChart.userRecv) {
-      incr(`YePanel:recv:user:${e.user_id}:${day}`)
+      incr(`YePanel:recv:user:${e.user_id}:${day}`, 31)
     }
   })
 }
@@ -32,7 +32,7 @@ if (config.stats.rankChart.pluginUse || config.stats.countChart.plugin) {
         const day = moment().format('YYYY:MM:DD')
         // 插件总调用数量
         if (config.stats.countChart.plugin) {
-          incr(`YePanel:plugin:total:${day}`)
+          incr(`YePanel:plugin:total:${day}`, 31)
         }
         // 插件调用排行榜
         if (config.stats.rankChart.pluginUse) {
@@ -107,10 +107,10 @@ function getName (id: string, type: 'group' | 'user'): string {
   return id
 }
 
-function incr (key: string) {
+function incr (key: string, day: number = 8) {
   redis.incr(key).then((i: number) => {
     if (i == 1) {
-      redis.expire(key, 60 * 60 * 24 * 31).catch(() => {})
+      redis.expire(key, 60 * 60 * 24 * day).catch(() => {})
     }
   }).catch(() => {})
 }
