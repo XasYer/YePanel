@@ -86,10 +86,10 @@ jobs:
 
       - name: 创建 build.zip
         run: |
-          find . \( -path "./node_modules" -o -path "./.git" \) -prune -o -type f -print | zip -@ build.zip
+          find . -path "./.git" -prune -o -type f -print | zip -@ build.zip
 
       - name: 上传 build.zip
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: build-zip
           path: build.zip

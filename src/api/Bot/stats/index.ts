@@ -221,7 +221,6 @@ export default [
         }
 
         const values = await Promise.all(tasks)
-
         if (values.some(v => v !== false)) {
           data.countChart.time.unshift(timeKey)
           if (values[0] !== false) {
