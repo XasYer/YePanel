@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.8.2](https://github.com/XasYer/YePanel/compare/v1.8.1...v1.8.2) (2024-10-22)
+
+
+### Bug Fixes
+
+* 单独获取数据 ([6fd6f2d](https://github.com/XasYer/YePanel/commit/6fd6f2de3f042cb8028b980543323c24c780c27a))
+
 ## [1.8.1](https://github.com/XasYer/YePanel/compare/v1.8.0...v1.8.1) (2024-10-22)
 
 
