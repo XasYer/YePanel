@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.8.5](https://github.com/XasYer/YePanel/compare/v1.8.4...v1.8.5) (2024-10-22)
+
+
+### Bug Fixes
+
+* 储存名字 ([869d1c6](https://github.com/XasYer/YePanel/commit/869d1c6b7b35c98a21d25cd35124f455b67d18cf))
+
 ## [1.8.4](https://github.com/XasYer/YePanel/compare/v1.8.3...v1.8.4) (2024-10-22)
 
 
