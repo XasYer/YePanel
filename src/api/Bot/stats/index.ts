@@ -241,17 +241,11 @@ export default [
       const { time } = body as {time: string}
       if (config.stats.rankChart.pluginSent) {
         const rkey = `YePanel:plugin:sent:${time.replace(/-/g, ':')}:`
-        const value = await scan(rkey + '*', (key) => key.replace(rkey, ''))
-        if (value.length) {
-          data.pluginSent = value
-        }
+        data.pluginSent = await scan(rkey + '*', (key) => key.replace(rkey, ''))
       }
       if (config.stats.rankChart.pluginUse) {
         const rkey = `YePanel:plugin:use:${time.replace(/-/g, ':')}:`
-        const value = await scan(rkey + '*', (key) => key.replace(rkey, ''))
-        if (value.length) {
-          data.pluginUse = value
-        }
+        data.pluginUse = await scan(rkey + '*', (key) => key.replace(rkey, ''))
       }
       if (config.stats.rankChart.groupRecv) {
         const MATCH = (() => {
@@ -263,10 +257,7 @@ export default [
           }
         })()
         const reg = new RegExp(MATCH.replace('*', '(.+?)'))
-        const value = await scan(MATCH, (key) => reg.exec(key)?.[1] || '')
-        if (value.length) {
-          data.groupRecv = value
-        }
+        data.groupRecv = await scan(MATCH, (key) => reg.exec(key)?.[1] || '')
       }
       if (config.stats.rankChart.groupSent) {
         const MATCH = (() => {
@@ -278,10 +269,7 @@ export default [
           }
         })()
         const reg = new RegExp(MATCH.replace('*', '(.+?)'))
-        const value = await scan(MATCH, (key) => reg.exec(key)?.[1] || '')
-        if (value.length) {
-          data.groupSent = value
-        }
+        data.groupSent = await scan(MATCH, (key) => reg.exec(key)?.[1] || '')
       }
       if (config.stats.rankChart.userRecv) {
         const MATCH = (() => {
@@ -293,10 +281,7 @@ export default [
           }
         })()
         const reg = new RegExp(MATCH.replace('*', '(.+?)'))
-        const value = await scan(MATCH, (key) => reg.exec(key)?.[1] || '')
-        if (value.length) {
-          data.userRecv = value
-        }
+        data.userRecv = await scan(MATCH, (key) => reg.exec(key)?.[1] || '')
       }
       if (config.stats.rankChart.userSent) {
         const MATCH = (() => {
@@ -308,10 +293,7 @@ export default [
           }
         })()
         const reg = new RegExp(MATCH.replace('*', '(.+?)'))
-        const value = await scan(MATCH, (key) => reg.exec(key)?.[1] || '')
-        if (value.length) {
-          data.userSent = value
-        }
+        data.userSent = await scan(MATCH, (key) => reg.exec(key)?.[1] || '')
       }
       return {
         success: true,
