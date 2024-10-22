@@ -119,10 +119,6 @@ type ChartData = {
   name: string,
   value: number
 }[]
-/** @param key 日期 */
-type RankData = {
-  [key: string]: ChartData
-}
 
 function sort (data: ChartData) {
   data.sort((a, b) => b.value - a.value)
@@ -233,198 +229,98 @@ export default [
     }
   },
   {
-    url: '/get-stats-rank-plugin-use',
+    url: '/get-stats-rank-data',
     method: 'post',
-    handler: async () => {
-      const data: RankData = {}
-      if (!config.stats.rankChart.pluginUse) {
-        return {
-          success: true,
-          data
-        }
+    handler: async ({ body }) => {
+      const data: {
+        pluginSent: ChartData | false,
+        pluginUse: ChartData | false,
+        groupRecv: ChartData | false,
+        groupSent: ChartData | false,
+        userRecv: ChartData | false,
+        userSent: ChartData | false
+      } = {
+        pluginSent: false,
+        pluginUse: false,
+        groupRecv: false,
+        groupSent: false,
+        userRecv: false,
+        userSent: false
       }
-      const date = moment()
-      for (let i = 0; i < 7; i++) {
-        const time = date.format('YYYY:MM:DD')
-        const timeKey = time.replace(/:/g, '-')
-        const rkey = `YePanel:plugin:use:${time}:`
+      const { time } = body as {time: string}
+      if (config.stats.rankChart.pluginSent) {
+        const rkey = `YePanel:plugin:sent:${time.replace(/-/g, ':')}:`
         const value = await scan(rkey + '*', (key) => key.replace(rkey, ''))
         if (value.length) {
-          data[timeKey] = value
-        }
-        date.add(-1, 'days')
-      }
-      return {
-        success: true,
-        data
-      }
-    }
-  },
-  {
-    url: '/get-stats-rank-plugin-sent',
-    method: 'post',
-    handler: async () => {
-      const data: RankData = {}
-      if (!config.stats.rankChart.pluginSent) {
-        return {
-          success: true,
-          data
+          data.pluginSent = value
         }
       }
-      const date = moment()
-      for (let i = 0; i < 7; i++) {
-        const time = date.format('YYYY:MM:DD')
-        const timeKey = time.replace(/:/g, '-')
-        const rkey = `YePanel:plugin:sent:${time}:`
+      if (config.stats.rankChart.pluginUse) {
+        const rkey = `YePanel:plugin:use:${time.replace(/-/g, ':')}:`
         const value = await scan(rkey + '*', (key) => key.replace(rkey, ''))
         if (value.length) {
-          data[timeKey] = value
-        }
-        date.add(-1, 'days')
-      }
-      return {
-        success: true,
-        data
-      }
-    }
-  },
-  {
-    url: '/get-stats-rank-group-recv',
-    method: 'post',
-    handler: async () => {
-      const data: RankData = {}
-      if (!config.stats.rankChart.groupRecv) {
-        return {
-          success: true,
-          data
+          data.pluginUse = value
         }
       }
-      const date = moment()
-      for (let i = 0; i < 7; i++) {
-        const time = date.format('YYYY:MM:DD')
-        const timeKey = time.replace(/:/g, '-')
+      if (config.stats.rankChart.groupRecv) {
         const MATCH = (() => {
           switch (version.BotName) {
             case 'TRSS':
-              return `Yz:count:receive:msg:group:*:${time}`
+              return `Yz:count:receive:msg:group:*:${time.replace(/-/g, ':')}`
             case 'Miao':
-              return `YePanel:recv:group:*:${time}`
+              return `YePanel:recv:group:*:${time.replace(/-/g, ':')}`
           }
         })()
         const reg = new RegExp(MATCH.replace('*', '(.+?)'))
         const value = await scan(MATCH, (key) => reg.exec(key)?.[1] || '')
         if (value.length) {
-          data[timeKey] = value.map(v => ({ ...v, name: getName(v.name, 'group') }))
-        }
-        date.add(-1, 'days')
-      }
-      return {
-        success: true,
-        data
-      }
-    }
-  },
-  {
-    url: '/get-stats-rank-group-sent',
-    method: 'post',
-    handler: async () => {
-      const data: RankData = {}
-      if (!config.stats.rankChart.groupSent) {
-        return {
-          success: true,
-          data
+          data.groupRecv = value.map(v => ({ ...v, name: getName(v.name, 'group') }))
         }
       }
-      const date = moment()
-      for (let i = 0; i < 7; i++) {
-        const time = date.format('YYYY:MM:DD')
-        const timeKey = time.replace(/:/g, '-')
+      if (config.stats.rankChart.groupSent) {
         const MATCH = (() => {
           switch (version.BotName) {
             case 'TRSS':
-              return `Yz:count:send:msg:group:*:${time}`
+              return `Yz:count:send:msg:group:*:${time.replace(/-/g, ':')}`
             case 'Miao':
-              return `YePanel:recv:group:*:${time}`
+              return `YePanel:recv:group:*:${time.replace(/-/g, ':')}`
           }
         })()
         const reg = new RegExp(MATCH.replace('*', '(.+?)'))
         const value = await scan(MATCH, (key) => reg.exec(key)?.[1] || '')
         if (value.length) {
-          data[timeKey] = value.map(v => ({ ...v, name: getName(v.name, 'group') }))
-        }
-        date.add(-1, 'days')
-      }
-      return {
-        success: true,
-        data
-      }
-    }
-  },
-  {
-    url: '/get-stats-rank-user-recv',
-    method: 'post',
-    handler: async () => {
-      const data: RankData = {}
-      if (!config.stats.rankChart.userRecv) {
-        return {
-          success: true,
-          data
+          data.groupSent = value.map(v => ({ ...v, name: getName(v.name, 'group') }))
         }
       }
-      const date = moment()
-      for (let i = 0; i < 7; i++) {
-        const time = date.format('YYYY:MM:DD')
-        const timeKey = time.replace(/:/g, '-')
+      if (config.stats.rankChart.userRecv) {
         const MATCH = (() => {
           switch (version.BotName) {
             case 'TRSS':
-              return `Yz:count:receive:msg:user:*:${time}`
+              return `Yz:count:receive:msg:user:*:${time.replace(/-/g, ':')}`
             case 'Miao':
-              return `YePanel:recv:user:*:${time}`
+              return `YePanel:recv:user:*:${time.replace(/-/g, ':')}`
           }
         })()
         const reg = new RegExp(MATCH.replace('*', '(.+?)'))
         const value = await scan(MATCH, (key) => reg.exec(key)?.[1] || '')
         if (value.length) {
-          data[timeKey] = value.map(v => ({ ...v, name: getName(v.name, 'user') }))
-        }
-        date.add(-1, 'days')
-      }
-      return {
-        success: true,
-        data
-      }
-    }
-  },
-  {
-    url: '/get-stats-rank-user-sent',
-    method: 'post',
-    handler: async () => {
-      const data: RankData = {}
-      if (!config.stats.rankChart.userSent) {
-        return {
-          success: true,
-          data
+          data.userRecv = value.map(v => ({ ...v, name: getName(v.name, 'user') }))
         }
       }
-      const date = moment()
-      for (let i = 0; i < 7; i++) {
-        const time = date.format('YYYY:MM:DD')
-        const timeKey = time.replace(/:/g, '-')
+      if (config.stats.rankChart.userSent) {
         const MATCH = (() => {
           switch (version.BotName) {
             case 'TRSS':
-              return `Yz:count:send:msg:user:*:${time}`
+              return `Yz:count:send:msg:user:*:${time.replace(/-/g, ':')}`
             case 'Miao':
-              return `YePanel:recv:user:*:${time}`
+              return `YePanel:recv:user:*:${time.replace(/-/g, ':')}`
           }
         })()
         const reg = new RegExp(MATCH.replace('*', '(.+?)'))
         const value = await scan(MATCH, (key) => reg.exec(key)?.[1] || '')
         if (value.length) {
-          data[timeKey] = value.map(v => ({ ...v, name: getName(v.name, 'user') }))
+          data.userSent = value.map(v => ({ ...v, name: getName(v.name, 'user') }))
         }
-        date.add(-1, 'days')
       }
       return {
         success: true,
