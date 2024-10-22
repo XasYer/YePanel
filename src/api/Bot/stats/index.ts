@@ -61,11 +61,13 @@ if (
       const [e] = args
       // 群消息发送数量
       if (version.BotName === 'Miao' && e?.group_id && config.stats.rankChart.groupSent) {
-        incr(`YePanel:sent:group:${e.group_id}:${moment().format('YYYY:MM:DD')}`)
+        const key = e?.group_name ? `${e.group_name}(${e.group_id})` : e.group_id
+        incr(`YePanel:sent:group:${key}:${moment().format('YYYY:MM:DD')}`)
       }
       // 用户消息发送数量
       if (version.BotName === 'Miao' && e?.user_id && config.stats.rankChart.userSent) {
-        incr(`YePanel:sent:user:${e.user_id}:${moment().format('YYYY:MM:DD')}`)
+        const key = e?.sender?.nickname ? `${e.sender.nickname}(${e.user_id})` : e.user_id
+        incr(`YePanel:sent:user:${key}:${moment().format('YYYY:MM:DD')}`)
       }
       // 插件发送消息排行
       if (e?.logFnc && config.stats.rankChart.pluginSent) {
@@ -94,17 +96,6 @@ function getLog (log: string) {
     } catch { }
   }
   return info
-}
-
-function getName (id: string, type: 'group' | 'user'): string {
-  try {
-    const info = Bot[type === 'group' ? 'pickGroup' : 'pickUser'](id)
-    const name = info?.name || info?.nickname
-    if (name) {
-      return `${name}(${id})`
-    }
-  } catch { }
-  return id
 }
 
 function incr (key: string, day: number = 8) {
@@ -274,7 +265,7 @@ export default [
         const reg = new RegExp(MATCH.replace('*', '(.+?)'))
         const value = await scan(MATCH, (key) => reg.exec(key)?.[1] || '')
         if (value.length) {
-          data.groupRecv = value.map(v => ({ ...v, name: getName(v.name, 'group') }))
+          data.groupRecv = value
         }
       }
       if (config.stats.rankChart.groupSent) {
@@ -289,7 +280,7 @@ export default [
         const reg = new RegExp(MATCH.replace('*', '(.+?)'))
         const value = await scan(MATCH, (key) => reg.exec(key)?.[1] || '')
         if (value.length) {
-          data.groupSent = value.map(v => ({ ...v, name: getName(v.name, 'group') }))
+          data.groupSent = value
         }
       }
       if (config.stats.rankChart.userRecv) {
@@ -304,7 +295,7 @@ export default [
         const reg = new RegExp(MATCH.replace('*', '(.+?)'))
         const value = await scan(MATCH, (key) => reg.exec(key)?.[1] || '')
         if (value.length) {
-          data.userRecv = value.map(v => ({ ...v, name: getName(v.name, 'user') }))
+          data.userRecv = value
         }
       }
       if (config.stats.rankChart.userSent) {
@@ -319,7 +310,7 @@ export default [
         const reg = new RegExp(MATCH.replace('*', '(.+?)'))
         const value = await scan(MATCH, (key) => reg.exec(key)?.[1] || '')
         if (value.length) {
-          data.userSent = value.map(v => ({ ...v, name: getName(v.name, 'user') }))
+          data.userSent = value
         }
       }
       return {
