@@ -106,7 +106,17 @@
         <el-card shadow="never">
           <div>
             <div class="flex justify-between">
-              <span class="text-md font-medium">{{ item.name }}</span>
+              <el-tooltip
+                class="box-item"
+                effect="light"
+                :content="item.desc"
+                placement="right-start"
+              >
+                <span class="text-md font-medium flex-c">
+                  {{ item.name }}
+                  <el-icon class="ml-2"><InfoFilled /></el-icon
+                ></span>
+              </el-tooltip>
             </div>
             <div class="flex justify-between items-start mt-3">
               <rank-chart
@@ -153,7 +163,7 @@ import {
 import { ref } from "vue";
 import CountChart from "./components/CountChart.vue";
 import RankChart from "./components/RankChart.vue";
-import { Setting } from "@element-plus/icons-vue";
+import { Setting, InfoFilled } from "@element-plus/icons-vue";
 import dayjs from "dayjs";
 
 const loading = ref(true);
@@ -193,12 +203,28 @@ const countChartData = ref<getCountChartDataResult["data"]>({
 });
 
 const sortKeys = [
-  { key: "pluginUse", name: "插件使用排行" },
-  { key: "userSent", name: "用户发送消息排行" },
-  { key: "groupSent", name: "群组发送消息排行" },
-  { key: "pluginSent", name: "插件发送消息排行" },
-  { key: "userRecv", name: "用户接收消息排行" },
-  { key: "groupRecv", name: "群组接收消息排行" }
+  {
+    key: "pluginSent",
+    name: "插件发送消息排行",
+    desc: "插件使用reply()方法发送消息的次数"
+  },
+  {
+    key: "userSent",
+    name: "Bot向用户发送消息排行",
+    desc: "Bot向用户发送消息的次数"
+  },
+  {
+    key: "groupSent",
+    name: "Bot向群发送消息排行",
+    desc: "Bot向群发送消息的次数"
+  },
+  {
+    key: "pluginUse",
+    name: "插件调用次数排行",
+    desc: "插件被调用的次数, 不一定会发送消息"
+  },
+  { key: "userRecv", name: "接收用户消息排行", desc: "来自对应用户的消息数量" },
+  { key: "groupRecv", name: "接收群消息排行", desc: "来自对应群的消息数量" }
 ];
 
 const rankChartData = ref<getRankDataResult["data"]>({
