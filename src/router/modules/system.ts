@@ -8,15 +8,6 @@ export default {
   },
   children: [
     {
-      path: "/system/sandbox",
-      name: "sandbox",
-      component: () => import("@/views/system/sandbox/index.vue"),
-      meta: {
-        title: "沙盒调试",
-        icon: "mage:hour-glass-fill"
-      }
-    },
-    {
       path: "/system/terminal",
       name: "terminal",
       component: () => import("@/views/system/terminal/index.vue"),

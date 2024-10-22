@@ -1,8 +1,8 @@
 <template>
-  <el-card v-if="loading" class="h-[750px] flex-c">
+  <el-card v-if="loading" class="h-[700px] flex-c">
     <el-result icon="info" title="加载中..." />
   </el-card>
-  <el-card v-else class="h-[750px] p-0" body-style="padding: 0;">
+  <el-card v-else class="h-[700px] p-0" body-style="padding: 0;">
     <el-container>
       <el-aside :width="isCollapse ? '60px' : '200px'">
         <el-menu
@@ -19,7 +19,7 @@
             />
             <template #title>添加用户</template>
           </el-menu-item>
-          <el-scrollbar height="680px">
+          <el-scrollbar height="630px">
             <el-menu-item
               v-for="item in userList"
               :key="item.userId"
@@ -37,7 +37,7 @@
       <el-container>
         <el-main>
           <el-tabs v-if="selectUser" v-model="activeName">
-            <el-scrollbar ref="messageScrollbarRef" height="570px">
+            <el-scrollbar ref="messageScrollbarRef" height="520px">
               <el-tab-pane
                 v-for="item in [
                   { name: 'private', label: '私聊' },
@@ -190,7 +190,7 @@ const userList = ref([
 // 切换tabs和用户时,滚动到底部
 watch([activeName, selectUser], () => {
   nextTick(() => {
-    const bottom = messageScrollbarRef.value.wrapRef.scrollHeight - 570;
+    const bottom = messageScrollbarRef.value.wrapRef.scrollHeight - 520;
     messageScrollbarRef.value.setScrollTop(bottom);
   });
 });
@@ -289,7 +289,7 @@ const handleKeyDown = (event: KeyboardEvent) => {
       });
       msg.value = "";
       nextTick(() => {
-        const bottom = messageScrollbarRef.value.wrapRef.scrollHeight - 570;
+        const bottom = messageScrollbarRef.value.wrapRef.scrollHeight - 520;
         messageScrollbarRef.value.setScrollTop(bottom);
       });
     } else {
@@ -414,7 +414,7 @@ onMounted(() => {
       }
       if (type === "group" || id === selectUser.value) {
         nextTick(() => {
-          const bottom = messageScrollbarRef.value.wrapRef.scrollHeight - 570;
+          const bottom = messageScrollbarRef.value.wrapRef.scrollHeight - 520;
           messageScrollbarRef.value.setScrollTop(bottom);
         });
       }
