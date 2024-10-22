@@ -148,43 +148,33 @@ async function scan (MATCH: string, getName: (key: string) => string) {
   return ChartData
 }
 
+/**
+ * 分开获取数据，避免过多数据导致timeout
+ */
+
 export default [
   {
-    url: '/get-stats-data',
+    url: '/get-stats-count-data',
     method: 'post',
     handler: async () => {
       const data: {
-        countChart: {
-          sent: number[],
-          recv: number[],
-          plugin: number[],
-          time: string[]
-        },
-        rankChart: {
-          pluginUse: RankData,
-          pluginSent: RankData,
-          userSent: RankData,
-          userRecv: RankData,
-          groupRecv: RankData,
-          groupSent: RankData,
-        }
+        sent: number[],
+        recv: number[],
+        plugin: number[],
+        time: string[]
       } = {
-        countChart: {
-          sent: [],
-          recv: [],
-          plugin: [],
-          time: []
-        },
-        rankChart: {
-          pluginUse: {},
-          pluginSent: {},
-          userSent: {},
-          userRecv: {},
-          groupRecv: {},
-          groupSent: {}
-        }
+        sent: [],
+        recv: [],
+        plugin: [],
+        time: []
       }
       const countConfig = config.stats.countChart
+      if (!countConfig.sent && !countConfig.recv && !countConfig.plugin) {
+        return {
+          success: true,
+          data
+        }
+      }
       const date = moment()
       for (let i = 0; i < 30; i++) {
         const time = date.format('YYYY:MM:DD')
@@ -222,104 +212,218 @@ export default [
 
         const values = await Promise.all(tasks)
         if (values.some(v => v !== false)) {
-          data.countChart.time.unshift(timeKey)
+          data.time.unshift(timeKey)
           if (values[0] !== false) {
-            data.countChart.sent.unshift(Number(values[0]))
+            data.sent.unshift(Number(values[0]))
           }
           if (values[1] !== false) {
-            data.countChart.recv.unshift(Number(values[1]))
+            data.recv.unshift(Number(values[1]))
           }
           if (values[2] !== false) {
-            data.countChart.plugin.unshift(Number(values[2]))
+            data.plugin.unshift(Number(values[2]))
           }
         }
 
-        // 插件触发次数排行
-        if (config.stats.rankChart.pluginUse) {
-          const rkey = `YePanel:plugin:use:${time}:`
-          const value = await scan(rkey + '*', (key) => key.replace(rkey, ''))
-          if (value.length) {
-            data.rankChart.pluginUse[timeKey] = value
-          }
+        date.add(-1, 'days')
+      }
+      return {
+        success: true,
+        data
+      }
+    }
+  },
+  {
+    url: '/get-stats-rank-plugin-use',
+    method: 'post',
+    handler: async () => {
+      const data: RankData = {}
+      if (!config.stats.rankChart.pluginUse) {
+        return {
+          success: true,
+          data
         }
-
-        // 插件发送消息排行
-        if (config.stats.rankChart.pluginSent) {
-          const rkey = `YePanel:plugin:sent:${time}:`
-          const value = await scan(rkey + '*', (key) => key.replace(rkey, ''))
-          if (value.length) {
-            data.rankChart.pluginSent[timeKey] = value
-          }
+      }
+      const date = moment()
+      for (let i = 0; i < 30; i++) {
+        const time = date.format('YYYY:MM:DD')
+        const timeKey = time.replace(/:/g, '-')
+        const rkey = `YePanel:plugin:use:${time}:`
+        const value = await scan(rkey + '*', (key) => key.replace(rkey, ''))
+        if (value.length) {
+          data[timeKey] = value
         }
-
-        // 群聊接收消息排行
-        if (config.stats.rankChart.groupRecv) {
-          const MATCH = (() => {
-            switch (version.BotName) {
-              case 'TRSS':
-                return `Yz:count:receive:msg:group:*:${time}`
-              case 'Miao':
-                return `YePanel:recv:group:*:${time}`
-            }
-          })()
-          const reg = new RegExp(MATCH.replace('*', '(.+?)'))
-          const value = await scan(MATCH, (key) => reg.exec(key)?.[1] || '')
-          if (value.length) {
-            data.rankChart.groupRecv[timeKey] = value.map(v => ({ ...v, name: getName(v.name, 'group') }))
-          }
+        date.add(-1, 'days')
+      }
+      return {
+        success: true,
+        data
+      }
+    }
+  },
+  {
+    url: '/get-stats-rank-plugin-sent',
+    method: 'post',
+    handler: async () => {
+      const data: RankData = {}
+      if (!config.stats.rankChart.pluginSent) {
+        return {
+          success: true,
+          data
         }
-
-        // 群聊发送消息排行
-        if (config.stats.rankChart.groupSent) {
-          const MATCH = (() => {
-            switch (version.BotName) {
-              case 'TRSS':
-                return `Yz:count:send:msg:group:*:${time}`
-              case 'Miao':
-                return `YePanel:recv:group:*:${time}`
-            }
-          })()
-          const reg = new RegExp(MATCH.replace('*', '(.+?)'))
-          const value = await scan(MATCH, (key) => reg.exec(key)?.[1] || '')
-          if (value.length) {
-            data.rankChart.groupSent[timeKey] = value.map(v => ({ ...v, name: getName(v.name, 'group') }))
-          }
+      }
+      const date = moment()
+      for (let i = 0; i < 30; i++) {
+        const time = date.format('YYYY:MM:DD')
+        const timeKey = time.replace(/:/g, '-')
+        const rkey = `YePanel:plugin:sent:${time}:`
+        const value = await scan(rkey + '*', (key) => key.replace(rkey, ''))
+        if (value.length) {
+          data[timeKey] = value
         }
-
-        // 用户接收消息排行
-        if (config.stats.rankChart.userRecv) {
-          const MATCH = (() => {
-            switch (version.BotName) {
-              case 'TRSS':
-                return `Yz:count:receive:msg:user:*:${time}`
-              case 'Miao':
-                return `YePanel:recv:user:*:${time}`
-            }
-          })()
-          const reg = new RegExp(MATCH.replace('*', '(.+?)'))
-          const value = await scan(MATCH, (key) => reg.exec(key)?.[1] || '')
-          if (value.length) {
-            data.rankChart.userRecv[timeKey] = value.map(v => ({ ...v, name: getName(v.name, 'user') }))
-          }
+        date.add(-1, 'days')
+      }
+      return {
+        success: true,
+        data
+      }
+    }
+  },
+  {
+    url: '/get-stats-rank-group-recv',
+    method: 'post',
+    handler: async () => {
+      const data: RankData = {}
+      if (!config.stats.rankChart.groupRecv) {
+        return {
+          success: true,
+          data
         }
-
-        // 用户发送消息排行
-        if (config.stats.rankChart.groupSent) {
-          const MATCH = (() => {
-            switch (version.BotName) {
-              case 'TRSS':
-                return `Yz:count:send:msg:user:*:${time}`
-              case 'Miao':
-                return `YePanel:recv:user:*:${time}`
-            }
-          })()
-          const reg = new RegExp(MATCH.replace('*', '(.+?)'))
-          const value = await scan(MATCH, (key) => reg.exec(key)?.[1] || '')
-          if (value.length) {
-            data.rankChart.userSent[timeKey] = value.map(v => ({ ...v, name: getName(v.name, 'user') }))
+      }
+      const date = moment()
+      for (let i = 0; i < 30; i++) {
+        const time = date.format('YYYY:MM:DD')
+        const timeKey = time.replace(/:/g, '-')
+        const MATCH = (() => {
+          switch (version.BotName) {
+            case 'TRSS':
+              return `Yz:count:receive:msg:group:*:${time}`
+            case 'Miao':
+              return `YePanel:recv:group:*:${time}`
           }
+        })()
+        const reg = new RegExp(MATCH.replace('*', '(.+?)'))
+        const value = await scan(MATCH, (key) => reg.exec(key)?.[1] || '')
+        if (value.length) {
+          data[timeKey] = value.map(v => ({ ...v, name: getName(v.name, 'group') }))
         }
-
+        date.add(-1, 'days')
+      }
+      return {
+        success: true,
+        data
+      }
+    }
+  },
+  {
+    url: '/get-stats-rank-group-sent',
+    method: 'post',
+    handler: async () => {
+      const data: RankData = {}
+      if (!config.stats.rankChart.groupSent) {
+        return {
+          success: true,
+          data
+        }
+      }
+      const date = moment()
+      for (let i = 0; i < 30; i++) {
+        const time = date.format('YYYY:MM:DD')
+        const timeKey = time.replace(/:/g, '-')
+        const MATCH = (() => {
+          switch (version.BotName) {
+            case 'TRSS':
+              return `Yz:count:send:msg:group:*:${time}`
+            case 'Miao':
+              return `YePanel:recv:group:*:${time}`
+          }
+        })()
+        const reg = new RegExp(MATCH.replace('*', '(.+?)'))
+        const value = await scan(MATCH, (key) => reg.exec(key)?.[1] || '')
+        if (value.length) {
+          data[timeKey] = value.map(v => ({ ...v, name: getName(v.name, 'group') }))
+        }
+        date.add(-1, 'days')
+      }
+      return {
+        success: true,
+        data
+      }
+    }
+  },
+  {
+    url: '/get-stats-rank-user-recv',
+    method: 'post',
+    handler: async () => {
+      const data: RankData = {}
+      if (!config.stats.rankChart.userRecv) {
+        return {
+          success: true,
+          data
+        }
+      }
+      const date = moment()
+      for (let i = 0; i < 30; i++) {
+        const time = date.format('YYYY:MM:DD')
+        const timeKey = time.replace(/:/g, '-')
+        const MATCH = (() => {
+          switch (version.BotName) {
+            case 'TRSS':
+              return `Yz:count:receive:msg:user:*:${time}`
+            case 'Miao':
+              return `YePanel:recv:user:*:${time}`
+          }
+        })()
+        const reg = new RegExp(MATCH.replace('*', '(.+?)'))
+        const value = await scan(MATCH, (key) => reg.exec(key)?.[1] || '')
+        if (value.length) {
+          data[timeKey] = value.map(v => ({ ...v, name: getName(v.name, 'user') }))
+        }
+        date.add(-1, 'days')
+      }
+      return {
+        success: true,
+        data
+      }
+    }
+  },
+  {
+    url: '/get-stats-rank-user-sent',
+    method: 'post',
+    handler: async () => {
+      const data: RankData = {}
+      if (!config.stats.rankChart.userSent) {
+        return {
+          success: true,
+          data
+        }
+      }
+      const date = moment()
+      for (let i = 0; i < 30; i++) {
+        const time = date.format('YYYY:MM:DD')
+        const timeKey = time.replace(/:/g, '-')
+        const MATCH = (() => {
+          switch (version.BotName) {
+            case 'TRSS':
+              return `Yz:count:send:msg:user:*:${time}`
+            case 'Miao':
+              return `YePanel:recv:user:*:${time}`
+          }
+        })()
+        const reg = new RegExp(MATCH.replace('*', '(.+?)'))
+        const value = await scan(MATCH, (key) => reg.exec(key)?.[1] || '')
+        if (value.length) {
+          data[timeKey] = value.map(v => ({ ...v, name: getName(v.name, 'user') }))
+        }
         date.add(-1, 'days')
       }
       return {
