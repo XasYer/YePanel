@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.8.3](https://github.com/XasYer/YePanel/compare/v1.8.2...v1.8.3) (2024-10-22)
+
+
+### Bug Fixes
+
+* 存7天 ([88a5f41](https://github.com/XasYer/YePanel/commit/88a5f4165c5a132d42562217f09e5813e1c4d661))
+* 获取7天 ([14483b6](https://github.com/XasYer/YePanel/commit/14483b60c82d46eb3697b4218f9e23ecfbe202f5))
+
 ## [1.8.2](https://github.com/XasYer/YePanel/compare/v1.8.1...v1.8.2) (2024-10-22)
 
 
