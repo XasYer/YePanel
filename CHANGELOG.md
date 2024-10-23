@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.8.10](https://github.com/XasYer/YePanel/compare/v1.8.9...v1.8.10) (2024-10-23)
+
+
+### Bug Fixes
+
+* 一处trss输出 ([a7267f9](https://github.com/XasYer/YePanel/commit/a7267f9edee36e3886e17edf27d62720dc0050d8))
+* 更新日志可点击跳转 ([bc5db5c](https://github.com/XasYer/YePanel/commit/bc5db5cfac6c4414af5072f0e1eb147acad12f35))
+
 ## [1.8.9](https://github.com/XasYer/YePanel/compare/v1.8.8...v1.8.9) (2024-10-23)
 
 
