@@ -1,4 +1,5 @@
 import moment, { type unitOfTime } from 'moment'
+import schedule from 'node-schedule'
 
 export function formatBytes (bytes: number) {
   if (bytes === 0) return '0 B'
@@ -25,3 +26,10 @@ export function formatDuration (inp: number, unit: unitOfTime.DurationConstructo
 
   return formatted.trim()
 }
+
+let time = moment().format('YYYY:MM:DD')
+export const getTime = () => time
+
+schedule.scheduleJob('0 0 0 * * ?', () => {
+  time = moment().format('YYYY:MM:DD')
+})

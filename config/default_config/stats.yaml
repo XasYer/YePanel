@@ -12,6 +12,8 @@ countChart:
 
 # 排行榜统计图表, 每一项为一个图表
 rankChart:
+  # 发送消息类型排行
+  sentType: false
   # 插件触发次数排行
   pluginUse: false
   # 插件发送消息排行
