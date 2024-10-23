@@ -1,7 +1,15 @@
 <template>
   <div v-loading="loading">
     <el-row :gutter="24">
-      <el-col v-motion class="mb-[18px]" :span="24">
+      <el-col
+        v-motion
+        class="mb-[18px]"
+        :xl="16"
+        :xs="24"
+        :md="24"
+        :sm="24"
+        :lg="12"
+      >
         <el-card class="bar-card" shadow="never">
           <div class="flex justify-between">
             <span class="text-md font-medium">消息统计</span>
@@ -204,6 +212,11 @@ const countChartData = ref<getCountChartDataResult["data"]>({
 
 const sortKeys = [
   {
+    key: "sentType",
+    name: "发送消息类型统计",
+    desc: "发送消息类型的次数"
+  },
+  {
     key: "pluginSent",
     name: "插件发送消息排行",
     desc: "插件使用reply()方法发送消息的次数"
@@ -233,7 +246,8 @@ const rankChartData = ref<getRankDataResult["data"]>({
   groupSent: [],
   pluginSent: [],
   userRecv: [],
-  groupRecv: []
+  groupRecv: [],
+  sentType: []
 });
 
 getCountChartData().then(res => {

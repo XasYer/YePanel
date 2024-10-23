@@ -32,20 +32,48 @@ watch(
   async () => {
     await nextTick(); // 确保DOM更新完成后再执行
     setOptions({
+      color: [
+        "#5470c6",
+        "#91cc75",
+        "#fac858",
+        "#ee6666",
+        "#73c0de",
+        "#3ba272",
+        "#fc8452",
+        "#9a60b4",
+        "#ea7ccc",
+        "#87d0c6"
+      ],
       tooltip: {
         trigger: "item",
         position: function (point, params, dom, rect, size) {
-          const x = point[0];
+          const x = point[0]; // x 坐标
+          const y = point[1]; // y 坐标
           const chartWidth = size.viewSize[0];
+          const chartHeight = size.viewSize[1];
+
+          // 判断 tooltip 水平方向
+          let xPos: number;
           if (x < chartWidth / 2) {
-            return [x + 20, point[1]];
+            xPos = x + 20; // 左侧，向右偏移
           } else {
             if (dom instanceof HTMLDivElement) {
-              return [x - dom.offsetWidth - 20, point[1]];
+              xPos = x - dom.offsetWidth - 20; // 右侧，向左偏移
             } else {
-              return [x - 100, point[1]];
+              xPos = x - 100; // 预设宽度，向左偏移
             }
           }
+
+          // 判断 tooltip 垂直方向
+          let yPos: number;
+          if (y < chartHeight / 2) {
+            yPos = y + 20; // 上半区，向下偏移
+          } else {
+            yPos =
+              y - (dom instanceof HTMLDivElement ? dom.offsetHeight : 50) - 20; // 下半区，向上偏移
+          }
+
+          return [xPos, yPos];
         },
         formatter: "{b}<br/>{c}次 ({d}%)"
       },
@@ -74,9 +102,9 @@ watch(
           data: props.data,
           label: {
             formatter: function (params) {
-              const reg = /^(.+)\((.+)\)$/;
+              const reg = /^(.*)\(([^()]*)\)$/;
               if (reg.test(params.name)) {
-                const [, name, fun] = params.name.match(/^(.+)\((.+)\)$/);
+                const [, name, fun] = params.name.match(reg);
                 return `${name}\n${fun}`;
               } else {
                 return params.name;

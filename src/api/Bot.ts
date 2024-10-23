@@ -14,6 +14,7 @@ export type getRankDataResult = {
     userRecv: ChartData | false;
     groupRecv: ChartData | false;
     groupSent: ChartData | false;
+    sentType: ChartData | false;
   };
 };
 
