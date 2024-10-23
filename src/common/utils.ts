@@ -1,4 +1,5 @@
 import moment, { type unitOfTime } from 'moment'
+// @ts-ignore
 import schedule from 'node-schedule'
 
 export function formatBytes (bytes: number) {
