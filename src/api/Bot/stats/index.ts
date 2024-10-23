@@ -144,10 +144,6 @@ async function scan (MATCH: string, getName: (key: string) => string) {
   return ChartData
 }
 
-/**
- * 分开获取数据，避免过多数据导致timeout
- */
-
 export default [
   {
     url: '/get-stats-count-data',
