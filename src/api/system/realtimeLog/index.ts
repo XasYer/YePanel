@@ -2,6 +2,7 @@ import _ from 'lodash'
 import moment from 'moment'
 import { WebSocket } from 'ws'
 import { RouteOptions } from 'fastify'
+import { version } from '@/common'
 
 const originalLogger = _.cloneDeep(global.logger)
 
@@ -14,13 +15,13 @@ function proxyLogger (method: 'trace'| 'debug'| 'info'| 'warn'| 'error'| 'fatal'
   if (!logger[method]) {
     logger[method] = originalLogger[method].bind(originalLogger)
   }
-  if (!logger.logger[method]) {
+  if (originalLogger.logger && !logger.logger[method]) {
     logger.logger[method] = originalLogger.logger[method].bind(originalLogger.logger)
   }
 
   global.logger[method] = (...logs) => {
     if (method !== 'info') {
-      ws.send(JSON.stringify({ type: 'logger', level: method, logs: [global.logger.blue('[TRSSYz]'), ...logs], timestamp: moment().format('HH:mm:ss.SSS') }))
+      ws.send(JSON.stringify({ type: 'logger', level: method, logs: [version.BotName === 'TRSS' ? global.logger.blue('[TRSSYz]') : '', ...logs], timestamp: moment().format('HH:mm:ss.SSS') }))
     }
 
     return logger[method](...logs)
