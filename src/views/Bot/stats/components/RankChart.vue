@@ -84,13 +84,7 @@ watch(
           ...(props.style === "Nightingale"
             ? {
                 roseType: "area",
-                radius: ["20%", "70%"],
-                avoidLabelOverlap: false,
-                itemStyle: {
-                  borderRadius: 10,
-                  borderColor: "#fff",
-                  borderWidth: 2
-                }
+                radius: ["20%", "70%"]
               }
             : {
                 ...(props.style === "Doughnut"

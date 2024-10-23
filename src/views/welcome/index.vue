@@ -326,7 +326,7 @@ import { IconifyIconOnline as iconify } from "@/components/ReIcon";
 import ChartBar from "./components/charts/ChartBar.vue";
 import { message } from "@/utils/message";
 import { addDialog, closeDialog } from "@/components/ReDialog";
-import { ElScrollbar, ElTimeline, ElTimelineItem } from "element-plus";
+import { ElLink, ElScrollbar, ElTimeline, ElTimelineItem } from "element-plus";
 import { openLink } from "@pureadmin/utils";
 import { useHomeStoreHook } from "@/store/modules/home";
 
@@ -375,8 +375,23 @@ const getLog = (name: string) => {
               {},
               res.data.log.map(i => {
                 if (!i) return null;
-                const [, timestamp, content] = /\[(.+?)\](.+)/.exec?.(i) || [];
-                return h(ElTimelineItem, { timestamp }, content);
+                const [, commit, timestamp, content] =
+                  /(.+?)\|\|\[(.+?)\](.+)/.exec?.(i) || [];
+                return h(
+                  ElTimelineItem,
+                  {
+                    timestamp
+                  },
+                  h(
+                    ElLink,
+                    {
+                      underline: false,
+                      href: `${res.data.url}/commit/${commit}`,
+                      target: "_blank"
+                    },
+                    content
+                  )
+                );
               })
             )
           ),

@@ -1,8 +1,9 @@
 <template>
-  <div v-loading="loading">
+  <div>
     <el-row :gutter="24">
       <el-col
         v-motion
+        v-loading="loading.countChart"
         class="mb-[18px]"
         :xl="16"
         :xs="24"
@@ -104,6 +105,7 @@
       <el-col
         v-for="item in sortKeys"
         :key="item.key"
+        v-loading="loading.rankChart"
         class="mb-[18px]"
         :xl="8"
         :xs="24"
@@ -174,7 +176,10 @@ import RankChart from "./components/RankChart.vue";
 import { Setting, InfoFilled } from "@element-plus/icons-vue";
 import dayjs from "dayjs";
 
-const loading = ref(true);
+const loading = ref({
+  countChart: true,
+  rankChart: true
+});
 const settingVisible = ref(false);
 
 const getLast7Days = () => {
@@ -254,24 +259,25 @@ getCountChartData().then(res => {
   if (res.success) {
     countChartData.value = res.data;
   }
-  loading.value = false;
+  loading.value.countChart = false;
 });
 
 getRankChartData(select.value.time).then(res => {
   if (res.success) {
     rankChartData.value = res.data;
   }
-  loading.value = false;
+  loading.value.rankChart = false;
 });
 
 const handleSelect = () => {
+  loading.value.rankChart = true;
   getRankChartData(select.value.time).then(res => {
     if (res.success) {
       rankChartData.value = res.data;
     }
-    loading.value = false;
+    loading.value.rankChart = false;
   });
 };
 
-const curWeek = ref(1);
+const curWeek = ref(0);
 </script>
