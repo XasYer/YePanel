@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.8.8](https://github.com/XasYer/YePanel/compare/v1.8.7...v1.8.8) (2024-10-23)
+
+
+### Bug Fixes
+
+* 添加发送消息类型统计 ([0553125](https://github.com/XasYer/YePanel/commit/0553125618b12152e8dc03cf57f668394a4aa246))
+* 添加消息类型统计 ([4eb1c41](https://github.com/XasYer/YePanel/commit/4eb1c4120e965bec69d311c19be516bc22882f7f))
+* 添加消息类型统计 ([6ea5162](https://github.com/XasYer/YePanel/commit/6ea516245f4c708ba91e542e28188882a7a4f3a2))
+
 ## [1.8.7](https://github.com/XasYer/YePanel/compare/v1.8.6...v1.8.7) (2024-10-22)
 
 
