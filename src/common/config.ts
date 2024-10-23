@@ -195,6 +195,7 @@ class YamlReader {
    */
   set (key: string, value: any) {
     const keys = key.split('.')
+    const lastKey = keys.pop()
     let current = this.document
 
     // 遍历嵌套键名，直到找到最后一个键
@@ -206,7 +207,7 @@ class YamlReader {
     }
 
     // 设置最后一个键的值
-    current.set(keys[keys.length - 1], value)
+    current.set(lastKey, value)
     this.write()
   }
 
@@ -216,6 +217,7 @@ class YamlReader {
    */
   rm (key: string) {
     const keys = key.split('.')
+    const lastKey = keys.pop()
     let current = this.document
 
     // 遍历嵌套键名，直到找到最后一个键
@@ -228,7 +230,7 @@ class YamlReader {
     }
 
     // 删除最后一个键
-    current.delete(keys[keys.length - 1])
+    current.delete(lastKey)
     this.write()
   }
 
