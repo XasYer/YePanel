@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.8.11](https://github.com/XasYer/YePanel/compare/v1.8.10...v1.8.11) (2024-10-23)
+
+
+### Bug Fixes
+
+* build ([714a8ac](https://github.com/XasYer/YePanel/commit/714a8aca1891d1afb436f2c68aedfb0c25950ff8))
+
 ## [1.8.10](https://github.com/XasYer/YePanel/compare/v1.8.9...v1.8.10) (2024-10-23)
 
 
