@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.9.0](https://github.com/XasYer/YePanel/compare/v1.8.11...v1.9.0) (2024-10-25)
+
+
+### Features
+
+* 新增指令`#小叶面板登录` ([441a016](https://github.com/XasYer/YePanel/commit/441a016397934cfb5355da1732d8b4a54fe99749))
+
 ## [1.8.11](https://github.com/XasYer/YePanel/compare/v1.8.10...v1.8.11) (2024-10-25)
 
 
