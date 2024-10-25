@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.9.1](https://github.com/XasYer/YePanel/compare/v1.9.0...v1.9.1) (2024-10-25)
+
+
+### Bug Fixes
+
+* 可显示自定义域名 ([2b150dc](https://github.com/XasYer/YePanel/commit/2b150dc66f08a8760918e8bd0b1d092e01693f91))
+
 ## [1.9.0](https://github.com/XasYer/YePanel/compare/v1.8.11...v1.9.0) (2024-10-25)
 
 
