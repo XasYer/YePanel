@@ -142,6 +142,7 @@ export async function startServer () {
         const logs = [
           '-'.repeat(30),
           `YePanel v${version.pluginVersion} Server running successfully on ${end - start}ms`,
+          ...res.custom ? ['自定义地址:', `  - ${res.custom}`] : [],
           '内网地址:',
           ...res.local.map(i => `  - http://${i}:${config.server.port}`),
           ...res.remote
@@ -161,6 +162,7 @@ export async function startServer () {
 }
 
 export async function getIps () {
+  const custom = config.server.host === 'auto' ? '' : config.server.host
   const networkInterfaces = os.networkInterfaces()
   const local = Object.values(networkInterfaces).flat().filter(i => i?.family === 'IPv4' && !i.internal).map(i => i?.address).filter(Boolean) as string[]
   const url = [
@@ -178,7 +180,8 @@ export async function getIps () {
   if (remote) {
     return {
       local,
-      remote
+      remote,
+      custom
     }
   }
   for (const i of url) {
@@ -199,13 +202,17 @@ export async function getIps () {
         }
       })
       if (info.remote) {
-        return info
+        return {
+          ...info,
+          custom
+        }
       }
     } catch { /* empty */ }
   }
   return {
     local,
-    remote: ''
+    remote: '',
+    custom
   }
 }
 

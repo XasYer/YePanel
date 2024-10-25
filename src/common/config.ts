@@ -70,6 +70,9 @@ class Config {
   /** 服务配置 */
   get server (): {
     port: number
+    host: string
+    splicePath: boolean
+    showPublic: boolean
     logs: Array<keyof FastifyRequest>
     password: {
       [key: string]: {

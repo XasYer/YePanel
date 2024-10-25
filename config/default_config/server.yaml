@@ -1,6 +1,17 @@
 # 端口
 port: 2877
 
+# 域名
+# 若为auto，则自动获取当前服务器的ip
+# 若为域名，则使用该域名(不会拼接端口号) + 自动获取
+host: auto
+
+# 自定义域名时是否拼接 /YePanel/#/login
+splicePath: true
+
+# yp登录 存在本地web时是否显示公共面板地址
+showPublic: true
+
 # api请求日志输出 可选request上的参数 或 false 关闭日志输出
 logs:
   - method
