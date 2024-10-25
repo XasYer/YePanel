@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.8.11](https://github.com/XasYer/YePanel/compare/v1.8.10...v1.8.11) (2024-10-25)
+
+
+### Bug Fixes
+
+* build ([714a8ac](https://github.com/XasYer/YePanel/commit/714a8aca1891d1afb436f2c68aedfb0c25950ff8))
+* 部分api更换成get ([0361efe](https://github.com/XasYer/YePanel/commit/0361efec3019d1254d91a1905cda74e94911ddc1))
+
 ## [1.8.10](https://github.com/XasYer/YePanel/compare/v1.8.9...v1.8.10) (2024-10-23)
 
 
