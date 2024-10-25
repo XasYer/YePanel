@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import Motion from "./utils/motion";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import { message } from "@/utils/message";
 import { loginRules } from "./utils/rule";
 import { useNav } from "@/layout/hooks/useNav";
@@ -24,6 +24,7 @@ defineOptions({
   name: "Login"
 });
 const router = useRouter();
+const route = useRoute();
 const loading = ref(false);
 const ruleFormRef = ref<FormInstance>();
 
@@ -44,30 +45,51 @@ const onLogin = async (formEl: FormInstance | undefined) => {
   if (!formEl) return;
   await formEl.validate((valid, fields) => {
     if (valid) {
-      loading.value = true;
-      useUserStoreHook()
-        .loginByUsername(ruleForm)
-        .then(res => {
-          if (res.success) {
-            // 获取后端路由
-            return initRouter().then(() => {
-              router.push(getTopMenu(true).path).then(() => {
-                message("登录成功", { type: "success" });
-                localStorage.setItem("QQBotUsername", ruleForm.username);
-                localStorage.setItem("QQBotPassword", ruleForm.password);
-                localStorage.setItem("QQBotBaseUrl", ruleForm.baseUrl);
-              });
-            });
-          } else {
-            message(res.message, { type: "error" });
-          }
-        })
-        .finally(() => (loading.value = false));
+      login();
     } else {
       return fields;
     }
   });
 };
+
+const login = ({ username, password, baseUrl } = ruleForm, save = true) => {
+  loading.value = true;
+  useUserStoreHook()
+    .loginByUsername({ username, password, baseUrl })
+    .then(res => {
+      if (res.success) {
+        // 获取后端路由
+        return initRouter().then(() => {
+          router.push(getTopMenu(true).path).then(() => {
+            message("登录成功", { type: "success" });
+            if (save) {
+              localStorage.setItem("QQBotUsername", username);
+              localStorage.setItem("QQBotPassword", password);
+            }
+            localStorage.setItem("QQBotBaseUrl", baseUrl);
+          });
+        });
+      } else {
+        message(res.message, { type: "error" });
+      }
+    })
+    .finally(() => (loading.value = false));
+};
+
+console.log(route);
+
+if (route.query.key) {
+  login(
+    {
+      username: route.query.key as string,
+      password: "",
+      baseUrl: (route.query.api as string)
+        ? `http://${route.query.api}`
+        : getBaseUrlApi()
+    },
+    false
+  );
+}
 
 /** 使用公共函数，避免`removeEventListener`失效 */
 function onkeypress({ code }: KeyboardEvent) {
