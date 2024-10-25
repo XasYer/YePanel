@@ -87,6 +87,10 @@ web 面板和 api 接口 通常为同步更新，如果届时发现无法登录 
   2. Delete domain security policies 下面的输入框输入https://gh.xasyer.icu/YePanel/ 点击 delete
   3. 重新打开 chrome,地址栏输入http://gh.xasyer.icu/YePanel/
 
+- 方法三
+
+  私聊 bot 发送 `#小叶面板安装web` 挂载在本地服务器上
+
  </details>
 
 ### 2. 挂载到崽上
