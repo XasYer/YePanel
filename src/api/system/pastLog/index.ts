@@ -5,8 +5,8 @@ import { join } from 'path'
 
 export default [
   {
-    url: '/get-log-list',     
-    method: 'post',
+    url: '/get-log-list',
+    method: 'get',
     handler: () => {
       try {
         const logList = fs.readdirSync(join(version.BotPath, 'logs')).filter(file => file.endsWith('.log'))
@@ -19,15 +19,14 @@ export default [
           success: false,
           message: (error as Error).message
         }
-        
       }
     }
   },
   {
     url: '/get-log-content',
-    method: 'post',
-    handler: ({ body }) => {
-      const { name } = body as { name: string }
+    method: 'get',
+    handler: ({ query }) => {
+      const { name } = query as { name: string }
       try {
         const logContent = fs.readFileSync(join(version.BotPath, 'logs', name), 'utf-8')
         return {

@@ -80,7 +80,7 @@ export async function getRedisKeys (sep = ':', lazy = false) {
 export default [
   {
     url: '/get-redis-info',
-    method: 'post',
+    method: 'get',
     handler: async () => {
       const data = await redis.info()
       const redisInfo: { [key: string]: string } = {}
@@ -101,9 +101,9 @@ export default [
   },
   {
     url: '/get-redis-keys',
-    method: 'post',
-    handler: async ({ body }) => {
-      const { sep, lazy } = body as { sep: string, lazy: boolean }
+    method: 'get',
+    handler: async ({ query }) => {
+      const { sep, lazy } = query as { sep: string, lazy: boolean }
       const keys = await getRedisKeys(sep, lazy)
       return {
         success: true,
@@ -113,9 +113,9 @@ export default [
   },
   {
     url: '/get-redis-value',
-    method: 'post',
-    handler: async ({ body }) => {
-      const { key } = body as { key: string }
+    method: 'get',
+    handler: async ({ query }) => {
+      const { key } = query as { key: string }
       const value = await redis.get(key)
       const expire = await redis.ttl(key)
       return {

@@ -28,29 +28,29 @@ export const setPluginIconPath = (plugin: string, path: string) => {
 export default [
   {
     url: '/get-group-list',
-    method: 'post',
+    method: 'get',
     handler: () => {
       return {
         success: true,
-        data: Array.from(Bot.gl.values()).map(i=> ({...i, label: `${i.group_name || ''}(${i.group_id})`, value: i.group_id}))
+        data: Array.from(Bot.gl.values()).map(i => ({ ...i, label: `${i.group_name || ''}(${i.group_id})`, value: i.group_id }))
       }
     }
   },
   {
     url: '/get-friend-list',
-    method: 'post',
-    handler:  () => {
-        return {
-          success: true,
-          data: Array.from(Bot.fl.values()).map(i=> ({...i, label: `${i.user_name || ''}(${i.user_id})`, value: i.user_id}))
-        }
+    method: 'get',
+    handler: () => {
+      return {
+        success: true,
+        data: Array.from(Bot.fl.values()).map(i => ({ ...i, label: `${i.user_name || ''}(${i.user_id})`, value: i.user_id }))
+      }
     }
   },
   {
     url: '/get-guoba-data',
-    method: 'post',
-    handler: async ({body}) => {
-      const { plugin } = body as { plugin: string }
+    method: 'get',
+    handler: async ({ query }) => {
+      const { plugin } = query as { plugin: string }
       const guobaSupportPath = join(version.BotPath, 'plugins', plugin, 'guoba.support.js')
       const supportGuoba = (await import(`file://${guobaSupportPath}?t=${Date.now()}`)).supportGuoba
       const { configInfo: { getConfigData, schemas } } = supportGuoba()
@@ -70,12 +70,12 @@ export default [
       if (guobaSetConfigDataCache[plugin]) {
         await guobaSetConfigDataCache[plugin](req.body, {
           Result: {
-            ok: (_, msg) => message = msg, 
-            error: (_, msg) => message = msg 
+            ok: (_, msg) => { message = msg },
+            error: (_, msg) => { message = msg }
           }
         })
       }
-      return { success: true, message}
+      return { success: true, message }
     }
   },
   {
@@ -92,5 +92,5 @@ export default [
         reply.code(404).send('Not Found')
       }
     }
-  },
+  }
 ] as RouteOptions[]

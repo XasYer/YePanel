@@ -48,7 +48,7 @@ function getPlugins () {
 export default [
   {
     url: '/get-system-info',
-    method: 'post',
+    method: 'get',
     handler: async () => {
       const {
         currentLoad: { currentLoad: cpuCurrentLoad },
@@ -211,7 +211,7 @@ export default [
   },
   {
     url: '/get-bot-info',
-    method: 'post',
+    method: 'get',
     handler: async () => {
       const botList = version.BotName === 'TRSS' ? Bot.uin : (Bot?.adapter && Bot.adapter.includes(Bot.uin)) ? Bot.adapter : [Bot.uin]
       const botInfo = []
@@ -251,7 +251,7 @@ export default [
   },
   {
     url: '/get-message-info',
-    method: 'post',
+    method: 'get',
     handler: async () => {
       const data: {
         sent: number[],
@@ -290,9 +290,9 @@ export default [
   },
   {
     url: '/get-update-log',
-    method: 'post',
-    handler: async ({ body }) => {
-      const { plugin } = body as { plugin: string }
+    method: 'get',
+    handler: async ({ query }) => {
+      const { plugin } = query as { plugin: string }
       try {
         const arg: ExecSyncOptionsWithStringEncoding = {
           encoding: 'utf-8',

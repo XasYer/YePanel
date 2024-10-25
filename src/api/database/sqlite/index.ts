@@ -13,12 +13,12 @@ type tableInfo = {
   autoincrement: boolean,
 }
 
-const sequelizeCache: { [key: string]: { 
-  timer: NodeJS.Timeout, 
-  instance: Sequelize, 
+const sequelizeCache: { [key: string]: {
+  timer: NodeJS.Timeout,
+  instance: Sequelize,
   total: {
     [key: string]: number
-  }, 
+  },
   tableInfo: {
     [key: string]: tableInfo
   }
@@ -46,7 +46,7 @@ function findSqlitePath (directory: string): string[] {
   return dbPath
 }
 
-function getSequelize (path: string)  {
+function getSequelize (path: string) {
   if (!sequelizeCache[path]) {
     sequelizeCache[path] = {
       timer: setTimeout(() => {
@@ -81,7 +81,7 @@ function getFormattedDate () {
 export default [
   {
     url: '/get-sqlite-path',
-    method: 'post',
+    method: 'get',
     handler: () => {
       return {
         success: true,
@@ -91,9 +91,9 @@ export default [
   },
   {
     url: '/get-sqlite-table',
-    method: 'post',
-    handler: async ({ body }) => {
-      const { path } = body as { path: string }
+    method: 'get',
+    handler: async ({ query }) => {
+      const { path } = query as { path: string }
       const sequelize = getSequelize(path).instance
       const [results] = await sequelize.query('SELECT name FROM sqlite_master WHERE type=\'table\';') as [{ name: string }[], unknown]
       return {
@@ -104,9 +104,9 @@ export default [
   },
   {
     url: '/get-sqlite-table-data',
-    method: 'post',
-    handler: async ({ body }) => {
-      const { path, table, pageSize, pageNum, search } = body as { path: string, table: string, pageSize: number, pageNum: number, search: string }
+    method: 'get',
+    handler: async ({ query }) => {
+      const { path, table, pageSize, pageNum, search } = query as { path: string, table: string, pageSize: number, pageNum: number, search: string }
       const offset = (pageNum * pageSize) - pageSize
       const { instance: sequelize, total, tableInfo } = getSequelize(path)
       if (!total[table]) {
@@ -119,8 +119,8 @@ export default [
         const info: any = {}
         for (const item of tableInfoResults) {
           if (item.pk) {
-              const [results] = await sequelize.query(`SELECT sql FROM sqlite_master WHERE type = 'table' AND name = '${table}';`) as [{ sql: string }[], unknown]
-              item.autoincrement = /AUTOINCREMENT/.test(results[0].sql)
+            const [results] = await sequelize.query(`SELECT sql FROM sqlite_master WHERE type = 'table' AND name = '${table}';`) as [{ sql: string }[], unknown]
+            item.autoincrement = /AUTOINCREMENT/.test(results[0].sql)
           }
           info[item.name] = item
         }
@@ -152,16 +152,16 @@ export default [
       const keys = Object.keys(data)
       const values = Object.values(data)
       const updatedAt = getFormattedDate()
-      const pk = keys.find(key=> (tableInfo[table] as any)[key].pk) || 'createdAt'
+      const pk = keys.find(key => (tableInfo[table] as any)[key].pk) || 'createdAt'
       // 如果有创建时间就是修改
-      const sql =  type === 'update' ? 
-        `UPDATE ${table} SET ${keys.map((key) => `${key} = ?`).join(', ')}, updatedAt = ? WHERE ${pk} = ?` :
-        `INSERT INTO ${table} (${keys.join(', ')}, createdAt, updatedAt) VALUES (${keys.map(() => '?').join(', ')}, ?, ?)`
+      const sql = type === 'update'
+        ? `UPDATE ${table} SET ${keys.map((key) => `${key} = ?`).join(', ')}, updatedAt = ? WHERE ${pk} = ?`
+        : `INSERT INTO ${table} (${keys.join(', ')}, createdAt, updatedAt) VALUES (${keys.map(() => '?').join(', ')}, ?, ?)`
       try {
         const [results, metadata] = await sequelize.query(
           sql,
           {
-            replacements: type === 'update' ? [...values, updatedAt, data[pk] ] : [...values, updatedAt, updatedAt]
+            replacements: type === 'update' ? [...values, updatedAt, data[pk]] : [...values, updatedAt, updatedAt]
           }
         )
         const [totalResults] = await sequelize.query(`SELECT COUNT(*) AS total FROM ${table};`) as [{ total: number }[], unknown]
@@ -186,7 +186,7 @@ export default [
       const { path, table, data } = body as { path: string, table: string, data: { [key: string]: string | number | boolean } }
       const { instance: sequelize, tableInfo, total } = getSequelize(path)
       const keys = Object.keys(data)
-      const pk = keys.find(key=> (tableInfo[table] as any)[key].pk) || 'createdAt'
+      const pk = keys.find(key => (tableInfo[table] as any)[key].pk) || 'createdAt'
       try {
         const [results, metadata] = await sequelize.query(
           `DELETE FROM ${table} WHERE ${pk} = ?`,

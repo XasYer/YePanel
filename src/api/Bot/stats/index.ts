@@ -147,7 +147,7 @@ async function scan (MATCH: string, getName: (key: string) => string) {
 export default [
   {
     url: '/get-stats-count-data',
-    method: 'post',
+    method: 'get',
     handler: async () => {
       const data: {
         sent: number[],
@@ -226,8 +226,8 @@ export default [
   },
   {
     url: '/get-stats-rank-data',
-    method: 'post',
-    handler: async ({ body }) => {
+    method: 'get',
+    handler: async ({ query }) => {
       const data: {
         pluginSent: ChartData | false,
         pluginUse: ChartData | false,
@@ -245,7 +245,7 @@ export default [
         userSent: false,
         sentType: false
       }
-      const { time } = body as {time: string}
+      const { time } = query as {time: string}
       const keys = [
         { config: 'pluginSent', redis: 'plugin:sent' },
         { config: 'pluginUse', redis: 'plugin:use' },
