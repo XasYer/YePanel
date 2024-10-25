@@ -143,20 +143,20 @@ export type deleteRedisKeysResult = {
 
 /** 获取redis数据 */
 export const getRedisInfo = () => {
-  return http.request<getRedisInfoResult>("post", "/get-redis-info");
+  return http.request<getRedisInfoResult>("get", "/get-redis-info");
 };
 
 /** 获取redis所有key */
 export const getRedisKeys = (sep: string, lazy?: boolean) => {
-  return http.request<getRedisKeysResult>("post", "/get-redis-keys", {
-    data: { sep, lazy }
+  return http.request<getRedisKeysResult>("get", "/get-redis-keys", {
+    params: { sep, lazy }
   });
 };
 
 /** 获取redis指定key的值 */
 export const getRedisValue = (key: string) => {
-  return http.request<getRedisValueResult>("post", "/get-redis-value", {
-    data: { key }
+  return http.request<getRedisValueResult>("get", "/get-redis-value", {
+    params: { key }
   });
 };
 
@@ -186,13 +186,13 @@ export type getSqlitePathResult = {
 
 /** 获取sqlite的db文件路径 */
 export const getSqlitePath = () => {
-  return http.request<getSqlitePathResult>("post", "/get-sqlite-path");
+  return http.request<getSqlitePathResult>("get", "/get-sqlite-path");
 };
 
 /** 获取指定路径的sqlite的所有表名 */
 export const getSqliteTable = (path: string) => {
-  return http.request<getSqlitePathResult>("post", "/get-sqlite-table", {
-    data: { path }
+  return http.request<getSqlitePathResult>("get", "/get-sqlite-table", {
+    params: { path }
   });
 };
 
@@ -223,10 +223,10 @@ export const getSqliteTableData = (
   search: string
 ) => {
   return http.request<getSqliteTableDataResult>(
-    "post",
+    "get",
     "/get-sqlite-table-data",
     {
-      data: { path, table, pageSize, pageNum, search }
+      params: { path, table, pageSize, pageNum, search }
     }
   );
 };

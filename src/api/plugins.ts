@@ -12,12 +12,12 @@ export type getFriendListResult = {
 
 /** 获取群聊列表 */
 export const getGroupList = () => {
-  return http.request<getGroupListResult>("post", "/get-group-list");
+  return http.request<getGroupListResult>("get", "/get-group-list");
 };
 
 /** 获取好友列表 */
 export const getFriendList = () => {
-  return http.request<getFriendListResult>("post", "/get-friend-list");
+  return http.request<getFriendListResult>("get", "/get-friend-list");
 };
 
 export type setSettingDataResult = {
@@ -42,8 +42,8 @@ export type getGuobaDataResult = {
 };
 
 export const getGuobaData = (plugin: string) => {
-  return http.request<getGuobaDataResult>("post", `/get-guoba-data`, {
-    data: {
+  return http.request<getGuobaDataResult>("get", `/get-guoba-data`, {
+    params: {
       plugin
     }
   });

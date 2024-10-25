@@ -30,37 +30,13 @@ export type getCountChartDataResult = {
 
 /** 数量统计表 */
 export const getCountChartData = () => {
-  return http.request<getCountChartDataResult>("post", "/get-stats-count-data");
+  return http.request<getCountChartDataResult>("get", "/get-stats-count-data");
 };
 
 export const getRankChartData = (time: string) => {
-  return http.request<getRankDataResult>("post", "/get-stats-rank-data", {
-    data: {
+  return http.request<getRankDataResult>("get", "/get-stats-rank-data", {
+    params: {
       time
     }
   });
-};
-
-export const getRankPluginUse = () => {
-  return http.request<getRankDataResult>("post", "/get-stats-rank-plugin-use");
-};
-
-export const getRankPluginSent = () => {
-  return http.request<getRankDataResult>("post", "/get-stats-rank-plugin-sent");
-};
-
-export const getRankGroupRecv = () => {
-  return http.request<getRankDataResult>("post", "/get-stats-rank-group-recv");
-};
-
-export const getRankGroupSent = () => {
-  return http.request<getRankDataResult>("post", "/get-stats-rank-group-sent");
-};
-
-export const getRankUserRecv = () => {
-  return http.request<getRankDataResult>("post", "/get-stats-rank-user-recv");
-};
-
-export const getRankUserSent = () => {
-  return http.request<getRankDataResult>("post", "/get-stats-rank-user-sent");
 };

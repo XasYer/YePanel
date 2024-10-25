@@ -8,7 +8,7 @@ export type homeDataResult = {
 
 /** 获取主页数据 */
 export const getHomeData = () => {
-  return http.request<homeDataResult>("post", "/get-home-data");
+  return http.request<homeDataResult>("get", "/get-home-data");
 };
 
 export type getSystemInfoResult = {
@@ -47,7 +47,7 @@ export type getSystemInfoResult = {
 
 /** 获取系统信息 */
 export const getSystemInfo = () => {
-  return http.request<getSystemInfoResult>("post", "/get-system-info");
+  return http.request<getSystemInfoResult>("get", "/get-system-info");
 };
 
 export type getBotInfoResult = {
@@ -69,7 +69,7 @@ export type getBotInfoResult = {
 };
 
 export const getBotInfo = () => {
-  return http.request<getBotInfoResult>("post", "/get-bot-info");
+  return http.request<getBotInfoResult>("get", "/get-bot-info");
 };
 
 export type getMessageInfoResult = {
@@ -82,7 +82,7 @@ export type getMessageInfoResult = {
 };
 
 export const getMessageInfo = () => {
-  return http.request<getMessageInfoResult>("post", "/get-message-info");
+  return http.request<getMessageInfoResult>("get", "/get-message-info");
 };
 
 export type getUpdateLogResult = {
@@ -95,7 +95,7 @@ export type getUpdateLogResult = {
 };
 
 export const getUpdateLog = (plugin: string) => {
-  return http.request<getUpdateLogResult>("post", "/get-update-log", {
+  return http.request<getUpdateLogResult>("get", "/get-update-log", {
     data: {
       plugin
     }

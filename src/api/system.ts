@@ -20,8 +20,8 @@ export type getDirDataResult = {
 };
 
 export const getDirData = (path: string) => {
-  return http.request<getDirDataResult>("post", "/get-dir-data", {
-    data: { path }
+  return http.request<getDirDataResult>("get", "/get-dir-data", {
+    params: { path }
   });
 };
 
@@ -81,7 +81,7 @@ export type getLogsListResult = {
 };
 
 export const getLogList = () => {
-  return http.request<getLogsListResult>("post", "/get-log-list");
+  return http.request<getLogsListResult>("get", "/get-log-list");
 };
 
 export type getLogContentResult = {
@@ -91,7 +91,7 @@ export type getLogContentResult = {
 };
 
 export const getLogContent = (name: string) => {
-  return http.request<getLogContentResult>("post", "/get-log-content", {
-    data: { name }
+  return http.request<getLogContentResult>("get", "/get-log-content", {
+    params: { name }
   });
 };

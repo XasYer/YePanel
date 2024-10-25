@@ -46,41 +46,48 @@ watch(
       ],
       tooltip: {
         trigger: "item",
-        position: function (point, params, dom, rect, size) {
-          const x = point[0]; // x 坐标
-          const y = point[1]; // y 坐标
-          const chartWidth = size.viewSize[0];
-          const chartHeight = size.viewSize[1];
+        position: "top",
+        // position: function (point, params, dom, rect, size) {
+        //   const x = point[0]; // x 坐标
+        //   const y = point[1]; // y 坐标
+        //   const chartWidth = size.viewSize[0];
+        //   const chartHeight = size.viewSize[1];
 
-          // 判断 tooltip 水平方向
-          let xPos: number;
-          if (x < chartWidth / 2) {
-            xPos = x + 20; // 左侧，向右偏移
-          } else {
-            if (dom instanceof HTMLDivElement) {
-              xPos = x - dom.offsetWidth - 20; // 右侧，向左偏移
-            } else {
-              xPos = x - 100; // 预设宽度，向左偏移
-            }
-          }
+        //   // 判断 tooltip 水平方向
+        //   let xPos: number;
+        //   if (x < chartWidth / 2) {
+        //     xPos = x + 20; // 左侧，向右偏移
+        //   } else {
+        //     if (dom instanceof HTMLDivElement) {
+        //       xPos = x - dom.offsetWidth - 20; // 右侧，向左偏移
+        //     } else {
+        //       xPos = x - 100; // 预设宽度，向左偏移
+        //     }
+        //   }
 
-          // 判断 tooltip 垂直方向
-          let yPos: number;
-          if (y < chartHeight / 2) {
-            yPos = y + 20; // 上半区，向下偏移
-          } else {
-            yPos =
-              y - (dom instanceof HTMLDivElement ? dom.offsetHeight : 50) - 20; // 下半区，向上偏移
-          }
+        //   // 判断 tooltip 垂直方向
+        //   let yPos: number;
+        //   if (y < chartHeight / 2) {
+        //     yPos = y + 20; // 上半区，向下偏移
+        //   } else {
+        //     yPos =
+        //       y - (dom instanceof HTMLDivElement ? dom.offsetHeight : 50) - 20; // 下半区，向上偏移
+        //   }
 
-          return [xPos, yPos];
-        },
+        //   // return [point[0] + 20, point[1] + 20];
+        //   return point.map(i => i + 15);
+        // },
         formatter: "{b}<br/>{c}次 ({d}%)"
       },
       series: [
         {
           name: props.name,
           type: "pie",
+          itemStyle: {
+            borderRadius: 10,
+            borderColor: "#fff",
+            borderWidth: 2
+          },
           ...(props.style === "Nightingale"
             ? {
                 roseType: "area",
