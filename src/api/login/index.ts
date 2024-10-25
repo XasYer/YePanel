@@ -19,14 +19,42 @@ export const tokenAuth = (accesstoken: string) => {
   return true
 }
 
+const fastLoginKey: { [key: string]: string } = {}
+
+export const createLoginKey = (uin: string) => {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+  let result = ''
+
+  for (let i = 0; i < 6; i++) {
+    const randomIndex = Math.floor(Math.random() * chars.length)
+    result += chars[randomIndex]
+  }
+  fastLoginKey[result] = uin
+  setTimeout(() => {
+    delete fastLoginKey[result]
+  }, 1000 * 60 * 5) // 5分钟过期
+  return result
+}
+
 export default [
   {
     url: '/login',
     method: 'post',
     preHandler: (request, reply, done) => done(),
     handler: ({ body }) => {
-      const { username: uin, password: inputPassword } = body as { username: string, password: string }
+      let { username: uin, password: inputPassword } = body as { username: string, password: string }
       const account = (() => {
+        if (fastLoginKey[uin]) {
+          const bot = Bot[fastLoginKey[uin]]
+          uin = fastLoginKey[uin]
+          delete fastLoginKey[uin]
+          return {
+            password: '',
+            nickname: bot.nickname,
+            avatarUrl: bot.avatar,
+            uin: bot.uin
+          }
+        }
         const account = config.server.password
         if (account[uin]?.enable) {
           return account[uin]

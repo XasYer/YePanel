@@ -12,6 +12,9 @@ import { join } from 'path'
 import { version, config } from '@/common'
 import { tokenAuth } from '@/api/login'
 
+export const webPath = join(version.BotPath, 'plugins', 'YePanel-Web')
+export const hasWeb = fs.existsSync(webPath)
+
 export async function startServer () {
   const start = Date.now()
   const fastify = Fastify()
@@ -26,8 +29,7 @@ export async function startServer () {
   await fastify.register(fastifyWebSocket)
   await fastify.register(fastifyMultipart)
 
-  const webPath = join(version.BotPath, 'plugins', 'YePanel-Web')
-  if (fs.existsSync(webPath)) {
+  if (hasWeb) {
     await fastify.register(fastifyStatic, {
       root: webPath,
       prefix: '/YePanel/'
@@ -158,7 +160,7 @@ export async function startServer () {
   })
 }
 
-async function getIps () {
+export async function getIps () {
   const networkInterfaces = os.networkInterfaces()
   const local = Object.values(networkInterfaces).flat().filter(i => i?.family === 'IPv4' && !i.internal).map(i => i?.address).filter(Boolean) as string[]
   const url = [

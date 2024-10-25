@@ -70,4 +70,5 @@ declare global {
   }
   var redis: RedisClientType
   var logger: logger
+  var plugin: any
 }
