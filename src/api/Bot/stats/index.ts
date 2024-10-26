@@ -62,12 +62,12 @@ if (
       const [e, type, msg] = args
       const day = utils.getTime()
       // 群消息发送数量
-      if (e?.group_id && config.stats.rankChart.groupSent && (type === 'send' || !msg)) {
+      if (e?.group_id && config.stats.rankChart.groupSent && type !== 'receive') {
         const key = e?.group_name ? `${e.group_name}(${e.group_id})` : e.group_id
         incr(`YePanel:sent:group:${key}:${day}`)
       }
       // 用户消息发送数量
-      if (e?.user_id && config.stats.rankChart.userSent && (type === 'send' || !msg)) {
+      if (e?.user_id && config.stats.rankChart.userSent && type !== 'receive') {
         const key = e?.sender?.nickname ? `${e.sender.nickname}(${e.user_id})` : e.user_id
         incr(`YePanel:sent:user:${key}:${day}`)
       }
@@ -79,7 +79,7 @@ if (
         }
       }
       // 发送消息类型排行
-      if (config.stats.rankChart.sentType && (type === 'send' || !msg)) {
+      if (config.stats.rankChart.sentType && type !== 'receive') {
         const message = version.BotName === 'Miao' ? type : msg
         for (const i of Array.isArray(message) ? message : [message]) {
           incr(`YePanel:sent:type:${i?.type || 'text'}:${day}`)

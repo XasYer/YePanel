@@ -56,7 +56,7 @@ export async function startServer () {
     })
   }
 
-  fastify.addHook('onResponse', (request, reply, done) => {
+  fastify.addHook('onRequest', (request, reply, done) => {
     const keys = config.server.logs
     if (keys) {
       const logs = ['[YePanel Server]']
