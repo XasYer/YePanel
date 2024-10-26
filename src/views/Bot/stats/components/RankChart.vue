@@ -83,15 +83,15 @@ watch(
         {
           name: props.name,
           type: "pie",
-          itemStyle: {
-            borderRadius: 10,
-            borderColor: "#fff",
-            borderWidth: 2
-          },
           ...(props.style === "Nightingale"
             ? {
                 roseType: "area",
-                radius: ["20%", "70%"]
+                radius: ["20%", "70%"],
+                itemStyle: {
+                  borderRadius: 10,
+                  borderColor: "#fff",
+                  borderWidth: 2
+                }
               }
             : {
                 ...(props.style === "Doughnut"

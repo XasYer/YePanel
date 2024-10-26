@@ -24,7 +24,10 @@ export function createWS(
     onopen?: (this: WebSocket, ev: Event) => any;
   } = {}
 ): WebSocket {
-  const url = getBaseUrlApi().replace(/^http(s)?/, "ws$1") + "/" + api;
+  const url =
+    getBaseUrlApi()
+      .replace(/^http(s)?/, "ws$1")
+      .replace(/\/$/, "") + `/${api}`;
   const ws = new WebSocket(url, getToken().accessToken);
   ws.onmessage = onmessage;
   ws.onclose = onclose;

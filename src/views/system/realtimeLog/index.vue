@@ -11,7 +11,7 @@
           @change="handleLineSpace"
         />
       </el-col>
-      <el-col :sm="12" :lg="4" :xs="24">
+      <el-col :sm="12" :lg="6" :xs="24">
         <el-text class="w-[70px]"> 日志等级: </el-text>
         <el-select v-model="level" style="width: 150px" class="mr-[10px]">
           <el-option
@@ -40,7 +40,7 @@
 
 <script lang="ts" setup>
 import { createWS } from "@/api/utils";
-import { onMounted, ref } from "vue";
+import { onMounted, onUnmounted, ref } from "vue";
 import Terminal, { Message, TerminalAsk } from "vue-web-terminal";
 import { TerminalFlash } from "vue-web-terminal";
 import Convert from "ansi-to-html";
@@ -244,5 +244,9 @@ const onExecCmd = (
 
 onMounted(() => {
   terminalRef.value.execute("Ciallo～(∠・ω< )⌒☆");
+});
+
+onUnmounted(() => {
+  socket.value && socket.value.close();
 });
 </script>
