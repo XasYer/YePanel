@@ -96,7 +96,7 @@ export type getUpdateLogResult = {
 
 export const getUpdateLog = (plugin: string) => {
   return http.request<getUpdateLogResult>("get", "/get-update-log", {
-    data: {
+    params: {
       plugin
     }
   });
