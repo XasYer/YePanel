@@ -165,12 +165,10 @@ if (ciallo.value === undefined) {
 emitter.on("changCiallo", (flag: boolean) => {
   ciallo.value = !ciallo.value;
 });
-const danmus = ref(Array.from({ length: 100 }, () => "Ciallo～(∠・ω< )⌒☆"));
+const danmus = ref(Array.from({ length: 10 }, () => "Ciallo～(∠・ω< )⌒☆"));
 const danmakuRef = ref(null);
 window.addEventListener("click", () => {
-  for (let i = 0; i < 10; i++) {
-    danmakuRef.value?.push("Ciallo～(∠・ω< )⌒☆");
-  }
+  danmakuRef.value?.push("Ciallo～(∠・ω< )⌒☆");
 });
 </script>
 
