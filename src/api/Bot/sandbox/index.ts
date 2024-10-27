@@ -118,16 +118,16 @@ function createSendbox (id: string, nickname: string, avatar: string, ws: WebSoc
         }
       }
     },
-    pickUser (user_id: string) {
-      return this.pickFriend(user_id)
+    pickUser (userId: string) {
+      return this.pickFriend(userId)
     },
-    pickGroup (group_id: string) {
-      const info = this.gl.get(group_id) || {}
+    pickGroup (groupId: string) {
+      const info = this.gl.get(groupId) || {}
       return {
         info,
         ...info,
         sendMsg: (message: string) => {
-          return this.sendGroupMsg(group_id, message)
+          return this.sendGroupMsg(groupId, message)
         },
         makeForwardMsg (msg: any) {
           return { type: 'node', data: msg }
@@ -137,15 +137,15 @@ function createSendbox (id: string, nickname: string, avatar: string, ws: WebSoc
         }
       }
     },
-    pickMember (group_id: string, user_id: string) {
+    pickMember (groupId: string, userId: string) {
       const info = {
-        ...this.fl.get(user_id) || {},
-        ...this.gl.get(group_id) || {}
+        ...this.fl.get(userId) || {},
+        ...this.gl.get(groupId) || {}
       }
       return {
         info,
         ...info,
-        ...this.pickFriend(user_id)
+        ...this.pickFriend(userId)
       }
     },
     sendPrivateMsg (userId: string, message: any) {
@@ -164,8 +164,8 @@ function createSendbox (id: string, nickname: string, avatar: string, ws: WebSoc
     getGroupList () {
       return this.gl
     },
-    getGroupMemberList (group_id: string) {
-      return this.gml.get(group_id) || new Map()
+    getGroupMemberList (groupId: string) {
+      return this.gml.get(groupId) || new Map()
     },
     fl: nameList.reduce((acc, cur) => {
       acc.set(cur, {
@@ -177,7 +177,7 @@ function createSendbox (id: string, nickname: string, avatar: string, ws: WebSoc
     }, new Map()),
     gl: ['sandbox.group'].reduce((acc, cur) => {
       acc.set(cur, {
-        group_id: cur,
+        groupId: cur,
         group_name: cur,
         bot_id: uin
       })
@@ -187,7 +187,7 @@ function createSendbox (id: string, nickname: string, avatar: string, ws: WebSoc
       acc.set(cur, nameList.reduce((acc, cur) => {
         acc.set(cur, {
           user_id: cur,
-          group_id: cur,
+          groupId: cur,
           nickname: cur,
           bot_id: uin
         })
@@ -237,7 +237,7 @@ function createMessage (id: string, userId: string, groupId: string, content: st
       ? {
           message_type: 'group',
           sub_type: 'normal',
-          group_id: groupId,
+          groupId: groupId,
           group_name: groupId
         }
       : {
@@ -288,8 +288,8 @@ function dealMessage (message: any) {
             }
           }
         }
-        if (message[i].file.startsWith?.('base64')) {
-          message[i].file = `data:image/png;base64,${message[i].file.replace('base64,', '')}`
+        if (message[i].file.startsWith?.('base64://')) {
+          message[i].file = `data:image/png;base64,${message[i].file.replace('base64://', '')}`
         }
         if (Buffer.isBuffer(message[i].file)) {
           message[i].file = `data:image/png;base64,${message[i].file.toString('base64')}`
