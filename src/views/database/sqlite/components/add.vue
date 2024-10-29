@@ -94,12 +94,15 @@ for (const key in data.value.tableInfo) {
     case "BLOB":
     case "REAL":
     default:
-      column.renderField = (value, onChange) =>
-        h(
-          ElText,
-          { type: "warning" },
-          `暂未适配本类型: ${data.value.tableInfo[key].type}`
-        );
+      column.valueType = "textarea";
+      column.fieldProps.autosize = { minRows: 2, maxRows: 10 };
+      column.fieldProps.resize = "none";
+      // column.renderField = (value, onChange) =>
+      //   h(
+      //     ElText,
+      //     { type: "warning" },
+      //     `暂未适配本类型: ${data.value.tableInfo[key].type}`
+      //   );
       break;
   }
   if (data.value.tableInfo[key].pk) {

@@ -27,6 +27,15 @@ export default {
         title: "沙盒调试",
         icon: "mage:hour-glass-fill"
       }
+    },
+    {
+      path: "/Bot/plugins",
+      name: "bot-plugins",
+      component: () => import("@/views/Bot/plugins/index.vue"),
+      meta: {
+        title: "插件列表",
+        icon: "material-symbols:list"
+      }
     }
   ]
 } as RouteConfigsTable;

@@ -40,3 +40,69 @@ export const getRankChartData = (time: string) => {
     }
   });
 };
+
+export type PluginInfo = {
+  title: string;
+  name: string;
+  link: string;
+  desc: string;
+  authors: {
+    name: string;
+    link: string;
+  }[];
+};
+
+export type getPluginDataResult = {
+  success: boolean;
+  data: {
+    main: PluginInfo[];
+    function: PluginInfo[];
+    game: PluginInfo[];
+    wordgame: PluginInfo[];
+    install: string[];
+  };
+};
+
+export const getPluginList = () => {
+  return http.request<getPluginDataResult>("get", "/get-plugin-index-list");
+};
+
+export type getPluginReadmeResult = {
+  success: boolean;
+  data: string;
+  message: string;
+};
+
+export const getPluginReadme = (link: string) => {
+  return http.request<getPluginReadmeResult>("get", "/get-plugin-readme", {
+    params: {
+      link
+    }
+  });
+};
+
+export const installPlugin = (link: string, name?: string, branch?: string) => {
+  return http.request<{ success: boolean; message?: string }>(
+    "post",
+    "/install-plugin",
+    {
+      data: {
+        link,
+        name,
+        branch
+      }
+    }
+  );
+};
+
+export const uninstallPlugin = (name: string) => {
+  return http.request<{ success: boolean; message?: string }>(
+    "post",
+    "/uninstall-plugin",
+    {
+      data: {
+        name
+      }
+    }
+  );
+};

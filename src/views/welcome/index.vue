@@ -329,6 +329,7 @@ import { addDialog, closeDialog } from "@/components/ReDialog";
 import { ElLink, ElScrollbar, ElTimeline, ElTimelineItem } from "element-plus";
 import { openLink } from "@pureadmin/utils";
 import { useHomeStoreHook } from "@/store/modules/home";
+import timeline from "./components/timeline.vue";
 
 const systemInfo = ref<getSystemInfoResult["data"]>({
   visual: Array.from({ length: 5 }, (_, index) => ({})) as any,
@@ -366,35 +367,40 @@ const getLog = (name: string) => {
         title: `${name || systemInfo.value.BotName + "-Yunzai"}更新日志`,
         width: window.innerWidth < 992 ? "90%" : "50%",
         top: "10vh",
-        contentRenderer: () =>
-          h(
-            ElScrollbar,
-            { height: "60vh", class: "mx-[20px]" },
-            h(
-              ElTimeline,
-              {},
-              res.data.log.map(i => {
-                if (!i) return null;
-                const [, commit, timestamp, content] =
-                  /(.+?)\|\|\[(.+?)\](.+)/.exec?.(i) || [];
-                return h(
-                  ElTimelineItem,
-                  {
-                    timestamp
-                  },
-                  h(
-                    ElLink,
-                    {
-                      underline: false,
-                      href: `${res.data.url}/commit/${commit}`,
-                      target: "_blank"
-                    },
-                    content
-                  )
-                );
-              })
-            )
-          ),
+        props: {
+          log: res.data.log,
+          link: res.data.url,
+          height: "60vh"
+        },
+        contentRenderer: () => timeline,
+        // h(
+        //   ElScrollbar,
+        //   { height: "60vh", class: "mx-[20px]" },
+        //   h(
+        //     ElTimeline,
+        //     {},
+        //     res.data.log.map(i => {
+        //       if (!i) return null;
+        //       const [, commit, timestamp, content] =
+        //         /(.+?)\|\|\[(.+?)\](.+)/.exec?.(i) || [];
+        //       return h(
+        //         ElTimelineItem,
+        //         {
+        //           timestamp
+        //         },
+        //         h(
+        //           ElLink,
+        //           {
+        //             underline: false,
+        //             href: `${res.data.url}/commit/${commit}`,
+        //             target: "_blank"
+        //           },
+        //           content
+        //         )
+        //       );
+        //     })
+        //   )
+        // ),
         footerButtons: [
           {
             label: "取消",
