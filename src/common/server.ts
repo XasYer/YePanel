@@ -72,6 +72,12 @@ export async function startServer () {
     done()
   })
 
+  fastify.addHook('onError', (request, reply, error, done) => {
+    logger.error(chalk.rgb(255, 105, 180)(`[YePanel Server] url: ${request.url}  Error: `))
+    logger.error(error as any)
+    done()
+  })
+
   function verifyToken (request: FastifyRequest, reply: FastifyReply, done: (error?: Error | undefined) => void) {
     const token = request.headers.authorization || request.headers['sec-websocket-protocol'] || (request.query as {accessToken?: string})?.accessToken || ''
 

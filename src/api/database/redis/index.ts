@@ -1,5 +1,8 @@
 import { RouteOptions } from 'fastify'
 import { utils } from '@/common'
+import { createClient } from 'redis'
+// @ts-ignore
+import cfg from '../../../../../../lib/config/config.js'
 
 type treeNode = {
   label: string
@@ -7,7 +10,31 @@ type treeNode = {
   children: treeNode[]
 }
 
-export async function getRedisKeys (sep = ':', lazy = false) {
+const clients: {[key: string]: { client: ReturnType<typeof createClient>, timer: NodeJS.Timeout}} = {}
+
+const getRedissClient = async (db: string) => {
+  if (clients[db]) {
+    return clients[db].client
+  }
+  const client = await createClient({
+    socket: {
+      host: cfg.redis.host,
+      port: cfg.redis.port
+    },
+    database: Number(db)
+  }).connect()
+  clients[db] = {
+    client,
+    timer: setTimeout(() => {
+      client.disconnect()
+      delete clients[db]
+    }, 1000 * 60 * 30) // 缓存30分钟
+  }
+  return client
+}
+
+export async function getRedisKeys (sep = ':', db: string, lazy = false) {
+  const redis = await getRedissClient(db)
   function addKeyToTree (tree: treeNode[], parts: string[], fullKey: string) {
     if (parts.length === 0) return
 
@@ -93,6 +120,9 @@ export default [
         }
       })
       redisInfo.uptime_formatted = utils.formatDuration(Number(redisInfo.uptime_in_seconds))
+      redisInfo.slelct_database = cfg.redis.db
+      const [, databases] = await redis.sendCommand(['CONFIG', 'GET', 'databases']) as [string, string]
+      redisInfo.databases = databases
       return {
         success: true,
         data: redisInfo
@@ -103,8 +133,8 @@ export default [
     url: '/get-redis-keys',
     method: 'get',
     handler: async ({ query }) => {
-      const { sep, lazy } = query as { sep: string, lazy: boolean }
-      const keys = await getRedisKeys(sep, lazy)
+      const { sep, db, lazy } = query as { sep: string, db: string, lazy: boolean }
+      const keys = await getRedisKeys(sep, db, lazy)
       return {
         success: true,
         data: keys
@@ -115,7 +145,8 @@ export default [
     url: '/get-redis-value',
     method: 'get',
     handler: async ({ query }) => {
-      const { key } = query as { key: string }
+      const { key, db } = query as { key: string, db: string }
+      const redis = await getRedissClient(db)
       const value = await redis.get(key)
       const expire = await redis.ttl(key)
       return {
@@ -132,7 +163,8 @@ export default [
     url: '/set-redis-value',
     method: 'post',
     handler: async ({ body }) => {
-      const { key: oldKey, value, expire, newKey } = body as { key: string, value: string, expire: number, newKey: string }
+      const { key: oldKey, value, db, expire, newKey } = body as { key: string, value: string, db: string, expire: number, newKey: string }
+      const redis = await getRedissClient(db)
       const key = newKey || oldKey
       if (newKey) {
         await redis.rename(oldKey, newKey)
@@ -157,9 +189,10 @@ export default [
     url: '/delete-redis-keys',
     method: 'post',
     handler: async ({ body }) => {
-      const { keys } = body as { keys: string[] }
+      const { keys, db } = body as { keys: string[], db: string }
       const errorKeys = []
       const successKeys = []
+      const redis = await getRedissClient(db)
       for (const key of keys) {
         try {
           await redis.del(key)
