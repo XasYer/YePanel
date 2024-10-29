@@ -28,10 +28,10 @@
    git clone --depth=1 -b build https://github.com/XasYer/YePanel.git ./plugins/YePanel/
    ```
 
-   > 如果你的网络环境较差，无法连接到 Github，可以使用 [GitHub Proxy](https://moeyy.cn/gh-proxy/) 提供的文件代理加速下载服务
+   > 如果你的网络环境较差，无法连接到 Github，可以使用 Gitee 镜像仓库，可能会更新不及时
    >
    > ```sh
-   > git clone --depth=1 -b build https://github.moeyy.xyz/https://github.com/XasYer/YePanel.git ./plugins/YePanel/
+   > git clone --depth=1 -b build https://gitee.com/xiaoye12123/YePanel.git ./plugins/YePanel/
    > ```
 
    安装依赖
@@ -105,7 +105,7 @@ git clone --depth=1 -b gh-pages https://github.com/XasYer/YePanel.git ./plugins/
 > 网络问题导致 clone 失败时, 可以使用以下命令克隆
 >
 > ```sh
-> git clone --depth=1 -b gh-pages https://github.moeyy.xyz/https://github.com/XasYer/YePanel.git ./plugins/YePanel-Web/
+> git clone --depth=1 -b gh-pages https://gitee.com/xiaoye12123/YePanel.git ./plugins/YePanel-Web/
 > ```
 
 ~~放到 plugins 目录蹭一下#全部更新~~
@@ -163,6 +163,13 @@ pnpm run build
 <summary>数据统计</summary>
 
 ![数据统计](https://cdn.jsdelivr.net/gh/XasYer/YePanel@web/public/stats.png)
+
+</details>
+
+<details>
+<summary>插件列表</summary>
+
+![插件列表](https://cdn.jsdelivr.net/gh/XasYer/YePanel@web/public/plugins.png)
 
 </details>
 
@@ -315,7 +322,7 @@ const props = defineProps({
   baseUrl: String,
   // 插件文件名
   pluginName: String,
-  /// 登录后获得的token, 可用于ws鉴权 new WebSocket(url, accessToken)
+  /// 登录后获得的token, 可用于ws鉴权等 new WebSocket(url, accessToken)
   accessToken: String,
 });
 </script>
