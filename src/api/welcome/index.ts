@@ -8,7 +8,22 @@ import { RouteOptions } from 'fastify'
 import moment from 'moment'
 import { execSync, ExecSyncOptionsWithStringEncoding } from 'child_process'
 
-function getPlugins () {
+const pluginsCache: {
+  info: string,
+  plugins: {
+    hasPackage: boolean,
+    hasGit: boolean,
+    name: string
+  }[]
+} = {
+  info: '',
+  plugins: []
+}
+
+export function getPlugins (force = false) {
+  if (pluginsCache.plugins.length && !force) {
+    return pluginsCache
+  }
   // 获取插件数量插件包目录包含package.json或.git目录才被视为一个插件包
   const dir = './plugins'
   const dirArr = fs.readdirSync(dir, { withFileTypes: true })
@@ -39,10 +54,9 @@ function getPlugins () {
       ?.filter(item => item.endsWith('.js'))
       ?.length
   } catch { /* empty */ }
-  return {
-    info: `${plugins?.length ?? 0} plugins | ${js ?? 0} js`,
-    plugins
-  }
+  pluginsCache.plugins = plugins
+  pluginsCache.info = `${plugins.length} plugins | ${js} js`
+  return pluginsCache
 }
 
 export default [
@@ -174,7 +188,7 @@ export default [
           info: ['没有获取到数据']
         })
       }
-      const plugins = getPlugins()
+      const plugins = getPlugins(true)
       info.push({ key: '插件数量', value: plugins.info })
 
       try {
