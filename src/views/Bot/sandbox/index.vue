@@ -1,8 +1,8 @@
 <template>
-  <el-card v-if="loading" class="h-[700px] flex-c">
+  <el-card v-if="loading" class="h-[80vh] flex-c">
     <el-result icon="info" title="加载中..." />
   </el-card>
-  <el-card v-else class="h-[700px] p-0" body-style="padding: 0;">
+  <el-card v-else ref="cardRef" class="h-[80vh] p-0" body-style="padding: 0;">
     <el-container>
       <el-aside :width="isCollapse ? '60px' : '200px'">
         <el-menu
@@ -19,7 +19,7 @@
             />
             <template #title>添加用户</template>
           </el-menu-item>
-          <el-scrollbar height="630px">
+          <el-scrollbar :height="`${cardRef?.$el?.scrollHeight - 70}px`">
             <el-menu-item
               v-for="item in userList"
               :key="item.userId"
@@ -37,7 +37,10 @@
       <el-container>
         <el-main>
           <el-tabs v-if="selectUser" v-model="activeName">
-            <el-scrollbar ref="messageScrollbarRef" height="520px">
+            <el-scrollbar
+              ref="messageScrollbarRef"
+              :height="`${cardRef?.$el?.scrollHeight - 180}px`"
+            >
               <el-tab-pane
                 v-for="item in [
                   { name: 'private', label: '私聊' },
@@ -112,7 +115,7 @@
 </template>
 
 <script setup lang="ts">
-import { ElImage, ElMenu, ElScrollbar, ElText } from "element-plus";
+import { ElCard, ElImage, ElMenu, ElScrollbar, ElText } from "element-plus";
 import {
   h,
   nextTick,
@@ -139,6 +142,8 @@ import { createWS } from "@/api/utils";
 defineOptions({
   name: "sandbox"
 });
+
+const cardRef = ref<InstanceType<typeof ElCard>>(null);
 
 const userStore = useUserStoreHook();
 // 左侧用户列表
@@ -190,7 +195,7 @@ const userList = ref([
 // 切换tabs和用户时,滚动到底部
 watch([activeName, selectUser], () => {
   nextTick(() => {
-    const bottom = messageScrollbarRef.value.wrapRef.scrollHeight - 520;
+    const bottom = messageScrollbarRef.value.wrapRef.scrollHeight;
     messageScrollbarRef.value.setScrollTop(bottom);
   });
 });
@@ -289,7 +294,7 @@ const handleKeyDown = (event: KeyboardEvent) => {
       });
       msg.value = "";
       nextTick(() => {
-        const bottom = messageScrollbarRef.value.wrapRef.scrollHeight - 520;
+        const bottom = messageScrollbarRef.value.wrapRef.scrollHeight;
         messageScrollbarRef.value.setScrollTop(bottom);
       });
     } else {
@@ -414,7 +419,7 @@ onMounted(() => {
       }
       if (type === "group" || id === selectUser.value) {
         nextTick(() => {
-          const bottom = messageScrollbarRef.value.wrapRef.scrollHeight - 520;
+          const bottom = messageScrollbarRef.value.wrapRef.scrollHeight;
           messageScrollbarRef.value.setScrollTop(bottom);
         });
       }

@@ -148,7 +148,7 @@
         <el-card
           shadow="never"
           class="h-[280px]"
-          :header="systemInfo.fsSize.length ? 'fsSize' : undefined"
+          :header="systemInfo.fsSize.length ? '磁盘占用' : undefined"
           :body-style="{ padding: '10px 20px' }"
         >
           <el-skeleton :loading="!systemInfo.fsSize.length" animated>
