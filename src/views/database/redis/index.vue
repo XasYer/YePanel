@@ -120,9 +120,22 @@
         <div v-if="!isLoad">
           <el-row>
             <re-col :span="12" :xs="24" class="mb-[10px] mr-[10px]">
+              <el-select
+                v-model="selectDB"
+                class="mr-[10px]"
+                style="width: 100px"
+                @change="getTreeData"
+              >
+                <el-option
+                  v-for="item in databases"
+                  :key="item"
+                  :label="`db${item}`"
+                  :value="item"
+                />
+              </el-select>
               <el-input
                 v-model="filterText"
-                style="width: 300px"
+                style="width: 280px"
                 placeholder="请输入key"
               />
             </re-col>
@@ -230,9 +243,16 @@ const infoDirection = ref<"vertical" | "horizontal">("horizontal");
 
 const redisInfo = ref<getRedisInfoResult["data"]>();
 const keyspace = ref<{ [key: string]: dbInfo }>({});
+const databases = ref<string[]>([]);
+const selectDB = ref<string>();
 
 getRedisInfo().then(res => {
   redisInfo.value = res.data;
+  selectDB.value = redisInfo.value.slelct_database.toString();
+  databases.value = Array.from(
+    { length: Number(redisInfo.value.databases) },
+    (_, i) => String(i)
+  );
   for (let i = 0; i < 16; i++) {
     if (redisInfo.value[`db${i}`]) {
       const db = {};
@@ -251,7 +271,7 @@ let treeV2Data = [];
 const getTreeData = () => {
   isLoad.value = false;
   if (treeType.value === "2") {
-    getRedisKeys(":").then(res => {
+    getRedisKeys(":", selectDB.value).then(res => {
       treeV2Data = res.data;
       treeRefV2.value.setData(treeV2Data);
     });
@@ -259,7 +279,9 @@ const getTreeData = () => {
 };
 
 const loadTree = (node: TreeNode, resolve: (data: any[]) => void) => {
-  getRedisKeys(node.data?.key || "", true).then(res => resolve(res.data));
+  getRedisKeys(node.data?.key || "", selectDB.value, true).then(res =>
+    resolve(res.data)
+  );
   return;
 };
 
@@ -272,7 +294,7 @@ const treeRefV2 = ref<InstanceType<typeof ElTreeV2>>();
 const codeMirrorRef = ref<InstanceType<typeof codeMirror>>();
 const handleNodeClick = (data: getRedisKeysData, node: TreeNode) => {
   if (node.isLeaf) {
-    getRedisValue(data.key as string).then(res => {
+    getRedisValue(data.key as string, selectDB.value).then(res => {
       try {
         res.data.value = JSON.stringify(JSON.parse(res.data.value), null, 2);
       } catch (error) {}
@@ -303,6 +325,7 @@ const handleNodeClick = (data: getRedisKeysData, node: TreeNode) => {
             setRedisValue(
               data.key as string,
               newData.value,
+              selectDB.value,
               newData.expire,
               isChange ? newData.key : undefined
             ).then(res => {
@@ -409,7 +432,12 @@ const handleAdd = () => {
         if (newData.expire < -1) {
           newData.expire = -1;
         }
-        setRedisValue(newData.key, newData.value, newData.expire).then(res => {
+        setRedisValue(
+          newData.key,
+          newData.value,
+          selectDB.value,
+          newData.expire
+        ).then(res => {
           message("添加成功~ Ciallo～(∠・ω< )⌒☆'", {
             customClass: "el",
             type: "success"
@@ -450,7 +478,7 @@ const handleDeleteKeys = () => {
     });
     return;
   }
-  deleteRedisKeys(checkedKeys.value).then(res => {
+  deleteRedisKeys(checkedKeys.value, selectDB.value).then(res => {
     if (res.success) {
       message("删除成功~ Ciallo～(∠・ω< )⌒☆'", {
         customClass: "el",

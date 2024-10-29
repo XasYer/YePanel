@@ -129,7 +129,7 @@
         ref="tableRef"
         :data="data"
         row-key="path"
-        height="70vh"
+        :height="`${tableHeigth}vh`"
         @cell-dblclick="handleDblclick"
         @selection-change="handleSelectionChange"
         @sort-change="handleSortChange"
@@ -226,6 +226,10 @@ import dialog, { type Props as DialogProps } from "./components/dialog.vue";
 defineOptions({
   name: "files"
 });
+
+const tableHeigth = ref<number>(
+  window.innerWidth <= 768 ? 62 : window.innerWidth <= 1200 ? 66 : 70
+);
 
 const data = ref<getDirDataResult["data"]["files"]>([]);
 const path = ref("");

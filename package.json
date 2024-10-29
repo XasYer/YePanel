@@ -95,6 +95,7 @@
     "sortablejs": "^1.15.2",
     "vue": "^3.4.25",
     "vue-codemirror": "^6.1.1",
+    "vue-demi": "^0.14.10",
     "vue-router": "^4.3.2",
     "vue-tippy": "^6.4.1",
     "vue-types": "^5.1.1",
