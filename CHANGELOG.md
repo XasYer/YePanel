@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.10.0](https://github.com/XasYer/YePanel/compare/v1.9.2...v1.10.0) (2024-10-29)
+
+
+### Features
+
+* 插件列表 ([c5d0d33](https://github.com/XasYer/YePanel/commit/c5d0d33dcdb4e30197e7ac3aaa634198b7e5e5d2))
+
 ## [1.9.2](https://github.com/XasYer/YePanel/compare/v1.9.1...v1.9.2) (2024-10-27)
 
 
