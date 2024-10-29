@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.9.2](https://github.com/XasYer/YePanel/compare/v1.9.1...v1.9.2) (2024-10-27)
+
+
+### Bug Fixes
+
+* 日志输出时机 ([e7f7c77](https://github.com/XasYer/YePanel/commit/e7f7c77f3f6fc96211abfa5e869431f600a4958c))
+* 沙盒发送base64图片 ([af0241a](https://github.com/XasYer/YePanel/commit/af0241a3cb64216ddd8f816ecf2383ae760d339c))
+
 ## [1.9.1](https://github.com/XasYer/YePanel/compare/v1.9.0...v1.9.1) (2024-10-25)
 
 
