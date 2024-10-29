@@ -46,6 +46,7 @@ export default ({ mode }: ConfigEnv): UserConfigExport => {
         input: {
           index: pathResolve("./index.html", import.meta.url)
         },
+        external: ["vue-web-terminal/lib/theme/dark.css"],
         // 静态资源分类打包
         output: {
           chunkFileNames: "static/js/[name]-[hash].js",
