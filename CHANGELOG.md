@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.10.1](https://github.com/XasYer/YePanel/compare/v1.10.0...v1.10.1) (2024-10-29)
+
+
+### Bug Fixes
+
+* redis可查看全部db ([2d60110](https://github.com/XasYer/YePanel/commit/2d60110b729f101ce69421cfa475518e777180a0))
+* redis可查看所有db ([0b34177](https://github.com/XasYer/YePanel/commit/0b34177dc0764bd147c62011b6e33447fed8e070))
+
 ## [1.10.0](https://github.com/XasYer/YePanel/compare/v1.9.2...v1.10.0) (2024-10-29)
 
 
