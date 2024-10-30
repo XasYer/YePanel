@@ -136,7 +136,7 @@ export default [
               }
             }).filter(i => i.name && i.link)
             if (!authors.length) continue
-            const [, title, pluginName] = /^(.*)\s*\(([^()]*)\)$/.exec(name) || []
+            const [, title, pluginName] = /^(.*)\s*[(（]([^()]*)[）)]$/.exec(name) || []
             pluginList[i.id].push({
               title: title || name,
               name: pluginName || name,

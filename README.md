@@ -208,12 +208,6 @@ pnpm run build
 ![sqlite](https://cdn.jsdelivr.net/gh/XasYer/YePanel@web/public/sqlite.png)
 
 </details>
-<details>
-<summary>插件适配</summary>
-
-![sqlite](https://cdn.jsdelivr.net/gh/XasYer/YePanel@web/public/plugin.png)
-
-</details>
 
 <details>
 <summary>vue开发</summary>
