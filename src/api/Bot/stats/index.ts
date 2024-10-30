@@ -67,7 +67,7 @@ if (config.stats.rankChart.pluginUse || config.stats.countChart.plugin) {
           if (name && fnc) {
             incr(`YePanel:plugin:use:${name}(${fnc}):${day}`)
             if (config.stats.alone && e?.self_id) {
-              incr(`YePanel${e.self_id}::plugin:use:${name}(${fnc}):${day}`)
+              incr(`YePanel:${e.self_id}:plugin:use:${name}(${fnc}):${day}`)
             }
           }
         }
