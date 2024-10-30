@@ -57,6 +57,7 @@ export type getRedisKeysResult = {
 
 export type getRedisValueResult = {
   success: boolean;
+  message?: string;
   data: {
     key: string;
     value: string;

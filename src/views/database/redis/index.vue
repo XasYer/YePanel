@@ -295,6 +295,13 @@ const codeMirrorRef = ref<InstanceType<typeof codeMirror>>();
 const handleNodeClick = (data: getRedisKeysData, node: TreeNode) => {
   if (node.isLeaf) {
     getRedisValue(data.key as string, selectDB.value).then(res => {
+      if (!res.success) {
+        message(res.message, {
+          type: "error",
+          customClass: "el"
+        });
+        return;
+      }
       try {
         res.data.value = JSON.stringify(JSON.parse(res.data.value), null, 2);
       } catch (error) {}
