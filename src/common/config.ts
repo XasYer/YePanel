@@ -35,7 +35,7 @@ class Config {
         const saveKeys: string[] = []
         const merge = (defValue: any, value: any, prefix: string = '') => {
           const defKeys = Object.keys(defValue)
-          const configKeys = Object.keys(value)
+          const configKeys = Object.keys(value || {})
           for (const key of defKeys) {
             switch (typeof defValue[key]) {
               case 'object':
@@ -87,6 +87,12 @@ class Config {
   }
 
   get stats (): {
+    alone: boolean,
+    totalStats: {
+      sent: boolean
+      recv: boolean
+      plugin: boolean
+    },
     countChart: {
       sent: boolean
       recv: boolean
