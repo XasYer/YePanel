@@ -17,6 +17,5 @@ import { Delete } from "@element-plus/icons-vue";
 const multiple = ref(false);
 
 const handleClick = () => {
-  console.log("click");
 };
 </script>

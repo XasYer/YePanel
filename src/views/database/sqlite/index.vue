@@ -1,6 +1,6 @@
 <template>
   <el-card v-loading="isLoading">
-    <el-row :gutter="20" class="mb-[20px]">
+    <el-row :gutter="20">
       <el-col :xs="24" :lg="6">
         <div class="flex-c">
           <el-text tag="b" class="w-[60px]">数据源:</el-text>

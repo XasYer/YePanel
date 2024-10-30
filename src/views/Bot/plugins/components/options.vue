@@ -188,7 +188,6 @@ const uninstall = () => {
   uninstallLoading.value = true;
   uninstallPlugin(data.value.info.name).then(res => {
     uninstallLoading.value = false;
-    console.log(res);
     if (res.success) {
       props.removeInstall(data.value.info.name);
       data.value.installed = false;

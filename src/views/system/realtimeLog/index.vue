@@ -1,6 +1,6 @@
 <template>
   <el-card>
-    <el-row :gutter="10" class="mb-[10px]">
+    <el-row :gutter="10">
       <el-col :sm="12" :lg="4" :xs="24" class="mb-[10px] mr-[10px]">
         <el-text>行高: </el-text>
         <el-input-number
@@ -11,7 +11,7 @@
           @change="handleLineSpace"
         />
       </el-col>
-      <el-col :sm="12" :lg="6" :xs="24">
+      <el-col :sm="12" :lg="6" :xs="24" class="mb-[10px]">
         <el-text class="w-[70px]"> 日志等级: </el-text>
         <el-select v-model="level" style="width: 150px" class="mr-[10px]">
           <el-option

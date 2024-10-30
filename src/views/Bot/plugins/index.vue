@@ -339,7 +339,6 @@ const removeInstall = (name: string) => {
 };
 
 getPluginList().then(res => {
-  console.log(res);
   data.value.function = [...res.data.main, ...res.data.function];
   data.value.game = res.data.game;
   data.value.wordgame = res.data.wordgame;

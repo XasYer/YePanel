@@ -28,15 +28,37 @@ export type getCountChartDataResult = {
   };
 };
 
-/** 数量统计表 */
-export const getCountChartData = () => {
-  return http.request<getCountChartDataResult>("get", "/get-stats-count-data");
+export type getTotalStatsDataResult = {
+  success: boolean;
+  data: {
+    sent: number;
+    recv: number;
+    plugin: number;
+  };
 };
 
-export const getRankChartData = (time: string) => {
+/** 数量统计表 */
+export const getCountChartData = (uin?: string) => {
+  return http.request<getCountChartDataResult>("get", "/get-stats-count-data", {
+    params: {
+      uin
+    }
+  });
+};
+
+export const getRankChartData = (time: string, uin?: string) => {
   return http.request<getRankDataResult>("get", "/get-stats-rank-data", {
     params: {
-      time
+      time,
+      uin
+    }
+  });
+};
+
+export const getTotalStatsData = (uin?: string) => {
+  return http.request<getTotalStatsDataResult>("get", "/get-stats-total-data", {
+    params: {
+      uin
     }
   });
 };

@@ -52,7 +52,6 @@ const color = {
 };
 
 const handleSelect = (value: string) => {
-  console.log(value);
   getLogData();
 };
 

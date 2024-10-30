@@ -106,12 +106,10 @@ const loadModuleAsync = (fileName: string, target: "components" | "main") => {
       }
     })
       .then(component => {
-        console.log("loadModuleSuccess: ", fileName);
         loadedComponentCount.value++;
         resolve(component);
       })
       .catch(err => {
-        console.log("err", err);
         loadErr.value = `${fileName} 加载失败: ${err.message}`;
         if (comp.value) {
           message(`${fileName} 出现错误: ${err.message}`, {
@@ -126,11 +124,9 @@ const loadModuleAsync = (fileName: string, target: "components" | "main") => {
 
 const loadModulesInSequence = async () => {
   for (const key in codeStore.code[pluginName].components) {
-    console.log("key", key);
     try {
       await loadModuleAsync(`${key}.vue`, "components");
     } catch (error) {
-      console.log("???");
       return;
     }
   }
@@ -141,14 +137,9 @@ loadModulesInSequence();
 const comp = ref(null);
 
 watch(loadedComponentCount, () => {
-  console.log("watch");
-  console.log("loadedComponentCount.value", loadedComponentCount.value);
-  console.log("componentCount", componentCount);
   if (loadedComponentCount.value === componentCount) {
-    console.log("moduleCache", moduleCache);
     loadModuleAsync(`${route.name.toString().split("/")[1]}.vue`, "main").then(
       component => {
-        console.log("compSuccess");
         loading.value = false;
         comp.value = component;
       }
@@ -164,12 +155,9 @@ watch(loadedComponentCount, () => {
 
 onErrorCaptured((err, vm, info) => {
   const componentName = vm.$options.__name;
-  console.log("ErrcomponentName", err);
   // if (componentName === "edit") {
   //   loadErr.value = err.toString();
   // }
   return false;
 });
-
-console.log("code", codeStore.code[pluginName]);
 </script>

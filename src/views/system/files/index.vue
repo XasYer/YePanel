@@ -1,7 +1,7 @@
 <template>
   <el-card class="h-[80vh]">
-    <el-row class="flex mb-[20px] flex-wrap">
-      <el-col :xl="7" :sm="12" :lg="7" :xs="24" class="mb-[10px] mr-[10px]">
+    <el-row class="flex flex-wrap">
+      <el-col :xl="7" :sm="12" :lg="7" :xs="24" class="mr-[10px]">
         <el-input v-model="path">
           <template #prepend>
             <el-dropdown
@@ -30,7 +30,7 @@
           ></template>
         </el-input>
       </el-col>
-      <el-col :xl="3" :sm="12" :lg="3" :xs="24" class="mb-[10px] mr-[10px]">
+      <el-col :xl="3" :sm="12" :lg="3" :xs="24" class="mr-[10px]">
         <el-popover :width="400" trigger="click" :visible="uploadVisible">
           <template #reference>
             <el-button
@@ -727,5 +727,9 @@ getData("");
 <style scoped>
 .el-link {
   margin-right: 10px;
+}
+
+.el-col {
+  margin-bottom: 10px;
 }
 </style>
