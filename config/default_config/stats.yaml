@@ -1,6 +1,18 @@
 # 以下数据均由YePanel统计, 设置为ture即开启统计功能
 # 若改动, 需重启生效
 
+# 是否额外单独Bot统计
+alone: false
+
+# 总计统计
+totalStats:
+  # 总发送消息次数
+  sent: false
+  # 总接收消息次数
+  recv: false
+  # 总插件触发次数
+  plugin: false
+
 # 数量统计图表, 在一个图表中
 countChart:
   # 发送消息次数
