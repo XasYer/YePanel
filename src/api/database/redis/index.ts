@@ -147,14 +147,22 @@ export default [
     handler: async ({ query }) => {
       const { key, db } = query as { key: string, db: string }
       const redis = await getRedissClient(db)
-      const value = await redis.get(key)
-      const expire = await redis.ttl(key)
-      return {
-        success: true,
-        data: {
-          key,
-          value,
-          expire
+      try {
+        const value = await redis.get(key)
+        const expire = await redis.ttl(key)
+        return {
+          success: true,
+          data: {
+            key,
+            value,
+            expire
+          }
+        }
+      } catch {
+        const type = await redis.type(key)
+        return {
+          success: false,
+          message: `暂未支持${type}类型,目前仅支持查看和修改string类型`
         }
       }
     }
