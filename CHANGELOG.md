@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.10.2](https://github.com/XasYer/YePanel/compare/v1.10.1...v1.10.2) (2024-10-30)
+
+
+### Bug Fixes
+
+* redis数据目前仅支持string类型 ([24a0b93](https://github.com/XasYer/YePanel/commit/24a0b93f100032039c3e3c8c2be167846886debc))
+* 插件名中文括号 ([eb5324f](https://github.com/XasYer/YePanel/commit/eb5324fd47e7cddb54d7d472bb1793f4001813c3))
+* 数据统计可区分Bot,增加总计数据 ([8d97d19](https://github.com/XasYer/YePanel/commit/8d97d194243737d8119d6281cec6891b98cea6a2))
+
 ## [1.10.1](https://github.com/XasYer/YePanel/compare/v1.10.0...v1.10.1) (2024-10-29)
 
 
