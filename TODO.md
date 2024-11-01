@@ -1,9 +1,28 @@
 # TODO List
 
 - [x] 沙盒测试
-    - [ ] 渲染转发消息
-    - [ ] 适配更多发送的消息类型
-    - [ ] 适配更多接收的消息类型
+    - [ ] 发送类型
+        - [x] text
+        - [ ] image
+        - [ ] at
+        - [ ] reply
+        - [ ] button
+        - [x] poke
+        - [ ] node
+        - [ ] markdown
+        - [ ] video
+        - [ ] audio
+    - [ ] 接收类型
+        - [x] text
+        - [x] image
+        - [x] at
+        - [x] reply
+        - [x] button
+        - [x] poke
+        - [ ] node
+        - [ ] markdown
+        - [ ] video
+        - [ ] audio
     - [x] 好像height有点大了
 - [x] 插件库预览 安装插件 卸载插件
 - [ ] 本体设置

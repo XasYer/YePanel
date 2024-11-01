@@ -2,6 +2,7 @@ import { version } from '@/common'
 import { RouteOptions } from 'fastify'
 import { WebSocket } from 'ws'
 import fs from 'fs'
+import { randomUUID } from 'crypto'
 
 export default [
   {
@@ -25,7 +26,10 @@ export default [
             logger.mark(`${uin} 已连接`)
             break
           case 'message':
-            createMessage(data.uin, data.userId, data.groupId, data.content, data.permission)
+            createMessage(data.uin, data.userId, data.groupId, data.msgId, data.content, data.permission)
+            break
+          case 'poke':
+            createPoke(data.uin, data.operatorId, data.targetId, data.userId, data.groupId, data.permission)
             break
           default:
             break
@@ -115,6 +119,9 @@ function createSendbox (id: string, nickname: string, avatar: string, ws: WebSoc
         },
         getInfo () {
           return info
+        },
+        poke: () => {
+          return this.sendPrivateMsg(userId, { type: 'poke', qq: userId })
         }
       }
     },
@@ -134,6 +141,9 @@ function createSendbox (id: string, nickname: string, avatar: string, ws: WebSoc
         },
         getInfo () {
           return info
+        },
+        pokeMember: (userId: string) => {
+          return this.sendGroupMsg(groupId, { type: 'poke', qq: userId })
         }
       }
     },
@@ -145,18 +155,21 @@ function createSendbox (id: string, nickname: string, avatar: string, ws: WebSoc
       return {
         info,
         ...info,
-        ...this.pickFriend(userId)
+        ...this.pickFriend(userId),
+        poke: () => this.sendGroupMsg(groupId, { type: 'poke', qq: userId })
       }
     },
     sendPrivateMsg (userId: string, message: any) {
-      ws.send?.(JSON.stringify({ type: 'friend', id: userId, content: dealMessage(message) }))
+      const msgId = userId + '.' + randomUUID()
+      ws.send?.(JSON.stringify({ type: 'friend', id: userId, content: dealMessage(message), msgId }))
       logger.info(`${logger.blue(`[${uin} => ${userId}]`)} 发送私聊消息：${JSON.stringify(message).replace(/data:image\/png;base64,.*?(,|]|")/g, 'base64://...$1')}`)
-      return new Promise((resolve) => resolve({ message_id: Date.now() }))
+      return new Promise((resolve) => resolve({ message_id: msgId }))
     },
     sendGroupMsg (groupId: string, message: string) {
-      ws.send?.(JSON.stringify({ type: 'group', id: groupId, content: dealMessage(message) }))
+      const msgId = groupId + '.' + randomUUID()
+      ws.send?.(JSON.stringify({ type: 'group', id: groupId, content: dealMessage(message), msgId }))
       logger.info(`${logger.blue(`[${uin} => ${groupId}]`)} 发送群聊消息：${JSON.stringify(message).replace(/data:image\/png;base64,.*?(,|]|")/g, 'base64://...$1')}`)
-      return new Promise((resolve) => resolve({ message_id: Date.now() }))
+      return new Promise((resolve) => resolve({ message_id: msgId }))
     },
     getFriendList () {
       return this.fl
@@ -212,14 +225,14 @@ function createSendbox (id: string, nickname: string, avatar: string, ws: WebSoc
   }
 }
 
-function createMessage (id: string, userId: string, groupId: string, content: string, permission: 'owner' | 'admin' | 'user' | 'master' = 'user') {
+function createMessage (id: string, userId: string, groupId: string, msgId: string, content: string, permission: 'owner' | 'admin' | 'user' | 'master' = 'user') {
   const key = 'YePanel.sandbox.'
   const uin = key + id
   const bot = Bot[uin]
   const e = {
     bot: Bot[uin],
     adapter: bot.version,
-    message_id: Date.now(),
+    message_id: msgId,
     sender: {
       user_id: userId,
       nickname: userId,
@@ -237,7 +250,7 @@ function createMessage (id: string, userId: string, groupId: string, content: st
       ? {
           message_type: 'group',
           sub_type: 'normal',
-          groupId: groupId,
+          groupId,
           group_name: groupId
         }
       : {
@@ -303,4 +316,47 @@ function dealMessage (message: any) {
     }
   }
   return message
+}
+
+function createPoke (id: string, operatorId: string, targetId: string, userId: string, groupId?: string, permission: 'owner' | 'admin' | 'user' | 'master' = 'user') {
+  const key = 'YePanel.sandbox.'
+  const uin = key + id
+  const bot = Bot[uin]
+  const e = {
+    bot: Bot[uin],
+    adapter: bot.version,
+    user_id: groupId ? targetId : userId,
+    self_id: uin,
+    isMaster: permission === 'master',
+    post_type: 'notice',
+    operator_id: operatorId,
+    target_id: targetId == id ? uin : targetId,
+    ...groupId
+      ? {
+          notice_type: 'group',
+          sub_type: 'poke',
+          groupId,
+          group_name: groupId
+        }
+      : {
+          notice_type: 'friend',
+          sub_type: 'poke'
+        },
+    friend: bot.pickFriend(userId),
+    group: groupId ? bot.pickGroup(groupId) : undefined,
+    member: (groupId && userId) ? bot.pickMember(groupId, userId) : undefined
+  }
+  let event = `${e.post_type}.${e.notice_type}.${e.sub_type}`
+  logger.info(`${logger.blue(`[${e.self_id}]`)} ${groupId ? '群' : '好友'}事件：[${groupId ? groupId + ', ' : ''}${e.operator_id}] 戳了戳 [${e.target_id}]`)
+  if (version.BotName === 'TRSS') {
+    Bot.em(event, e)
+  } else {
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+      Bot.emit(event, e)
+      const i = event.lastIndexOf('.')
+      if (i == -1) break
+      event = event.slice(0, i)
+    }
+  }
 }
