@@ -1,8 +1,23 @@
 <template>
-  <el-card v-if="loading" class="h-[80vh] flex-c">
+  <el-card
+    v-if="loading"
+    ref="cardRef"
+    class="flex-c"
+    :style="{
+      height: `${bodyHeihgt}px`
+    }"
+  >
     <el-result icon="info" title="加载中..." />
   </el-card>
-  <el-card v-else ref="cardRef" class="h-[80vh] p-0" body-style="padding: 0;">
+  <el-card
+    v-else
+    ref="cardRef"
+    class="p-0"
+    body-style="padding: 0;"
+    :style="{
+      height: `${bodyHeihgt}px`
+    }"
+  >
     <el-container>
       <el-aside :width="isCollapse ? '60px' : '200px'">
         <el-menu
@@ -19,7 +34,7 @@
             />
             <template #title>添加用户</template>
           </el-menu-item>
-          <el-scrollbar :height="`${cardRef?.$el?.scrollHeight - 70}px`">
+          <el-scrollbar :height="`${bodyHeihgt - 70}px`">
             <el-menu-item
               v-for="item in userList"
               :key="item.userId"
@@ -39,7 +54,7 @@
           <el-tabs v-if="selectUser" v-model="activeName">
             <el-scrollbar
               ref="messageScrollbarRef"
-              :height="`${cardRef?.$el?.scrollHeight - 180}px`"
+              :height="`${bodyHeihgt - 180}px`"
             >
               <el-tab-pane
                 v-for="item in [
@@ -54,19 +69,38 @@
                   v-for="msg in item.name === 'private'
                     ? msgData[item.name][selectUser]
                     : msgData[item.name]"
-                  :key="msg.message"
-                  class="flex mb-[10px]"
+                  :key="msg.msgId"
                 >
-                  <div>
-                    <el-avatar :src="msg.avatar" :size="40">
-                      {{ msg.name.slice(0, 1) }}
-                    </el-avatar>
-                  </div>
-                  <div class="ml-[20px]">
-                    <div>
-                      <el-text tag="b"> {{ msg.name }} </el-text>
+                  <div v-if="msg.message" class="flex mb-[10px]">
+                    <el-popover trigger="click">
+                      <template #reference>
+                        <el-avatar :src="msg.avatar" :size="40">
+                          {{ msg.name.slice(0, 1) }}
+                        </el-avatar>
+                      </template>
+                      <template #default>
+                        <el-link
+                          :underline="false"
+                          class="w-full"
+                          @click="handlePoke(msg)"
+                        >
+                          戳一戳
+                        </el-link>
+                        <!-- <el-divider style="margin: 10px 0" />
+                      <el-text>@</el-text> -->
+                      </template>
+                    </el-popover>
+                    <div class="ml-[20px]">
+                      <div>
+                        <el-text tag="b"> {{ msg.name }} </el-text>
+                      </div>
+                      <component :is="msg.message" />
                     </div>
-                    <component :is="msg.message" />
+                  </div>
+                  <div v-if="msg.poke" class="flex-c">
+                    <el-text class="text-center">
+                      {{ msg.poke.operatorId }} 戳了戳 {{ msg.poke.targetId }}
+                    </el-text>
                   </div>
                 </div>
               </el-tab-pane>
@@ -115,7 +149,15 @@
 </template>
 
 <script setup lang="ts">
-import { ElCard, ElImage, ElMenu, ElScrollbar, ElText } from "element-plus";
+import {
+  ElButton,
+  ElCard,
+  ElImage,
+  ElLink,
+  ElMenu,
+  ElScrollbar,
+  ElText
+} from "element-plus";
 import {
   h,
   nextTick,
@@ -138,6 +180,8 @@ import {
 import { useUserStoreHook } from "@/store/modules/user";
 import { message } from "@/utils/message";
 import { createWS } from "@/api/utils";
+import { buildPrefixUUID, openLink } from "@pureadmin/utils";
+import { Link } from "@element-plus/icons-vue";
 
 defineOptions({
   name: "sandbox"
@@ -148,6 +192,8 @@ const cardRef = ref<InstanceType<typeof ElCard>>(null);
 const userStore = useUserStoreHook();
 // 左侧用户列表
 const isCollapse = ref(window.innerWidth < 992);
+const bodyHeihgt = ref(window.innerHeight * 0.8);
+const bodyWidth = ref();
 const updateWidth = () => {
   isCollapse.value = window.innerWidth < 992;
 };
@@ -194,10 +240,7 @@ const userList = ref([
 ]);
 // 切换tabs和用户时,滚动到底部
 watch([activeName, selectUser], () => {
-  nextTick(() => {
-    const bottom = messageScrollbarRef.value.wrapRef.scrollHeight;
-    messageScrollbarRef.value.setScrollTop(bottom);
-  });
+  setScrollToBottom();
 });
 /** 添加用户 */
 const addUser = () => {
@@ -234,15 +277,23 @@ const handleSelectMenu = (index: string) => {
   };
 };
 
+type msgDataType = {
+  name?: string;
+  avatar?: string;
+  msgId?: string;
+  bot?: boolean;
+  message?: DefineComponent;
+  poke?: {
+    operatorId: string;
+    targetId: string;
+  };
+};
+
 const msgData = ref<{
   private: {
-    [key: string]: {
-      name: string;
-      avatar?: string;
-      message: DefineComponent;
-    }[];
+    [key: string]: msgDataType[];
   };
-  group: { name: string; avatar?: string; message: DefineComponent }[];
+  group: msgDataType[];
 }>({
   private: {
     Alice: []
@@ -267,36 +318,10 @@ const handleKeyDown = (event: KeyboardEvent) => {
       (state.value.sendType === 1 && event.ctrlKey) ||
       (state.value.sendType === 0 && !event.ctrlKey)
     ) {
-      socket.value.send(
-        JSON.stringify({
-          type: "message",
-          uin: userStore.uin,
-          userId: selectUser.value,
-          groupId: activeName.value === "group" ? "sandbox.group" : undefined,
-          content: msg.value,
-          permission: permission.value[selectUser.value]
-        })
-      );
-      const target =
-        activeName.value === "private"
-          ? msgData.value.private[selectUser.value]
-          : msgData.value.group;
-      const input = msg.value
-        .replace(/\n|\r/g, "<br>")
-        .replace(/\s|\t/g, "&nbsp;");
-      target.push({
-        name: selectUser.value,
-        message: defineComponent({
-          render() {
-            return h("div", { class: "message" }, input);
-          }
-        })
-      });
-      msg.value = "";
-      nextTick(() => {
-        const bottom = messageScrollbarRef.value.wrapRef.scrollHeight;
-        messageScrollbarRef.value.setScrollTop(bottom);
-      });
+      if (!msg.value.trim()) {
+        return;
+      }
+      sendWsMessage(msg.value, true);
     } else {
       const textarea = event.target as HTMLTextAreaElement;
       const start = textarea.selectionStart;
@@ -306,6 +331,46 @@ const handleKeyDown = (event: KeyboardEvent) => {
       textarea.setSelectionRange(start, start);
     }
   }
+};
+
+const sendWsMessage = (content: string, push: boolean = true) => {
+  const msgId = buildPrefixUUID("sandbox.");
+  socket.value.send(
+    JSON.stringify({
+      type: "message",
+      uin: userStore.uin,
+      userId: selectUser.value,
+      groupId: activeName.value === "group" ? "sandbox.group" : undefined,
+      content: content,
+      msgId,
+      permission: permission.value[selectUser.value]
+    })
+  );
+  if (push) {
+    const target =
+      activeName.value === "private"
+        ? msgData.value.private[selectUser.value]
+        : msgData.value.group;
+    const input = content.replace(/\n|\r/g, "<br>").replace(/\s|\t/g, "&nbsp;");
+    target.push({
+      name: selectUser.value,
+      msgId,
+      message: defineComponent({
+        render() {
+          return h("div", { class: "message", innerHTML: input });
+        }
+      })
+    });
+    msg.value = "";
+    setScrollToBottom();
+  }
+};
+
+const setScrollToBottom = () => {
+  nextTick(() => {
+    const bottom = messageScrollbarRef.value.wrapRef.scrollHeight;
+    messageScrollbarRef.value.setScrollTop(bottom);
+  });
 };
 
 const state = ref({
@@ -358,6 +423,9 @@ const loading = ref(true);
 const socket = ref<WebSocket>(null);
 onMounted(() => {
   window.addEventListener("resize", updateWidth);
+  bodyWidth.value =
+    (cardRef.value.$el.clientWidth - 140 - (isCollapse.value ? 60 : 200)) *
+    (isCollapse.value ? 1 : 0.8);
   socket.value = createWS("sandbox", {
     onopen(ev) {
       socket.value.send(
@@ -372,43 +440,33 @@ onMounted(() => {
     },
     onmessage(event) {
       const data = JSON.parse(event.data);
-      const { type, id, content } = data;
-      const message = [];
-      for (const i of Array.isArray(content) ? content : [content]) {
-        switch (i.type) {
-          case "text":
-            message.push(
-              h("div", {
-                innerHTML: i.text
-                  .replace(/\n|\r/g, "<br>")
-                  .replace(/\s|\t/g, "&nbsp;")
-              })
+      const { type, id, content, msgId } = data;
+      const message = dealMsg(
+        content,
+        type === "friend" ? "private" : "group",
+        id
+      );
+      if (message.length === 0) return;
+      const value: msgDataType = {
+        name: userStore.nickname,
+        avatar: userStore.avatar,
+        msgId,
+        bot: true,
+        message: defineComponent({
+          render() {
+            return h(
+              "div",
+              {
+                class: `message`,
+                style: {
+                  maxWidth: `${bodyWidth.value}px`
+                }
+              },
+              message
             );
-            break;
-          case "image":
-            message.push(
-              h(ElImage, {
-                src: i.file,
-                fit: "contain",
-                previewSrcList: [i.file],
-                style: "height: 400px"
-              })
-            );
-            break;
-          default:
-            message.push(h("div", { innerHTML: "[暂不支持本消息类型]" }));
-        }
-      }
-      const value: { name: string; avatar?: string; message: DefineComponent } =
-        {
-          name: userStore.nickname,
-          avatar: userStore.avatar,
-          message: defineComponent({
-            render() {
-              return h("div", { class: "message" }, message);
-            }
-          })
-        };
+          }
+        })
+      };
       switch (type) {
         case "friend":
           msgData.value.private[id].push(value);
@@ -418,10 +476,7 @@ onMounted(() => {
           break;
       }
       if (type === "group" || id === selectUser.value) {
-        nextTick(() => {
-          const bottom = messageScrollbarRef.value.wrapRef.scrollHeight;
-          messageScrollbarRef.value.setScrollTop(bottom);
-        });
+        setScrollToBottom();
       }
     },
     onclose() {
@@ -440,6 +495,189 @@ onBeforeUnmount(() => {
   loading.value = true;
   socket.value.close?.();
 });
+
+const handlePoke = (msg: msgDataType) => {
+  const targetId = msg.bot ? userStore.uin : msg.name;
+  const operatorId = selectUser.value;
+  const target =
+    activeName.value === "private"
+      ? msgData.value.private[selectUser.value]
+      : msgData.value.group;
+  target.push({
+    poke: {
+      operatorId,
+      targetId: msg.name
+    }
+  });
+  socket.value.send(
+    JSON.stringify({
+      type: "poke",
+      uin: userStore.uin,
+      groupId: activeName.value === "group" ? "sandbox.group" : undefined,
+      userId: selectUser.value,
+      operatorId,
+      targetId,
+      permission: permission.value[selectUser.value]
+    })
+  );
+  setScrollToBottom();
+};
+
+const dealMsg = (
+  content: {
+    type:
+      | "at"
+      | "text"
+      | "image"
+      | "reply"
+      | "video"
+      | "audio"
+      | "node"
+      | "button"
+      | "poke";
+    text?: string;
+    qq?: string;
+    id?: string;
+    file?: string;
+    data: any;
+  }[],
+  type: "private" | "group",
+  id: string
+) => {
+  const target =
+    type === "private" ? msgData.value.private[id] : msgData.value.group;
+  const result = [];
+  const buttons = [];
+  for (const i of content) {
+    switch (i.type) {
+      case "poke":
+        target.push({
+          poke: {
+            operatorId: userStore.nickname,
+            targetId: i.qq
+          }
+        });
+        setScrollToBottom();
+        return [];
+      case "at":
+        result.push(
+          h(
+            ElLink,
+            {
+              type: "primary",
+              underline: false
+            },
+            `@${i.qq}`
+          )
+        );
+        break;
+      case "reply":
+        const index = target.find(item => item.msgId === i.id);
+        if (index) {
+          result.push(
+            h(index.message, {
+              className: "bg-[#f2f2f2] rounded-lg px-2 h-[24px] overflow-hidden"
+            })
+          );
+        }
+        break;
+      case "text":
+        result.push(
+          h(ElText, {
+            innerHTML: i.text
+              .replace(/\n|\r/g, "<br>")
+              .replace(/\s|\t/g, "&nbsp;"),
+            tag: "b"
+          })
+        );
+        break;
+      case "image":
+        if (i.file.startsWith("http")) {
+          const t = Date.now();
+          i.file = i.file.includes("?")
+            ? i.file + `&t=${t}`
+            : i.file + `?t=${t}`;
+        }
+        result.push(
+          h(ElImage, {
+            src: i.file,
+            fit: "contain",
+            previewSrcList: [i.file],
+            style: "height: 400px"
+          })
+        );
+        break;
+      case "button":
+        const button = [];
+        for (const btns of i.data) {
+          const length = Math.max(1, Math.min(5, btns.length));
+          for (const btn of btns) {
+            if (isCollapse.value && button.length >= 5) {
+              message(
+                `手机端宽度限制,已将第${button.length + 1}行中大于5个的按钮换到下一行`,
+                {
+                  type: "warning",
+                  customClass: "el"
+                }
+              );
+              buttons.push(h("div", { class: "flex" }, [...button]));
+              button.length = 0;
+            }
+            const btnStyle: {
+              plain?: boolean;
+              type?: "default" | "primary" | "success" | "warning" | "danger";
+            } = {
+              plain: true,
+              type: "primary"
+            };
+            switch (Number(btn.style)) {
+              case 0:
+              case 2:
+                btnStyle.type = "default";
+                break;
+              case 3:
+                btnStyle.type = "danger";
+                break;
+              case 4:
+                btnStyle.plain = false;
+                break;
+            }
+            button.push(
+              h(
+                ElButton,
+                {
+                  style: `width: ${100 / length}%;`,
+                  class: "mb-2 truncate text-ellipsis",
+                  icon: btn.link ? Link : undefined,
+                  ...btnStyle,
+                  onClick: () => {
+                    if (btn.callback) {
+                      sendWsMessage(btn.callback, false);
+                    } else if (btn.input) {
+                      msg.value = btn.input;
+                    } else if (btn.link) {
+                      openLink(btn.link);
+                    }
+                  }
+                },
+                btn.text
+              )
+            );
+          }
+          button.length &&
+            buttons.push(h("div", { class: "flex" }, [...button]));
+          button.length = 0;
+        }
+        break;
+      default:
+        result.push(h("div", { innerHTML: "[暂不支持本消息类型]" }));
+    }
+  }
+  if (buttons.length) {
+    result.push(...buttons);
+  }
+  return result;
+};
 </script>
 
 <style scoped>
