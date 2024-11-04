@@ -148,10 +148,10 @@
         <el-card
           shadow="never"
           class="h-[280px]"
-          :header="systemInfo.fsSize.length ? '磁盘占用' : undefined"
+          :header="systemInfo.fsSize?.length ? '磁盘占用' : undefined"
           :body-style="{ padding: '10px 20px' }"
         >
-          <el-skeleton :loading="!systemInfo.fsSize.length" animated>
+          <el-skeleton :loading="!systemInfo.fsSize?.length" animated>
             <template #template>
               <div class="w-[20%] mb-[10%] mt-[7%]">
                 <el-skeleton-item />
@@ -315,12 +315,17 @@
 import { h, ref } from "vue";
 import {
   getSystemInfo,
-  getSystemInfoResult,
   getBotInfo,
   getBotInfoResult,
   getMessageInfo,
   getMessageInfoResult,
-  getUpdateLog
+  getUpdateLog,
+  SystemInfo,
+  getSystemCpu,
+  getSystemRam,
+  getSystemNode,
+  getSystemGpu,
+  getSystemFs
 } from "@/api/home";
 import { IconifyIconOnline as iconify } from "@/components/ReIcon";
 import ChartBar from "./components/charts/ChartBar.vue";
@@ -331,7 +336,11 @@ import { openLink } from "@pureadmin/utils";
 import { useHomeStoreHook } from "@/store/modules/home";
 import timeline from "./components/timeline.vue";
 
-const systemInfo = ref<getSystemInfoResult["data"]>({
+defineOptions({
+  name: "Welcome"
+});
+
+const systemInfo = ref<SystemInfo>({
   visual: Array.from({ length: 5 }, (_, index) => ({})) as any,
   fsSize: [],
   info: [],
@@ -341,12 +350,45 @@ const systemInfo = ref<getSystemInfoResult["data"]>({
 
 getSystemInfo().then(res => {
   if (res.success) {
-    systemInfo.value = res.data;
+    systemInfo.value.BotName = res.data.BotName;
+    systemInfo.value.info.push(...res.data.info);
+    systemInfo.value.plugins = res.data.plugins;
   }
 });
 
-defineOptions({
-  name: "Welcome"
+getSystemCpu().then(res => {
+  if (res.success) {
+    const info = res.data[0];
+    systemInfo.value.visual[0] = info;
+    info.model && systemInfo.value.info.push({ key: "CPU", value: info.model });
+  }
+});
+
+getSystemRam().then(res => {
+  if (res.success) {
+    systemInfo.value.visual[1] = res.data[0];
+    systemInfo.value.visual[2] = res.data[1];
+  }
+});
+
+getSystemNode().then(res => {
+  if (res.success) {
+    systemInfo.value.visual[3] = res.data[0];
+  }
+});
+
+getSystemGpu().then(res => {
+  if (res.success) {
+    const info = res.data[0];
+    info.model && systemInfo.value.info.push({ key: "GPU", value: info.model });
+    systemInfo.value.visual[4] = info;
+  }
+});
+
+getSystemFs().then(res => {
+  if (res.success) {
+    systemInfo.value.fsSize = res.data;
+  }
 });
 
 const homeStore = useHomeStoreHook();
