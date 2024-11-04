@@ -8,6 +8,15 @@ import { RouteOptions } from 'fastify'
 import moment from 'moment'
 import { execSync, ExecSyncOptionsWithStringEncoding } from 'child_process'
 
+type systemInfo = {
+  title: string,
+  value: number,
+  color: string,
+  status?: string,
+  info: string[],
+  model?: string
+}
+
 const pluginsCache: {
   info: string,
   plugins: {
@@ -59,49 +68,95 @@ export function getPlugins (force = false) {
   return pluginsCache
 }
 
+const getColor = (value: number) => {
+  if (value >= 90) {
+    return '#d56565'
+  } else if (value >= 70) {
+    return '#FFD700'
+  } else {
+    return '#73a9c6'
+  }
+}
+
+const infoCache: {
+  arch?: string,
+  hostname?: string,
+  release?: string,
+  cpu?: string
+  gpu?: string,
+  node?: string,
+  v8?: string,
+  git?: string,
+} = {}
+
 export default [
   {
     url: '/get-system-info',
     method: 'get',
     handler: async () => {
-      const {
-        currentLoad: { currentLoad: cpuCurrentLoad },
-        cpu: { manufacturer, speed, cores, brand },
-        fullLoad,
-        mem: { total, active, swaptotal, swapused }
-      } = await si.get({
-        currentLoad: 'currentLoad',
-        cpu: 'manufacturer,speed,cores,brand',
-        fullLoad: '*',
-        mem: 'total,active,swaptotal,swapused'
-      })
-
-      const getColor = (value: number) => {
-        if (value >= 90) {
-          return '#d56565'
-        } else if (value >= 70) {
-          return '#FFD700'
-        } else {
-          return '#73a9c6'
+      if (!infoCache.arch) {
+        const { node, v8, git } = await si.versions('node,v8,git')
+        Object.assign(infoCache, {
+          arch: `${os.type()} ${os.arch()}`,
+          hostname: os.hostname(),
+          release: os.release(),
+          node,
+          v8,
+          git
+        })
+      }
+      const plugins = getPlugins()
+      const info: {key: string, value?: string}[] = []
+      info.push({ key: '操作系统', value: infoCache.arch })
+      info.push({ key: '主机名称', value: infoCache.hostname })
+      info.push({ key: '系统版本', value: infoCache.release })
+      info.push({ key: '运行时间', value: utils.formatDuration(os.uptime()) })
+      info.push({ key: '插件数量', value: plugins.info })
+      info.push({ key: `${version.BotName}-Yunzai`, value: version.BotVersion })
+      info.push({ key: 'Node', value: infoCache.node })
+      info.push({ key: 'V8', value: infoCache.v8 })
+      info.push({ key: 'Git', value: infoCache.git })
+      return {
+        success: true,
+        data: {
+          info: info.filter(i => i.value),
+          plugins: plugins.plugins,
+          BotName: version.BotName
         }
       }
-      const ramCurrentLoad = Math.round(Number((active / total).toFixed(2)) * 100)
-      const visual: {
-        title: string,
-        value: number,
-        color: string,
-        status?: string,
-        info: string[]
-      }[] = [
-        {
-          title: 'CPU',
-          value: Math.round(cpuCurrentLoad),
-          color: getColor(cpuCurrentLoad),
-          info: [
+    }
+  },
+  {
+    url: '/get-system-cpu',
+    method: 'get',
+    handler: async () => {
+      const { brand, manufacturer, speed, cores } = await si.cpu()
+      const { currentLoad } = await si.currentLoad()
+      infoCache.cpu = manufacturer && brand && `${manufacturer} ${brand}`
+      return {
+        success: true,
+        data: [
+          {
+            title: 'CPU',
+            value: Math.round(currentLoad),
+            color: getColor(currentLoad),
+            info: [
             `${manufacturer} ${cores}核 ${speed}GHz`,
-            `CPU满载率 ${Math.round(fullLoad)}%`
-          ]
-        },
+            `CPU满载率 ${Math.round(currentLoad)}%`
+            ],
+            model: infoCache.cpu
+          }
+        ]
+      }
+    }
+  },
+  {
+    url: '/get-system-ram',
+    method: 'get',
+    handler: async () => {
+      const { total, active, swaptotal, swapused } = await si.mem()
+      const ramCurrentLoad = Math.round(Number((active / total).toFixed(2)) * 100)
+      const result: systemInfo[] = [
         {
           title: 'RAM',
           value: ramCurrentLoad,
@@ -113,7 +168,7 @@ export default [
       ]
       if (swaptotal) {
         const swapCurrentLoad = Math.round(Number((swapused / swaptotal).toFixed(2)) * 100)
-        visual.push({
+        result.push({
           title: 'SWAP',
           value: swapCurrentLoad,
           color: getColor(swapCurrentLoad),
@@ -122,7 +177,7 @@ export default [
           ]
         })
       } else {
-        visual.push({
+        result.push({
           title: 'SWAP',
           value: 0,
           color: '',
@@ -130,7 +185,16 @@ export default [
           info: ['没有获取到数据']
         })
       }
-
+      return {
+        success: true,
+        data: result
+      }
+    }
+  },
+  {
+    url: '/get-system-node',
+    method: 'get',
+    handler: async () => {
       const memory = process.memoryUsage()
       // 总共
       const rss = utils.formatBytes(memory.rss)
@@ -140,47 +204,49 @@ export default [
       const heapUsed = utils.formatBytes(memory.heapUsed)
       // 占用率
       const occupy = Number((memory.rss / (os.totalmem() - os.freemem())).toFixed(2)) * 100
-
-      visual.push({
-        title: 'Node',
-        value: Math.round(occupy),
-        color: getColor(occupy),
-        info: [
-          `总 ${rss}`,
-          `${heapTotal} | ${heapUsed}`
+      return {
+        success: true,
+        data: [
+          {
+            title: 'Node',
+            value: Math.round(occupy),
+            color: getColor(occupy),
+            info: [
+            `总 ${rss}`,
+            `${heapTotal} | ${heapUsed}`
+            ]
+          }
         ]
-      })
-
+      }
+    }
+  },
+  {
+    url: '/get-system-gpu',
+    method: 'get',
+    handler: async () => {
       const { controllers } = await si.graphics()
       const graphics = controllers?.find(item =>
         item.memoryUsed && item.memoryFree && item.utilizationGpu
       )
-
-      const info = []
-
-      info.push({ key: '操作系统', value: `${os.type()} ${os.arch()}` })
-      info.push({ key: '主机名称', value: os.hostname() })
-      info.push({ key: '系统版本', value: os.release() })
-      info.push({ key: '运行时间', value: utils.formatDuration(os.uptime()) })
-      info.push({ key: 'CPU', value: manufacturer && brand && `${manufacturer} ${brand}` })
-
+      const result: systemInfo[] = []
       if (graphics) {
         const {
           vendor, temperatureGpu, utilizationGpu,
           memoryTotal, memoryUsed, model
         } = graphics
-        visual.push({
+        infoCache.gpu = model
+        result.push({
           title: 'GPU',
           value: Math.round(utilizationGpu as number),
           color: getColor(utilizationGpu as number),
           info: [
-            `${((memoryUsed as number) / 1024).toFixed(2)}G / ${((memoryTotal as number) / 1024).toFixed(2)}G`,
-            `${vendor} ${temperatureGpu}°C`
-          ]
+              `${((memoryUsed as number) / 1024).toFixed(2)}G / ${((memoryTotal as number) / 1024).toFixed(2)}G`,
+              `${vendor} ${temperatureGpu}°C`
+          ],
+          model: infoCache.gpu
         })
-        info.push({ key: 'GPU', value: model })
       } else {
-        visual.push({
+        result.push({
           title: 'GPU',
           value: 0,
           color: '',
@@ -188,38 +254,29 @@ export default [
           info: ['没有获取到数据']
         })
       }
-      const plugins = getPlugins(true)
-      info.push({ key: '插件数量', value: plugins.info })
-
-      try {
-        const packageFile = JSON.parse(fs.readFileSync('./package.json', 'utf-8'))
-        info.push({ key: `${version.BotName}-Yunzai`, value: packageFile.version })
-      } catch { /* empty */ }
-      const { node, v8, git } = await si.versions('node,v8,git')
-
-      info.push({ key: 'Node', value: node })
-      info.push({ key: 'V8', value: v8 })
-      info.push({ key: 'Git', value: git })
-
+      return {
+        success: true,
+        data: result
+      }
+    }
+  },
+  {
+    url: '/get-system-fs',
+    method: 'get',
+    handler: async () => {
       const HardDisk = _.uniqWith(await si.fsSize(),
         (a, b) =>
           a.used === b.used && a.size === b.size && a.use === b.use && a.available === b.available
       ).filter(item => item.size && item.used && item.available && item.use)
       return {
         success: true,
-        data: {
-          visual,
-          fsSize: HardDisk.map(item => ({
-            ...item,
-            used: utils.formatBytes(item.used),
-            size: utils.formatBytes(item.size),
-            use: Math.round(item.use),
-            color: getColor(item.use)
-          })),
-          info: info.filter(i => i.value),
-          plugins: plugins.plugins,
-          BotName: version.BotName
-        }
+        data: HardDisk.map(item => ({
+          ...item,
+          used: utils.formatBytes(item.used),
+          size: utils.formatBytes(item.size),
+          use: Math.round(item.use),
+          color: getColor(item.use)
+        }))
       }
     }
   },
