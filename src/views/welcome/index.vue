@@ -238,25 +238,31 @@
               <el-avatar :size="80" :src="item.avatar">
                 {{ item.nickname.slice(0, 1) }}
               </el-avatar>
-              <el-tag class="mt-[10px]">{{ item.platform }}</el-tag>
             </el-aside>
             <el-container>
-              <el-header height="20px"
-                ><el-text tag="b" style="font-size: 20px">
+              <el-header height="20px">
+                <el-text tag="b" style="font-size: 20px">
                   {{ item.nickname }}
-                </el-text></el-header
-              >
+                </el-text>
+              </el-header>
               <el-main>
-                <el-tag>{{ item.version }}</el-tag>
-                <el-tag>
-                  <div class="flex">
-                    <iconify icon="mingcute:time-fill" class="mr-[5px]" />
-                    {{ item.time }}
-                  </div>
-                </el-tag>
-                <br />
                 <el-tag
                   v-for="i in [
+                    {
+                      key: '使用协议',
+                      value: item.platform,
+                      icon: 'ep:platform'
+                    },
+                    {
+                      key: '协议版本',
+                      value: item.version,
+                      icon: 'mingcute:version-fill'
+                    },
+                    {
+                      key: '运行时间',
+                      value: item.time,
+                      icon: 'mingcute:time-fill'
+                    },
                     {
                       key: '好友数量',
                       value: item.friend,
@@ -265,39 +271,29 @@
                     {
                       key: '群数量',
                       value: item.group,
-                      icon: 'bxs:group'
-                    },
-                    {
-                      key: '群成员数量',
-                      value: item.member,
                       icon: 'typcn:group'
                     },
                     {
-                      key: '发送消息',
+                      key: '发送消息总数',
                       value: item.sent,
                       icon: 'mingcute:up-fill'
                     },
                     {
-                      key: '接收消息',
+                      key: '接收消息总数',
                       value: item.recv,
                       icon: 'mingcute:down-fill'
-                    },
-                    {
-                      key: '截图数量',
-                      value: item.screenshot,
-                      icon: 'bxs:image'
                     }
                   ]"
                   :key="i.key"
                 >
                   <el-tooltip
                     class="box-item"
-                    effect="light"
+                    effect="dark"
                     :content="i.key"
-                    placement="bottom"
+                    placement="top"
                   >
                     <div class="flex">
-                      <iconify :icon="i.icon" class="mr-[5px]" />
+                      <iconify :icon="i.icon" />
                       {{ i.value }}
                     </div>
                   </el-tooltip>

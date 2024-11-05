@@ -165,7 +165,7 @@ importers:
         specifier: ^5.1.1
         version: 5.1.1(vue@3.4.25(typescript@5.4.5))
       vue-web-terminal:
-        specifier: '3'
+        specifier: 3.3.0
         version: 3.3.0(typescript@5.4.5)
       vue3-danmaku:
         specifier: ^1.6.1
