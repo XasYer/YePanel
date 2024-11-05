@@ -61,6 +61,12 @@
       <el-col :xs="24" :lg="1">
         <div class="flex">
           <el-button
+            type="primary"
+            :disabled="!path"
+            @click="forceInput = !forceInput"
+            >重置</el-button
+          >
+          <el-button
             type="success"
             :disabled="!path"
             @click="handleAdd('新增数据')"
@@ -262,6 +268,7 @@ const handleSearch = () => {
     });
   } else {
     currentPage.value = 1;
+    force.value = !force.value;
   }
 };
 
@@ -274,6 +281,8 @@ const handleAdd = (title: string, row?: any) => {
     width: window.innerWidth < 992 ? "90%" : "50%",
     title,
     contentRenderer: () => h(add, { ref: addDialogRef }),
+    top: "10vh",
+    draggable: true,
     props: {
       data: {
         columns: column.value,
@@ -367,18 +376,26 @@ getSqlitePath().then(res => {
     isLoading.value = false;
   }
 });
-
+const force = ref(false);
+const forceInput = ref(false);
 watch(path, () => {
   getSqliteTable(path.value).then(res => {
     table.value = res.data[0];
     tableList.value = res.data;
+    forceInput.value = !forceInput.value;
+    searchInput.value = "";
   });
 });
 
-watch([table, pageSize, currentPage], ([newTable], [oldTable]) => {
+watch([table, forceInput], ([newTable], [oldTable]) => {
   if (newTable !== oldTable) {
     currentPage.value = 1;
   }
+  searchInput.value = "";
+  getTableData();
+});
+
+watch([pageSize, currentPage, force], () => {
   getTableData();
 });
 
@@ -412,7 +429,9 @@ const getTableData = () => {
     tableInfo.value = res.tableInfo;
     total.value = res.total;
     column.value = Object.keys(res.tableInfo);
-    searchColumn.value = [column.value[0]];
+    if (!searchInput.value) {
+      searchColumn.value = [column.value[0]];
+    }
   });
 };
 </script>
