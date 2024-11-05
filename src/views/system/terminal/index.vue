@@ -39,7 +39,6 @@ import { createWS } from "@/api/utils";
 import { onMounted, onUnmounted, ref } from "vue";
 import Terminal, { Message, TerminalAsk } from "vue-web-terminal";
 import { TerminalFlash } from "vue-web-terminal";
-import "vue-web-terminal/lib/theme/dark.css";
 
 defineOptions({
   name: "terminal"
