@@ -289,12 +289,9 @@ export default [
       for (const uin of (botList as string[])) {
         const bot = Bot[uin]
         if (!bot) continue
-        const nowDate = moment().format('MMDD')
         const keys = [
             `Yz:count:send:msg:bot:${uin}:total`,
-            `Yz:count:receive:msg:bot:${uin}:total`,
-            `Yz:count:send:image:bot:${uin}:total`,
-            `Yz:count:screenshot:day:${nowDate}`
+            `Yz:count:receive:msg:bot:${uin}:total`
         ]
 
         const values = await redis.mGet(keys) || []
@@ -307,11 +304,9 @@ export default [
           platform: bot.version?.name || '未知',
           sent: values[0] || bot.stat?.sent_msg_cnt || 0,
           recv: values[1] || bot.stat?.recv_msg_cnt || 0,
-          screenshot: values[2] || values[3] || 0,
           time: utils.formatDuration(Date.now() / 1000 - bot.stat?.start_time),
           friend: bot.fl?.size || 0,
-          group: bot.gl?.size || 0,
-          member: Array.from(bot.gml?.values() || []).reduce((acc, curr) => acc + curr.size, 0)
+          group: bot.gl?.size || 0
         })
       }
       return {
