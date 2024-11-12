@@ -19,39 +19,23 @@
     }"
   >
     <el-container>
-      <el-aside :width="isCollapse ? '60px' : '200px'">
-        <el-menu
-          :collapse="isCollapse"
-          default-active="Alice"
-          @select="handleSelectMenu"
-        >
-          <el-menu-item @click="addUser">
-            <iconify
-              icon="gridicons:add"
-              :heigth="40"
-              :width="40"
-              class="mx-[5px]"
-            />
-            <template #title>添加用户</template>
-          </el-menu-item>
-          <el-scrollbar :height="`${bodyHeihgt - 70}px`">
-            <el-menu-item
-              v-for="item in userList"
-              :key="item.userId"
-              :index="item.userId"
-            >
-              <el-avatar :size="40" class="mx-[5px]">
-                {{ item.name.slice(0, 1) }}
-              </el-avatar>
-              <template #title>{{ item.name }}</template>
-            </el-menu-item>
-          </el-scrollbar>
-        </el-menu>
+      <el-aside v-if="!isMobile" :width="isCollapse ? '60px' : '200px'">
+        <Menu
+          :is-collapse="isCollapse"
+          :addUser="addUser"
+          :userList="userList"
+          :handleSelectMenu="handleSelectMenu"
+          :height="bodyHeihgt - 70"
+        />
       </el-aside>
 
       <el-container>
         <el-main>
-          <el-tabs v-if="selectUser" v-model="activeName">
+          <el-tabs
+            v-if="selectUser"
+            v-model="activeName"
+            :before-leave="beforeLeave"
+          >
             <el-scrollbar
               ref="messageScrollbarRef"
               :height="`${bodyHeihgt - 180}px`"
@@ -74,7 +58,11 @@
                   <div v-if="msg.message" class="flex mb-[10px]">
                     <el-popover trigger="click">
                       <template #reference>
-                        <el-avatar :src="msg.avatar" :size="40">
+                        <el-avatar
+                          :src="msg.avatar"
+                          :size="40"
+                          class="mt-[5px]"
+                        >
                           {{ msg.name.slice(0, 1) }}
                         </el-avatar>
                       </template>
@@ -116,6 +104,7 @@
                   :hasFooter="false"
                 />
               </el-tab-pane>
+              <el-tab-pane v-if="isMobile" label="切换用户" name="selectUser" />
             </el-scrollbar>
           </el-tabs>
           <div v-else class="flex-c w-full h-[90%]">
@@ -145,6 +134,20 @@
         </el-footer>
       </el-container>
     </el-container>
+    <el-drawer
+      v-model="userDrawer"
+      :with-header="false"
+      direction="ltr"
+      :size="200"
+    >
+      <Menu
+        :is-collapse="false"
+        :addUser="addUser"
+        :userList="userList"
+        :handleSelectMenu="handleSelectMenu"
+        :height="innerHeight"
+      />
+    </el-drawer>
   </el-card>
 </template>
 
@@ -169,7 +172,6 @@ import {
   DefineComponent,
   toRaw
 } from "vue";
-import { IconifyIconOnline as iconify } from "@/components/ReIcon";
 import {
   type FieldValues,
   FieldValueType,
@@ -182,6 +184,7 @@ import { message } from "@/utils/message";
 import { createWS } from "@/api/utils";
 import { buildPrefixUUID, openLink } from "@pureadmin/utils";
 import { Link } from "@element-plus/icons-vue";
+import Menu from "./components/menu.vue";
 
 defineOptions({
   name: "sandbox"
@@ -192,11 +195,16 @@ const cardRef = ref<InstanceType<typeof ElCard>>(null);
 const userStore = useUserStoreHook();
 // 左侧用户列表
 const isCollapse = ref(window.innerWidth < 992);
-const bodyHeihgt = ref(window.innerHeight * 0.8);
+const isMobile = ref(window.innerWidth < 768);
+const innerHeight = ref(window.innerHeight);
+const bodyHeihgt = ref(innerHeight.value * 0.8);
 const bodyWidth = ref();
 const updateWidth = () => {
   isCollapse.value = window.innerWidth < 992;
+  isMobile.value = window.innerWidth < 768;
 };
+
+const userDrawer = ref(false);
 
 /** 可添加的用户 */
 const nameList = [
@@ -242,6 +250,12 @@ const userList = ref([
 watch([activeName, selectUser], () => {
   setScrollToBottom();
 });
+const beforeLeave = (newActiveName: string, oldActiveName: string) => {
+  if (newActiveName === "selectUser") {
+    userDrawer.value = true;
+    return false;
+  }
+};
 /** 添加用户 */
 const addUser = () => {
   const userId = nameList.shift();
@@ -380,10 +394,15 @@ const state = ref({
 
 const columns: PlusColumn[] = [
   {
-    // 群主只能有一个
+    // TODO: 群主只能有一个
     label: "用户权限",
     prop: "permission",
     valueType: "radio",
+    fieldProps: {
+      onChange: (value: "owner" | "admin" | "user" | "master") => {
+        permission.value[selectUser.value] = value;
+      }
+    },
     options: [
       {
         label: "群主",
@@ -610,7 +629,7 @@ const dealMsg = (
       case "button":
         const button = [];
         for (const btns of i.data) {
-          const length = Math.max(1, Math.min(5, btns.length));
+          let length = Math.max(1, Math.min(5, btns.length));
           for (const btn of btns) {
             if (isCollapse.value && button.length >= 5) {
               message(
@@ -620,6 +639,7 @@ const dealMsg = (
                   customClass: "el"
                 }
               );
+              length = Math.max(1, Math.min(5, btns.length % 5));
               buttons.push(h("div", { class: "flex" }, [...button]));
               button.length = 0;
             }
@@ -702,18 +722,5 @@ const dealMsg = (
   border-bottom-color: currentColor;
   border-radius: 0 0 0 20px;
   color: #dcdcdc;
-}
-
-.is-active {
-  background-color: #f2f2f2 !important;
-}
-
-.el-menu-item:hover {
-  background-color: #c5e1ff !important;
-}
-
-.el-menu-item {
-  height: 70px !important;
-  line-height: 70px !important;
 }
 </style>
