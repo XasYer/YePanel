@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.10.4](https://github.com/XasYer/YePanel/compare/v1.10.3...v1.10.4) (2024-11-04)
+
+
+### Bug Fixes
+
+* get-system-info单独请求 ([a56be36](https://github.com/XasYer/YePanel/commit/a56be36193b75270a1b1496e34dc398d584e5cb0))
+
 ## [1.10.3](https://github.com/XasYer/YePanel/compare/v1.10.2...v1.10.3) (2024-11-01)
 
 
