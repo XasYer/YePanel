@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.10.5](https://github.com/XasYer/YePanel/compare/v1.10.4...v1.10.5) (2024-11-12)
+
+
+### Bug Fixes
+
+* 优化首页数据 ([59ec708](https://github.com/XasYer/YePanel/commit/59ec708d7998ce1b8a2336c25f2ea4b5faeb07ee))
+
 ## [1.10.4](https://github.com/XasYer/YePanel/compare/v1.10.3...v1.10.4) (2024-11-04)
 
 
