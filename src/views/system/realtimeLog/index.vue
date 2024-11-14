@@ -22,6 +22,13 @@
           />
         </el-select>
       </div>
+      <div class="mb-[10px]">
+        <el-button type="danger" @click="clear"> 清空 </el-button>
+        <el-button v-if="!isStop" type="primary" @click="stop">
+          暂停
+        </el-button>
+        <el-button v-else type="success" @click="start"> 继续 </el-button>
+      </div>
     </div>
     <div class="h-[70vh]">
       <terminal
@@ -79,7 +86,7 @@ const LevelNumber = Object.keys(color).reduce((acc, cur) => {
 
 const level = ref(2);
 
-const lineSpace = ref(15);
+const lineSpace = ref(10);
 
 const handleLineSpace = (value: number) => (lineSpace.value = value);
 
@@ -91,6 +98,23 @@ const authPass = ref(false);
 
 const socket = ref<WebSocket>(null);
 const flash = ref();
+
+const clear = () => {
+  terminalRef.value.clearLog();
+};
+
+const isStop = ref(false);
+const stopLog = ref([]);
+const stop = () => {
+  isStop.value = true;
+};
+
+const start = () => {
+  isStop.value = false;
+  while (stopLog.value.length) {
+    terminalRef.value.pushMessage(stopLog.value.shift());
+  }
+};
 
 const objectToString = (obj: any) => {
   if (Array.isArray(obj)) {
@@ -148,30 +172,37 @@ const onExecCmd = (
                 .replace(/(?<=^|>)([^<]*?)(?=<|$)/g, (i: string) => {
                   return i.replace(/ /g, "&nbsp;");
                 })}`;
-              terminalRef.value.pushMessage({
+              const message = {
                 type: "html",
                 content: html
-              });
+              };
+              if (isStop.value) {
+                stopLog.value.push(message);
+              } else {
+                terminalRef.value.pushMessage(message);
+              }
             }
-          } else if (data.type === "console") {
-            const html = data.logs
-              .map((i: any) => {
-                if (typeof i === "string") {
-                  return convert.toHtml(i);
-                } else {
-                  return objectToString(i);
-                }
-              })
-              .join(" ")
-              .replace(/\n|\r/g, "<br>")
-              .replace(/(?<=^|>)([^<]*?)(?=<|$)/g, (i: string) => {
-                return i.replace(/ /g, "&nbsp;");
-              });
-            terminalRef.value.pushMessage({
-              type: "html",
-              content: html
-            });
           }
+          // TODO: console.log
+          // else if (data.type === "console") {
+          //   const html = data.logs
+          //     .map((i: any) => {
+          //       if (typeof i === "string") {
+          //         return convert.toHtml(i);
+          //       } else {
+          //         return objectToString(i);
+          //       }
+          //     })
+          //     .join(" ")
+          //     .replace(/\n|\r/g, "<br>")
+          //     .replace(/(?<=^|>)([^<]*?)(?=<|$)/g, (i: string) => {
+          //       return i.replace(/ /g, "&nbsp;");
+          //     });
+          //   terminalRef.value.pushMessage({
+          //     type: "html",
+          //     content: html
+          //   });
+          // }
         } catch (error) {
           terminalRef.value.pushMessage({
             type: "table",
