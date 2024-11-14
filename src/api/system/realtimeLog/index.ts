@@ -1,47 +1,47 @@
-import _ from 'lodash'
 import moment from 'moment'
 import { WebSocket } from 'ws'
 import { RouteOptions } from 'fastify'
 import { version } from '@/common'
+// @ts-ignore
+import resetLog from '../../../../../../lib/config/log.js'
+// @ts-ignore
+import { Logger } from 'log4js'
 
-const originalLogger = _.cloneDeep(global.logger)
+type LogLevel = 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal' |'mark'
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const logger: { [key: string]: any, logger: { [key: string]: any} } = { logger: {} }
+const logLevels = ['trace', 'debug', 'info', 'warn', 'error', 'fatal', 'mark']
 
-const logMethods: ('trace'| 'debug'| 'info'| 'warn'| 'error'| 'fatal'| 'mark')[] = ['trace', 'debug', 'info', 'warn', 'error', 'fatal', 'mark']
+const sendWs = (ws: WebSocket, level: string, logs: string[]) => {
+  ws.send(JSON.stringify({ type: 'logger', level, logs, timestamp: moment().format('HH:mm:ss.SSS') }))
+}
 
-function proxyLogger (method: 'trace'| 'debug'| 'info'| 'warn'| 'error'| 'fatal'| 'mark', ws: WebSocket) {
-  if (!logger[method]) {
-    logger[method] = originalLogger[method].bind(originalLogger)
-  }
-  if (originalLogger.logger && !logger.logger[method]) {
-    logger.logger[method] = originalLogger.logger[method].bind(originalLogger.logger)
-  }
-
-  global.logger[method] = (...logs) => {
-    if (method !== 'info') {
-      ws.send(JSON.stringify({ type: 'logger', level: method, logs: [version.BotName === 'TRSS' ? global.logger.blue('[TRSSYz]') : '', ...logs], timestamp: moment().format('HH:mm:ss.SSS') }))
+const getProp = (target: Logger, p: string | symbol, ws: WebSocket) => {
+  if (typeof p === 'string' && logLevels.includes(p)) {
+    return (...logs: string[]) => {
+      sendWs(ws, p, logs)
+      return (target[p as LogLevel] as any)(...logs)
     }
-
-    return logger[method](...logs)
   }
+  return target[p as LogLevel]
+}
 
-  if (global.logger.logger) {
-    global.logger.logger[method] = (...logs: string[]) => {
-      ws.send(JSON.stringify({ type: 'logger', level: method, logs, timestamp: moment().format('HH:mm:ss.SSS') }))
-
-      return logger.logger[method](...logs)
-    }
+const proxyLogger = (ws: WebSocket) => {
+  if (version.BotName === 'TRSS') {
+    global.logger.logger = new Proxy(global.logger.logger, {
+      get (target, p) {
+        return getProp(target, p, ws)
+      }
+    })
+  } else if (version.BotName === 'Miao') {
+    global.logger = new Proxy(global.logger, {
+      get (target, p) {
+        return getProp(target, p, ws)
+      }
+    })
   }
 }
 
-function unproxyLogger (method: 'trace'| 'debug'| 'info'| 'warn'| 'error'| 'fatal'| 'mark') {
-  global.logger[method] = originalLogger[method].bind(originalLogger)
-  if (global.logger?.logger) {
-    global.logger.logger[method] = originalLogger.logger[method].bind(originalLogger.logger)
-  }
-}
+const unproxyLogger = () => resetLog()
 
 export default [
   {
@@ -49,7 +49,7 @@ export default [
     method: 'get',
     handler: () => 'Ciallo～(∠・ω< )⌒☆',
     wsHandler: (connection) => {
-      logMethods.forEach((method) => proxyLogger(method, connection))
+      proxyLogger(connection)
       connection.on('message', message => {
         let data
         try {
@@ -68,8 +68,8 @@ export default [
             break
         }
       })
-      connection.on('close', () => logMethods.forEach((method) => unproxyLogger(method)))
-      connection.on('error', () => logMethods.forEach((method) => unproxyLogger(method)))
+      connection.on('close', () => unproxyLogger())
+      connection.on('error', () => unproxyLogger())
     }
   }
 ] as RouteOptions[]
