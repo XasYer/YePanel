@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.10.6](https://github.com/XasYer/YePanel/compare/v1.10.5...v1.10.6) (2024-11-14)
+
+
+### Bug Fixes
+
+* 优化实时日志 ([25670f8](https://github.com/XasYer/YePanel/commit/25670f8bcc0797f9b5b8c551363326477d38b3b3))
+
 ## [1.10.5](https://github.com/XasYer/YePanel/compare/v1.10.4...v1.10.5) (2024-11-12)
 
 
