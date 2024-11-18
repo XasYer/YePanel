@@ -250,7 +250,7 @@ function createMessage (id: string, userId: string, groupId: string, msgId: stri
       ? {
           message_type: 'group',
           sub_type: 'normal',
-          groupId,
+          group_id: groupId,
           group_name: groupId
         }
       : {

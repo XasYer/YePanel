@@ -12,29 +12,41 @@ type treeNode = {
 
 const clients: {[key: string]: { client: ReturnType<typeof createClient>, timer: NodeJS.Timeout}} = {}
 
-const getRedissClient = async (db: string) => {
-  if (clients[db]) {
-    return clients[db].client
+const getRedisClient = async (db: string, host?: string, port?: number): Promise<ReturnType<typeof createClient> | null> => {
+  if (!host) {
+    host = cfg.redis.host
+    port = cfg.redis.port
   }
-  const client = await createClient({
-    socket: {
-      host: cfg.redis.host,
-      port: cfg.redis.port
-    },
-    database: Number(db)
-  }).connect()
-  clients[db] = {
-    client,
-    timer: setTimeout(() => {
-      client.disconnect()
-      delete clients[db]
-    }, 1000 * 60 * 30) // 缓存30分钟
+  const key = `${host}:${port}:${db}`
+  if (clients[key]) {
+    return clients[key].client
   }
-  return client
+  try {
+    const client = await createClient({
+      socket: {
+        host,
+        port
+      },
+      database: Number(db)
+    }).connect()
+    clients[key] = {
+      client,
+      timer: setTimeout(() => {
+        client.disconnect()
+        delete clients[key]
+      }, 1000 * 60 * 30) // 缓存30分钟
+    }
+    return client
+  } catch {
+    return null
+  }
 }
 
-export async function getRedisKeys (sep = ':', db: string, lazy = false) {
-  const redis = await getRedissClient(db)
+export async function getRedisKeys (sep = ':', db: string, host: string, port: number, lazy = false) {
+  const redis = await getRedisClient(db, host, port)
+  if (!redis) {
+    return []
+  }
   function addKeyToTree (tree: treeNode[], parts: string[], fullKey: string) {
     if (parts.length === 0) return
 
@@ -130,11 +142,28 @@ export default [
     }
   },
   {
+    url: '/get-redis-connection',
+    method: 'get',
+    handler: async ({ query }) => {
+      const { host, port, db } = query as { host: string, port: number, db: string }
+      const redis = await getRedisClient(db, host, port)
+      if (!redis) {
+        return {
+          success: false,
+          message: '测试连接redis失败'
+        }
+      }
+      return {
+        success: true
+      }
+    }
+  },
+  {
     url: '/get-redis-keys',
     method: 'get',
     handler: async ({ query }) => {
-      const { sep, db, lazy } = query as { sep: string, db: string, lazy: boolean }
-      const keys = await getRedisKeys(sep, db, lazy)
+      const { sep, db, lazy, host, port } = query as { sep: string, db: string, lazy: boolean, host: string, port: number }
+      const keys = await getRedisKeys(sep, db, host, port, lazy)
       return {
         success: true,
         data: keys
@@ -145,8 +174,14 @@ export default [
     url: '/get-redis-value',
     method: 'get',
     handler: async ({ query }) => {
-      const { key, db } = query as { key: string, db: string }
-      const redis = await getRedissClient(db)
+      const { key, db, host, port } = query as { key: string, db: string, host: string, port: number }
+      const redis = await getRedisClient(db, host, port)
+      if (!redis) {
+        return {
+          success: false,
+          message: '连接redis失败'
+        }
+      }
       try {
         const value = await redis.get(key)
         const expire = await redis.ttl(key)
@@ -171,8 +206,14 @@ export default [
     url: '/set-redis-value',
     method: 'post',
     handler: async ({ body }) => {
-      const { key: oldKey, value, db, expire, newKey } = body as { key: string, value: string, db: string, expire: number, newKey: string }
-      const redis = await getRedissClient(db)
+      const { key: oldKey, value, db, expire, newKey, host, port } = body as { key: string, value: string, db: string, expire: number, newKey: string, host: string, port: number }
+      const redis = await getRedisClient(db, host, port)
+      if (!redis) {
+        return {
+          success: false,
+          message: '连接redis失败'
+        }
+      }
       const key = newKey || oldKey
       if (newKey) {
         await redis.rename(oldKey, newKey)
@@ -197,10 +238,16 @@ export default [
     url: '/delete-redis-keys',
     method: 'post',
     handler: async ({ body }) => {
-      const { keys, db } = body as { keys: string[], db: string }
+      const { keys, db, host, port } = body as { keys: string[], db: string, host: string, port: number }
       const errorKeys = []
       const successKeys = []
-      const redis = await getRedissClient(db)
+      const redis = await getRedisClient(db, host, port)
+      if (!redis) {
+        return {
+          success: false,
+          message: '连接redis失败'
+        }
+      }
       for (const key of keys) {
         try {
           await redis.del(key)
