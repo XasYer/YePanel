@@ -19,34 +19,34 @@
                 <div class="flex items-center">
                   <div class="mr-3">排列方向:</div>
                   <el-radio-group v-model="infoDirection">
-                    <el-radio-button value="vertical" size="small"
-                      >垂直</el-radio-button
-                    >
-                    <el-radio-button value="horizontal" size="small"
-                      >水平</el-radio-button
-                    >
+                    <el-radio-button value="vertical" size="small">
+                      垂直
+                    </el-radio-button>
+                    <el-radio-button value="horizontal" size="small">
+                      水平
+                    </el-radio-button>
                   </el-radio-group>
                   <div class="mx-3">边框:</div>
                   <el-switch v-model="infoBorder" />
                 </div>
               </template>
-              <el-button size="small" type="primary" class="mr-6"
-                >设置</el-button
-              >
+              <el-button size="small" type="primary" class="mr-6">
+                设置
+              </el-button>
             </el-tooltip>
           </template>
-          <el-descriptions-item label="Redis 版本">{{
-            redisInfo?.redis_version
-          }}</el-descriptions-item>
+          <el-descriptions-item label="Redis 版本">
+            {{ redisInfo?.redis_version }}
+          </el-descriptions-item>
           <el-descriptions-item label="os">
             {{ redisInfo?.os }}
           </el-descriptions-item>
           <el-descriptions-item label="监听端口">
             {{ redisInfo?.tcp_port }}
           </el-descriptions-item>
-          <el-descriptions-item label="已运行时间">{{
-            redisInfo?.uptime_formatted
-          }}</el-descriptions-item>
+          <el-descriptions-item label="已运行时间">
+            {{ redisInfo?.uptime_formatted }}
+          </el-descriptions-item>
         </el-descriptions>
         <el-descriptions
           :border="infoBorder"
@@ -55,12 +55,12 @@
           :column="getColumn(5)"
           class="mt-4"
         >
-          <el-descriptions-item label="当前内存占用">{{
-            redisInfo?.used_memory_human
-          }}</el-descriptions-item>
-          <el-descriptions-item label="最大内存占用">{{
-            redisInfo?.used_memory_peak_human
-          }}</el-descriptions-item>
+          <el-descriptions-item label="当前内存占用">
+            {{ redisInfo?.used_memory_human }}
+          </el-descriptions-item>
+          <el-descriptions-item label="最大内存占用">
+            {{ redisInfo?.used_memory_peak_human }}
+          </el-descriptions-item>
         </el-descriptions>
         <el-descriptions
           :border="infoBorder"
@@ -69,12 +69,12 @@
           :column="getColumn(6)"
           class="mt-4"
         >
-          <el-descriptions-item label="接受连接总数">{{
-            redisInfo?.total_connections_received
-          }}</el-descriptions-item>
-          <el-descriptions-item label="处理命令总数">{{
-            redisInfo?.total_commands_processed
-          }}</el-descriptions-item>
+          <el-descriptions-item label="接受连接总数">
+            {{ redisInfo?.total_connections_received }}
+          </el-descriptions-item>
+          <el-descriptions-item label="处理命令总数">
+            {{ redisInfo?.total_commands_processed }}
+          </el-descriptions-item>
           <el-descriptions-item label="当前每秒处理命令数">
             {{ redisInfo?.instantaneous_ops_per_sec }}
           </el-descriptions-item>
@@ -108,12 +108,12 @@
           :column="getColumn(5)"
           class="mt-4"
         >
-          <el-descriptions-item label="key数量">{{
-            val.keys
-          }}</el-descriptions-item>
-          <el-descriptions-item label="过期key数量">{{
-            val.expires
-          }}</el-descriptions-item>
+          <el-descriptions-item label="key数量">
+            {{ val.keys }}
+          </el-descriptions-item>
+          <el-descriptions-item label="过期key数量">
+            {{ val.expires }}
+          </el-descriptions-item>
         </el-descriptions>
       </el-collapse-item>
       <el-collapse-item title="数据" name="2">
@@ -137,13 +137,16 @@
                 v-model="filterText"
                 style="width: 280px"
                 placeholder="请输入key"
-              />
+              >
+                <template #append>
+                  <el-button :icon="Search" @click="handleSearch" />
+                </template>
+              </el-input>
             </re-col>
             <re-col :span="12" :xs="24" class="mb-[10px]">
-              <el-button type="primary" @click="handleSearch">搜索</el-button>
-              <el-button type="warning" @click="handleSearch(true)"
-                >重置</el-button
-              >
+              <el-button type="warning" @click="handleSearch(true)">
+                重置
+              </el-button>
               <el-button type="success" @click="handleAdd">添加</el-button>
               <el-popconfirm
                 :title="deleteKeysTitle"
@@ -151,9 +154,18 @@
                 @confirm="handleDeleteKeys"
               >
                 <template #reference>
-                  <el-button type="danger" @click="changeDeleteKeysTitle"
-                    >删除所选</el-button
-                  >
+                  <el-button type="danger" @click="changeDeleteKeysTitle">
+                    删除所选
+                  </el-button>
+                </template>
+              </el-popconfirm>
+              <el-popconfirm
+                title="确定返回到数据加载页面吗?"
+                width="250px"
+                @confirm="handleBack"
+              >
+                <template #reference>
+                  <el-button type="info">返回</el-button>
                 </template>
               </el-popconfirm>
             </re-col>
@@ -184,6 +196,9 @@
               <el-button type="success" @click="getTreeData">
                 点我加载数据
               </el-button>
+              <el-button type="primary" @click="changeRedisUrl">
+                自定义redis地址
+              </el-button>
             </div>
             <el-text class="mx-1" type="warning" size="large"
               >请注意: 如果redis数据量过大, 可能会导致服务器卡顿,
@@ -211,7 +226,8 @@ import {
   type getRedisKeysData,
   getRedisValue,
   setRedisValue,
-  deleteRedisKeys
+  deleteRedisKeys,
+  getRedisConnection
 } from "@/api/database";
 import {
   Tree,
@@ -219,8 +235,10 @@ import {
 } from "element-plus/es/components/tree-v2/src/types.mjs";
 import { ElTree, ElTreeV2 } from "element-plus";
 import codeMirror from "./components/codeMirror.vue";
+import customRedisClient from "./components/customRedisClient.vue";
 import { addDialog } from "@/components/ReDialog";
 import { message } from "@/utils/message";
+import { Search } from "@element-plus/icons-vue";
 
 defineOptions({
   name: "Redis"
@@ -265,13 +283,81 @@ getRedisInfo().then(res => {
   }
 });
 
+/** 返回但数据加载页面 */
+const handleBack = () => {
+  isLoad.value = true;
+  treeV2Data = [];
+};
+
+const redisClient = ref({
+  host: "",
+  port: 6379,
+  database: 0
+});
+
+const customRedisClientRef = ref<InstanceType<typeof customRedisClient>>();
+const changeRedisUrl = () => {
+  addDialog({
+    width: window.innerWidth < 992 ? "90%" : "50%",
+    title: "自定义redis地址",
+    contentRenderer: () => h(customRedisClient, { ref: customRedisClientRef }),
+    props: {
+      data: {
+        host: redisClient.value.host,
+        port: redisClient.value.port,
+        database: redisClient.value.database
+      }
+    },
+    sureBtnLoading: true,
+    beforeSure: async (done, { options, index, closeLoading }) => {
+      const ref = customRedisClientRef.value.getRef();
+      await ref.validate(valid => {
+        if (valid) {
+          const data = customRedisClientRef.value.getData();
+          getRedisConnection(data.host, data.port, data.database)
+            .then(res => {
+              if (res.success) {
+                message("连接成功~ Ciallo～(∠・ω< )⌒☆'", {
+                  customClass: "el",
+                  type: "success"
+                });
+                redisClient.value = {
+                  host: data.host,
+                  port: data.port,
+                  database: data.database
+                };
+                selectDB.value = redisClient.value.database.toString();
+                done();
+              } else {
+                message(res.message, {
+                  type: "error",
+                  customClass: "el"
+                });
+                closeLoading();
+              }
+            })
+            .catch(() => closeLoading());
+        } else {
+          closeLoading();
+        }
+      });
+    },
+    draggable: true
+  });
+};
+
 const isLoad = ref(true);
 const treeType = ref("2");
 let treeV2Data = [];
 const getTreeData = () => {
   isLoad.value = false;
   if (treeType.value === "2") {
-    getRedisKeys(":", selectDB.value).then(res => {
+    getRedisKeys(
+      ":",
+      selectDB.value,
+      redisClient.value.host,
+      redisClient.value.port
+    ).then(res => {
       treeV2Data = res.data;
       treeRefV2.value.setData(treeV2Data);
     });
@@ -279,9 +365,13 @@ const getTreeData = () => {
 };
 
 const loadTree = (node: TreeNode, resolve: (data: any[]) => void) => {
-  getRedisKeys(node.data?.key || "", selectDB.value, true).then(res =>
-    resolve(res.data)
-  );
+  getRedisKeys(
+    node.data?.key || "",
+    selectDB.value,
+    redisClient.value.host,
+    redisClient.value.port,
+    true
+  ).then(res => resolve(res.data));
   return;
 };
 
@@ -294,7 +384,12 @@ const treeRefV2 = ref<InstanceType<typeof ElTreeV2>>();
 const codeMirrorRef = ref<InstanceType<typeof codeMirror>>();
 const handleNodeClick = (data: getRedisKeysData, node: TreeNode) => {
   if (node.isLeaf) {
-    getRedisValue(data.key as string, selectDB.value).then(res => {
+    getRedisValue(
+      data.key as string,
+      selectDB.value,
+      redisClient.value.host,
+      redisClient.value.port
+    ).then(res => {
       if (!res.success) {
         message(res.message, {
           type: "error",
@@ -333,6 +428,8 @@ const handleNodeClick = (data: getRedisKeysData, node: TreeNode) => {
               data.key as string,
               newData.value,
               selectDB.value,
+              redisClient.value.host,
+              redisClient.value.port,
               newData.expire,
               isChange ? newData.key : undefined
             ).then(res => {
@@ -443,6 +540,8 @@ const handleAdd = () => {
           newData.key,
           newData.value,
           selectDB.value,
+          redisClient.value.host,
+          redisClient.value.port,
           newData.expire
         ).then(res => {
           message("添加成功~ Ciallo～(∠・ω< )⌒☆'", {
@@ -485,7 +584,12 @@ const handleDeleteKeys = () => {
     });
     return;
   }
-  deleteRedisKeys(checkedKeys.value, selectDB.value).then(res => {
+  deleteRedisKeys(
+    checkedKeys.value,
+    selectDB.value,
+    redisClient.value.host,
+    redisClient.value.port
+  ).then(res => {
     if (res.success) {
       message("删除成功~ Ciallo～(∠・ω< )⌒☆'", {
         customClass: "el",

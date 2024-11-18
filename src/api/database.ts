@@ -81,22 +81,43 @@ export type deleteRedisKeysResult = {
   };
 };
 
+/** 测试redis连接 */
+export const getRedisConnection = (host: string, port: number, db: number) => {
+  return http.request<{
+    success: boolean;
+    message?: string;
+  }>("get", "/get-redis-connection", {
+    params: { host, port, db }
+  });
+};
+
 /** 获取redis数据 */
 export const getRedisInfo = () => {
   return http.request<getRedisInfoResult>("get", "/get-redis-info");
 };
 
 /** 获取redis所有key */
-export const getRedisKeys = (sep: string, db: string, lazy?: boolean) => {
+export const getRedisKeys = (
+  sep: string,
+  db: string,
+  host: string,
+  port: number,
+  lazy?: boolean
+) => {
   return http.request<getRedisKeysResult>("get", "/get-redis-keys", {
-    params: { sep, db, lazy }
+    params: { sep, db, lazy, host, port }
   });
 };
 
 /** 获取redis指定key的值 */
-export const getRedisValue = (key: string, db: string) => {
+export const getRedisValue = (
+  key: string,
+  db: string,
+  host: string,
+  port: number
+) => {
   return http.request<getRedisValueResult>("get", "/get-redis-value", {
-    params: { key, db }
+    params: { key, db, host, port }
   });
 };
 
@@ -105,18 +126,25 @@ export const setRedisValue = (
   key: string,
   value: string,
   db: string,
+  host: string,
+  port: number,
   expire?: number,
   newKey?: string
 ) => {
   return http.request<setRedisValueResult>("post", "/set-redis-value", {
-    data: { key, value, db, expire, newKey }
+    data: { key, value, db, expire, newKey, host, port }
   });
 };
 
 /** 删除redis指定key的值 */
-export const deleteRedisKeys = (keys: string[], db: string) => {
+export const deleteRedisKeys = (
+  keys: string[],
+  db: string,
+  host: string,
+  port: number
+) => {
   return http.request<deleteRedisKeysResult>("post", "/delete-redis-keys", {
-    data: { keys, db }
+    data: { keys, db, host, port }
   });
 };
 

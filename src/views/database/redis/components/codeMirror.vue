@@ -1,11 +1,7 @@
 <template>
   <div class="flex">
     <el-tooltip content="修改会重命名,覆盖新值" placement="right">
-      <div
-        class="w-[90px] content-center text-center border bg-[#f5f7fa] text-[#909399] rounded border-[#dcdfe6] h-[32px]"
-      >
-        key:
-      </div>
+      <div class="prepend">key:</div>
     </el-tooltip>
     <el-input
       v-model="data.key"
@@ -16,11 +12,7 @@
   </div>
   <div class="flex">
     <el-tooltip content="-1为不过期,不动则不变,单位秒" placement="right">
-      <div
-        class="w-[90px] content-center text-center border bg-[#f5f7fa] text-[#909399] rounded border-[#dcdfe6] h-[32px]"
-      >
-        过期时间:
-      </div>
+      <div class="prepend">过期时间:</div>
     </el-tooltip>
     <el-input-number
       v-model="data.expire"
@@ -88,3 +80,17 @@ const getData = () => {
 
 defineExpose({ getData, checkCode });
 </script>
+
+<style scoped>
+.prepend {
+  width: 90px;
+  align-content: center;
+  text-align: center;
+  border-width: 1px;
+  background-color: #f5f7fa;
+  color: #909399;
+  border-color: #dcdfe6;
+  height: 32px;
+  border-radius: 0.25rem;
+}
+</style>
