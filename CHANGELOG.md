@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.10.7](https://github.com/XasYer/YePanel/compare/v1.10.6...v1.10.7) (2024-11-18)
+
+
+### Performance Improvements
+
+* redis可选连接自定义地址 ([8263a76](https://github.com/XasYer/YePanel/commit/8263a76196aaa8abfc18eccdf737fc537ae20b85))
+
 ## [1.10.6](https://github.com/XasYer/YePanel/compare/v1.10.5...v1.10.6) (2024-11-14)
 
 
