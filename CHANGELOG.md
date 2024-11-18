@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.10.8](https://github.com/XasYer/YePanel/compare/v1.10.7...v1.10.8) (2024-11-18)
+
+
+### Bug Fixes
+
+* username & password ([d850dcb](https://github.com/XasYer/YePanel/commit/d850dcbf05746dce16ff82c3e9cd882e1863b96f))
+
 ## [1.10.7](https://github.com/XasYer/YePanel/compare/v1.10.6...v1.10.7) (2024-11-18)
 
 
