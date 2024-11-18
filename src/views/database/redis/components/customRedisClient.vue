@@ -19,6 +19,20 @@
     <el-form-item label="database" prop="database">
       <el-input-number v-model="data.database" placeholder="默认db" />
     </el-form-item>
+    <el-form-item label="username" prop="username">
+      <el-input
+        v-model="data.username"
+        placeholder="请输入username"
+        style="width: 90%"
+      />
+    </el-form-item>
+    <el-form-item label="password" prop="password">
+      <el-input
+        v-model="data.password"
+        placeholder="请输入password"
+        style="width: 90%"
+      />
+    </el-form-item>
   </el-form>
 </template>
 
@@ -31,6 +45,8 @@ export interface CodeProps {
     host: string;
     port: number;
     database: number;
+    username: string;
+    password: string;
   };
 }
 
@@ -43,16 +59,20 @@ const rules = ref<FormRules>({
 });
 
 const props = withDefaults(defineProps<CodeProps>(), {
-  data: () => ({ host: "", port: 6379, database: 0 })
+  data: () => ({
+    host: "",
+    port: 6379,
+    database: 0,
+    username: "",
+    password: ""
+  })
 });
 
 const data = ref<CodeProps["data"]>(props.data);
 
 const getData = () => {
   return {
-    host: data.value.host,
-    port: data.value.port,
-    database: data.value.database
+    ...data.value
   };
 };
 

@@ -292,7 +292,9 @@ const handleBack = () => {
 const redisClient = ref({
   host: "",
   port: 6379,
-  database: 0
+  database: 0,
+  username: "",
+  password: ""
 });
 
 const customRedisClientRef = ref<InstanceType<typeof customRedisClient>>();
@@ -303,9 +305,7 @@ const changeRedisUrl = () => {
     contentRenderer: () => h(customRedisClient, { ref: customRedisClientRef }),
     props: {
       data: {
-        host: redisClient.value.host,
-        port: redisClient.value.port,
-        database: redisClient.value.database
+        ...redisClient.value
       }
     },
     sureBtnLoading: true,
@@ -314,7 +314,13 @@ const changeRedisUrl = () => {
       await ref.validate(valid => {
         if (valid) {
           const data = customRedisClientRef.value.getData();
-          getRedisConnection(data.host, data.port, data.database)
+          getRedisConnection(
+            data.host,
+            data.port,
+            data.database,
+            data.username,
+            data.password
+          )
             .then(res => {
               if (res.success) {
                 message("连接成功~ Ciallo～(∠・ω< )⌒☆'", {
@@ -324,7 +330,9 @@ const changeRedisUrl = () => {
                 redisClient.value = {
                   host: data.host,
                   port: data.port,
-                  database: data.database
+                  database: data.database,
+                  username: data.username,
+                  password: data.password
                 };
                 selectDB.value = redisClient.value.database.toString();
                 done();
@@ -356,7 +364,9 @@ const getTreeData = () => {
       ":",
       selectDB.value,
       redisClient.value.host,
-      redisClient.value.port
+      redisClient.value.port,
+      redisClient.value.username,
+      redisClient.value.password
     ).then(res => {
       treeV2Data = res.data;
       treeRefV2.value.setData(treeV2Data);
@@ -370,6 +380,8 @@ const loadTree = (node: TreeNode, resolve: (data: any[]) => void) => {
     selectDB.value,
     redisClient.value.host,
     redisClient.value.port,
+    redisClient.value.username,
+    redisClient.value.password,
     true
   ).then(res => resolve(res.data));
   return;
@@ -388,7 +400,9 @@ const handleNodeClick = (data: getRedisKeysData, node: TreeNode) => {
       data.key as string,
       selectDB.value,
       redisClient.value.host,
-      redisClient.value.port
+      redisClient.value.port,
+      redisClient.value.username,
+      redisClient.value.password
     ).then(res => {
       if (!res.success) {
         message(res.message, {
@@ -430,6 +444,8 @@ const handleNodeClick = (data: getRedisKeysData, node: TreeNode) => {
               selectDB.value,
               redisClient.value.host,
               redisClient.value.port,
+              redisClient.value.username,
+              redisClient.value.password,
               newData.expire,
               isChange ? newData.key : undefined
             ).then(res => {
@@ -542,6 +558,8 @@ const handleAdd = () => {
           selectDB.value,
           redisClient.value.host,
           redisClient.value.port,
+          redisClient.value.username,
+          redisClient.value.password,
           newData.expire
         ).then(res => {
           message("添加成功~ Ciallo～(∠・ω< )⌒☆'", {
@@ -588,7 +606,9 @@ const handleDeleteKeys = () => {
     checkedKeys.value,
     selectDB.value,
     redisClient.value.host,
-    redisClient.value.port
+    redisClient.value.port,
+    redisClient.value.username,
+    redisClient.value.password
   ).then(res => {
     if (res.success) {
       message("删除成功~ Ciallo～(∠・ω< )⌒☆'", {

@@ -82,12 +82,18 @@ export type deleteRedisKeysResult = {
 };
 
 /** 测试redis连接 */
-export const getRedisConnection = (host: string, port: number, db: number) => {
+export const getRedisConnection = (
+  host: string,
+  port: number,
+  db: number,
+  username: string,
+  password: string
+) => {
   return http.request<{
     success: boolean;
     message?: string;
   }>("get", "/get-redis-connection", {
-    params: { host, port, db }
+    params: { host, port, db, username, password }
   });
 };
 
@@ -102,10 +108,12 @@ export const getRedisKeys = (
   db: string,
   host: string,
   port: number,
+  username: string,
+  password: string,
   lazy?: boolean
 ) => {
   return http.request<getRedisKeysResult>("get", "/get-redis-keys", {
-    params: { sep, db, lazy, host, port }
+    params: { sep, db, lazy, host, port, username, password }
   });
 };
 
@@ -114,10 +122,12 @@ export const getRedisValue = (
   key: string,
   db: string,
   host: string,
-  port: number
+  port: number,
+  username: string,
+  password: string
 ) => {
   return http.request<getRedisValueResult>("get", "/get-redis-value", {
-    params: { key, db, host, port }
+    params: { key, db, host, port, username, password }
   });
 };
 
@@ -128,11 +138,13 @@ export const setRedisValue = (
   db: string,
   host: string,
   port: number,
+  username: string,
+  password: string,
   expire?: number,
   newKey?: string
 ) => {
   return http.request<setRedisValueResult>("post", "/set-redis-value", {
-    data: { key, value, db, expire, newKey, host, port }
+    data: { key, value, db, expire, newKey, host, port, username, password }
   });
 };
 
@@ -141,10 +153,12 @@ export const deleteRedisKeys = (
   keys: string[],
   db: string,
   host: string,
-  port: number
+  port: number,
+  username: string,
+  password: string
 ) => {
   return http.request<deleteRedisKeysResult>("post", "/delete-redis-keys", {
-    data: { keys, db, host, port }
+    data: { keys, db, host, port, username, password }
   });
 };
 
