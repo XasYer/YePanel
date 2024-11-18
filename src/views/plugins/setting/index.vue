@@ -54,7 +54,7 @@
             </el-descriptions-item>
             <el-descriptions-item>
               <el-button @click="formRef?.getData">重置</el-button>
-              <el-button type="primary" @click="formRef?.handleSubmit"
+              <el-button type="primary" @click="formRef?.submit"
                 >保存</el-button
               >
             </el-descriptions-item>

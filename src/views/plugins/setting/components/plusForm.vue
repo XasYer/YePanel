@@ -4,7 +4,7 @@
     :rules="rules"
     :group="group"
     inline-message
-    label-position="right"
+    :label-position="labelPosition"
     resetText="重置"
     submitText="保存"
     footerAlign="center"
@@ -49,6 +49,10 @@ const props = defineProps({
     default: false
   }
 });
+
+const labelPosition = ref<"right" | "top">(
+  window.innerWidth > 768 ? "right" : "top"
+);
 
 const emit = defineEmits(["update:loading"]);
 
