@@ -119,10 +119,10 @@
       <el-collapse-item title="数据" name="2">
         <div v-if="!isLoad">
           <el-row>
-            <re-col :span="12" :xs="24" class="mb-[10px] mr-[10px]">
+            <re-col :span="12" :xs="24" class="mr-[10px]">
               <el-select
                 v-model="selectDB"
-                class="mr-[10px]"
+                class="mr-[10px] mb-[10px]"
                 style="width: 100px"
                 @change="getTreeData"
               >
@@ -135,6 +135,7 @@
               </el-select>
               <el-input
                 v-model="filterText"
+                class="mb-[10px]"
                 style="width: 280px"
                 placeholder="请输入key"
               >
@@ -143,7 +144,7 @@
                 </template>
               </el-input>
             </re-col>
-            <re-col :span="12" :xs="24" class="mb-[10px]">
+            <re-col :span="12" :xs="24">
               <el-button type="warning" @click="handleSearch(true)">
                 重置
               </el-button>
@@ -155,7 +156,7 @@
               >
                 <template #reference>
                   <el-button type="danger" @click="changeDeleteKeysTitle">
-                    删除所选
+                    删除
                   </el-button>
                 </template>
               </el-popconfirm>
@@ -192,13 +193,31 @@
         </div>
         <div v-else>
           <el-space direction="vertical" alignment="left">
-            <div>
+            <div class="button-margin-bottom">
               <el-button type="success" @click="getTreeData">
                 点我加载数据
               </el-button>
-              <el-button type="primary" @click="changeRedisUrl">
+              <el-button type="primary" class="mr-3" @click="changeRedisUrl">
                 自定义redis地址
               </el-button>
+              <el-dropdown trigger="click">
+                <el-button type="info">
+                  使用历史记录加载数据
+                  <el-icon class="ml-1">
+                    <arrow-down />
+                  </el-icon>
+                </el-button>
+                <template #dropdown>
+                  <el-dropdown-menu>
+                    <el-dropdown-item
+                      v-for="item in redisClientHistory"
+                      :key="item"
+                      @click="handleLoadHistory(item)"
+                      >{{ item }}</el-dropdown-item
+                    >
+                  </el-dropdown-menu>
+                </template>
+              </el-dropdown>
             </div>
             <el-text class="mx-1" type="warning" size="large"
               >请注意: 如果redis数据量过大, 可能会导致服务器卡顿,
@@ -238,7 +257,7 @@ import codeMirror from "./components/codeMirror.vue";
 import customRedisClient from "./components/customRedisClient.vue";
 import { addDialog } from "@/components/ReDialog";
 import { message } from "@/utils/message";
-import { Search } from "@element-plus/icons-vue";
+import { Search, ArrowDown } from "@element-plus/icons-vue";
 
 defineOptions({
   name: "Redis"
@@ -334,6 +353,20 @@ const changeRedisUrl = () => {
                   username: data.username,
                   password: data.password
                 };
+                const history = JSON.parse(
+                  localStorage.getItem("redisHistory") || "[]"
+                );
+                const key = `${data.host}:${data.port}:${data.database}:${data.username || ""}:${data.password || ""}`;
+                const index = history.indexOf(key);
+                if (index !== -1) {
+                  history.splice(index, 1);
+                }
+                history.unshift(key);
+                if (history.length > 10) {
+                  history.length = 10;
+                }
+                redisClientHistory.value = history;
+                localStorage.setItem("redisHistory", JSON.stringify(history));
                 selectDB.value = redisClient.value.database.toString();
                 done();
               } else {
@@ -352,6 +385,23 @@ const changeRedisUrl = () => {
     },
     draggable: true
   });
+};
+
+const redisClientHistory = ref(
+  JSON.parse(localStorage.getItem("redisHistory") || "[]")
+);
+
+const handleLoadHistory = (item: string) => {
+  const [host, port, database, username, password] = item.split(":");
+  selectDB.value = database;
+  redisClient.value = {
+    host,
+    port: Number(port),
+    database: Number(database),
+    username,
+    password
+  };
+  getTreeData();
 };
 
 const isLoad = ref(true);
@@ -387,7 +437,7 @@ const loadTree = (node: TreeNode, resolve: (data: any[]) => void) => {
   return;
 };
 
-const activeNames = ref(["1"]);
+const activeNames = ref(["2"]);
 
 const filterText = ref("");
 const treeRef = ref<InstanceType<typeof ElTree>>();
@@ -532,13 +582,23 @@ const delTreeKey = (nodeKey: string) => {
 };
 
 const handleAdd = () => {
+  const ref = treeType.value === "2" ? treeRefV2 : treeRef;
+  const selectKeys = Array.from(
+    new Set(
+      ref.value
+        .getCheckedNodes()
+        .filter(i => ref.value.getNode(i.key)?.isLeaf)
+        .map(i => i.key.replace(/:[^:]*$/, ""))
+    )
+  );
+  const key = selectKeys.length === 1 ? selectKeys[0] + ":" : "";
   addDialog({
     width: window.innerWidth < 992 ? "90%" : "50%",
     title: "添加",
     contentRenderer: () => h(codeMirror, { ref: codeMirrorRef }),
     props: {
       data: {
-        key: "",
+        key,
         value: "",
         expire: -1
       }
@@ -708,3 +768,9 @@ const cleanupEmptyNodes = (data: getRedisKeysData[], path: number[]) => {
   }
 };
 </script>
+
+<style scoped>
+.button-margin-bottom .el-button {
+  margin-bottom: 10px;
+}
+</style>

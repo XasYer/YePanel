@@ -80,17 +80,3 @@ const getRef = () => formRef.value;
 
 defineExpose({ getData, getRef });
 </script>
-
-<style scoped>
-.prepend {
-  width: 90px;
-  align-content: center;
-  text-align: center;
-  border-width: 1px;
-  background-color: #f5f7fa;
-  color: #909399;
-  border-color: #dcdfe6;
-  height: 32px;
-  border-radius: 0.25rem;
-}
-</style>
