@@ -28,7 +28,7 @@ const BotPackageJson = JSON.parse(fs.readFileSync(join(BotPath, 'package.json'),
 const BotVersion = BotPackageJson.version
 
 const BotName = (() => {
-  if (Array.isArray(global.Bot.uin)) {
+  if (Array.isArray(global.Bot?.uin)) {
     return 'TRSS'
   } else {
     return 'Miao'

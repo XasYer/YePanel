@@ -2,6 +2,7 @@ import { createLoginKey } from '@/api/login'
 import { config, server } from './common'
 import { execSync } from 'child_process'
 import fs from 'fs'
+import '@/common/dev'
 
 server.startServer()
 

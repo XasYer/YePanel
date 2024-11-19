@@ -116,26 +116,30 @@ export async function startServer () {
 
   await loadRoutes(join(version.pluginPath, srcPath, 'api'))
 
-  // 加载插件的路由
-  const pluginList = fs.readdirSync(`${version.BotPath}/plugins`)
-  for (const plugin of pluginList) {
-    const pluginPath = join(version.BotPath, 'plugins', plugin)
-    const YePanelPath = join(pluginPath, 'YePanel')
-    if (fs.statSync(pluginPath).isDirectory() && fs.existsSync(YePanelPath)) {
-      try {
-        const option = (await import(`file://${join(YePanelPath, 'index.js')}?t=${Date.now()}`)).default
-        if (option.api?.length) {
-          for (const i of option.api) {
-            i.url = `/${plugin}${i.url}`
-            if (!i.preHandler) {
-              i.preHandler = fastify.auth([verifyToken])
-            } else {
-              delete i.preHandler
+  const pluginsPath = join(version.BotPath, 'plugins')
+
+  if (fs.existsSync(pluginsPath)) {
+    // 加载插件的路由
+    const pluginList = fs.readdirSync(pluginsPath)
+    for (const plugin of pluginList) {
+      const pluginPath = join(version.BotPath, 'plugins', plugin)
+      const YePanelPath = join(pluginPath, 'YePanel')
+      if (fs.statSync(pluginPath).isDirectory() && fs.existsSync(YePanelPath)) {
+        try {
+          const option = (await import(`file://${join(YePanelPath, 'index.js')}?t=${Date.now()}`)).default
+          if (option.api?.length) {
+            for (const i of option.api) {
+              i.url = `/${plugin}${i.url}`
+              if (!i.preHandler) {
+                i.preHandler = fastify.auth([verifyToken])
+              } else {
+                delete i.preHandler
+              }
+              fastify.route(i)
             }
-            fastify.route(i)
           }
-        }
-      } catch { /* empty */ }
+        } catch { /* empty */ }
+      }
     }
   }
 
@@ -183,7 +187,7 @@ export async function getIps () {
   ]
   const redisKey = 'YePanel:ip'
   const remote = await redis.get(redisKey) as string | null
-  if (remote) {
+  if (remote || version.isDev) {
     return {
       local,
       remote,

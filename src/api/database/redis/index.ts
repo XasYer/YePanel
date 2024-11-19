@@ -1,8 +1,14 @@
 import { RouteOptions } from 'fastify'
 import { utils } from '@/common'
 import { createClient } from 'redis'
-// @ts-ignore
-import cfg from '../../../../../../lib/config/config.js'
+const cfg = await (async ()=>{
+  try {
+    // @ts-ignore
+    return (await import('../../../../../../lib/config/config.js')).default
+  } catch  {
+    return { redis: {} }
+  }
+})()
 
 type treeNode = {
   label: string

@@ -100,8 +100,15 @@ export default [
         code: {},
         guoba: {}
       }
+      const pluginsPath = join(version.BotPath, 'plugins')
+      if (!fs.existsSync(pluginsPath)) {
+        return {
+          success: true,
+          data
+        }
+      }
       // 读取plugins目录下所有文件名
-      const pluginList = fs.readdirSync(`${version.BotPath}/plugins`)
+      const pluginList = fs.readdirSync(pluginsPath)
       for (const plugin of pluginList) {
         const pluginPath = join(version.BotPath, 'plugins', plugin)
         // 判断是否为目录

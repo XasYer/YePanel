@@ -34,7 +34,10 @@ export function getPlugins (force = false) {
     return pluginsCache
   }
   // 获取插件数量插件包目录包含package.json或.git目录才被视为一个插件包
-  const dir = './plugins'
+  const dir = join(version.BotPath, 'plugins')
+  if (!fs.existsSync(dir)) {
+    return pluginsCache
+  }
   const dirArr = fs.readdirSync(dir, { withFileTypes: true })
   const exc = ['example']
   const plugins = dirArr.map(i => {
