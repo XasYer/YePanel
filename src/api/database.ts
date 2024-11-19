@@ -81,6 +81,20 @@ export type deleteRedisKeysResult = {
   };
 };
 
+const account = {
+  host: "",
+  port: 0,
+  username: "",
+  password: ""
+};
+
+export const clearAccount = () => {
+  account.host = "";
+  account.port = 0;
+  account.username = "";
+  account.password = "";
+};
+
 /** 测试redis连接 */
 export const getRedisConnection = (
   host: string,
@@ -89,6 +103,10 @@ export const getRedisConnection = (
   username: string,
   password: string
 ) => {
+  account.host = host;
+  account.port = port;
+  account.username = username;
+  account.password = password;
   return http.request<{
     success: boolean;
     message?: string;
@@ -103,31 +121,16 @@ export const getRedisInfo = () => {
 };
 
 /** 获取redis所有key */
-export const getRedisKeys = (
-  sep: string,
-  db: string,
-  host: string,
-  port: number,
-  username: string,
-  password: string,
-  lazy?: boolean
-) => {
+export const getRedisKeys = (sep: string, db: string, lazy?: boolean) => {
   return http.request<getRedisKeysResult>("get", "/get-redis-keys", {
-    params: { sep, db, lazy, host, port, username, password }
+    params: { sep, db, lazy, ...account }
   });
 };
 
 /** 获取redis指定key的值 */
-export const getRedisValue = (
-  key: string,
-  db: string,
-  host: string,
-  port: number,
-  username: string,
-  password: string
-) => {
+export const getRedisValue = (key: string, db: string) => {
   return http.request<getRedisValueResult>("get", "/get-redis-value", {
-    params: { key, db, host, port, username, password }
+    params: { key, db, ...account }
   });
 };
 
@@ -136,29 +139,18 @@ export const setRedisValue = (
   key: string,
   value: string,
   db: string,
-  host: string,
-  port: number,
-  username: string,
-  password: string,
   expire?: number,
   newKey?: string
 ) => {
   return http.request<setRedisValueResult>("post", "/set-redis-value", {
-    data: { key, value, db, expire, newKey, host, port, username, password }
+    data: { key, value, db, expire, newKey, ...account }
   });
 };
 
 /** 删除redis指定key的值 */
-export const deleteRedisKeys = (
-  keys: string[],
-  db: string,
-  host: string,
-  port: number,
-  username: string,
-  password: string
-) => {
+export const deleteRedisKeys = (keys: string[], db: string) => {
   return http.request<deleteRedisKeysResult>("post", "/delete-redis-keys", {
-    data: { keys, db, host, port, username, password }
+    data: { keys, db, ...account }
   });
 };
 

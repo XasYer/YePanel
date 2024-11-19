@@ -1,24 +1,34 @@
 <template>
-  <div class="flex">
-    <el-tooltip content="修改会重命名,覆盖新值" placement="right">
+  <div class="mb-[10px]">
+    <div class="flex">
       <div class="prepend">key:</div>
-    </el-tooltip>
-    <el-input
-      v-model="data.key"
-      placeholder="key"
-      class="mb-[20px]"
-      style="width: 80%"
-    />
+      <el-input
+        v-model="data.key"
+        placeholder="key"
+        @input="isRandom = false"
+      />
+      <el-button class="ml-[10px]" @click="checkExists">
+        <iconify
+          icon="material-symbols:frame-inspect"
+          :width="20"
+          :height="20"
+        />
+      </el-button>
+      <el-button v-if="isRandom" @click="resetRandomKey">
+        <iconify icon="carbon:reset" :width="20" :height="20" />
+      </el-button>
+      <el-button v-else @click="randomKey">
+        <iconify icon="mingcute:random-fill" :width="20" :height="20" />
+      </el-button>
+    </div>
+    <el-text style="color: #909399">会覆盖旧的值</el-text>
   </div>
-  <div class="flex">
-    <el-tooltip content="-1为不过期,不动则不变,单位秒" placement="right">
+  <div class="mb-[10px]">
+    <div class="flex">
       <div class="prepend">过期时间:</div>
-    </el-tooltip>
-    <el-input-number
-      v-model="data.expire"
-      placeholder="key"
-      class="mb-[20px]"
-    />
+      <el-input-number v-model="data.expire" placeholder="key" />
+    </div>
+    <el-text style="color: #909399">-1为不过期,单位秒</el-text>
   </div>
   <codemirror
     v-model="data.value"
@@ -37,6 +47,9 @@ import { Codemirror } from "vue-codemirror";
 import { json } from "@codemirror/lang-json";
 import { oneDark } from "@codemirror/theme-one-dark";
 import { message } from "@/utils/message";
+import { IconifyIconOnline as iconify } from "@/components/ReIcon";
+import { buildUUID } from "@pureadmin/utils";
+import { getRedisValue } from "@/api/database";
 
 const extensions = [json(), oneDark];
 
@@ -45,14 +58,52 @@ export interface CodeProps {
     key: string;
     value: string;
     expire: number;
+    db: string;
   };
 }
 
 const props = withDefaults(defineProps<CodeProps>(), {
-  data: () => ({ key: "", value: "", expire: -1 })
+  data: () => ({ key: "", value: "", expire: -1, db: "0" })
 });
 
 const data = ref<CodeProps["data"]>(props.data);
+
+const checkExists = () => {
+  if (data.value.key) {
+    getRedisValue(data.value.key, data.value.db).then(res => {
+      if (res.success) {
+        if (res.data.expire === -2) {
+          message("该key可用", {
+            customClass: "el",
+            type: "success"
+          });
+        } else {
+          message("该key已存在", {
+            customClass: "el",
+            type: "warning"
+          });
+        }
+      } else {
+        message(`查询失败: ${res.message}`, {
+          customClass: "el",
+          type: "error"
+        });
+      }
+    });
+  }
+};
+
+const isRandom = ref(false);
+
+const randomKey = () => {
+  data.value.key += buildUUID();
+  isRandom.value = true;
+};
+
+const resetRandomKey = () => {
+  data.value.key = data.value.key.slice(0, -32);
+  isRandom.value = false;
+};
 
 const checkCode = () => {
   if (data.value.value.startsWith("{") || data.value.value.startsWith("[")) {

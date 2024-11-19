@@ -246,7 +246,8 @@ import {
   getRedisValue,
   setRedisValue,
   deleteRedisKeys,
-  getRedisConnection
+  getRedisConnection,
+  clearAccount
 } from "@/api/database";
 import {
   Tree,
@@ -262,6 +263,8 @@ import { Search, ArrowDown } from "@element-plus/icons-vue";
 defineOptions({
   name: "Redis"
 });
+
+clearAccount();
 
 const props = {
   value: "key"
@@ -333,7 +336,8 @@ const changeRedisUrl = () => {
       await ref.validate(valid => {
         if (valid) {
           const data = customRedisClientRef.value.getData();
-          getRedisConnection(
+          getRedisClient(
+            true,
             data.host,
             data.port,
             data.database,
@@ -342,38 +346,8 @@ const changeRedisUrl = () => {
           )
             .then(res => {
               if (res.success) {
-                message("连接成功~ Ciallo～(∠・ω< )⌒☆'", {
-                  customClass: "el",
-                  type: "success"
-                });
-                redisClient.value = {
-                  host: data.host,
-                  port: data.port,
-                  database: data.database,
-                  username: data.username,
-                  password: data.password
-                };
-                const history = JSON.parse(
-                  localStorage.getItem("redisHistory") || "[]"
-                );
-                const key = `${data.host}:${data.port}:${data.database}:${data.username || ""}:${data.password || ""}`;
-                const index = history.indexOf(key);
-                if (index !== -1) {
-                  history.splice(index, 1);
-                }
-                history.unshift(key);
-                if (history.length > 10) {
-                  history.length = 10;
-                }
-                redisClientHistory.value = history;
-                localStorage.setItem("redisHistory", JSON.stringify(history));
-                selectDB.value = redisClient.value.database.toString();
                 done();
               } else {
-                message(res.message, {
-                  type: "error",
-                  customClass: "el"
-                });
                 closeLoading();
               }
             })
@@ -385,6 +359,63 @@ const changeRedisUrl = () => {
     },
     draggable: true
   });
+};
+
+const getRedisClient = async (
+  isAdd: boolean,
+  host: string,
+  port: number,
+  database: number,
+  username: string,
+  password: string
+) => {
+  try {
+    const res = await getRedisConnection(
+      host,
+      port,
+      database,
+      username,
+      password
+    );
+    if (isAdd) {
+      if (res.success) {
+        message("连接成功~ Ciallo～(∠・ω< )⌒☆'", {
+          customClass: "el",
+          type: "success"
+        });
+        redisClient.value = {
+          host: host,
+          port: port,
+          database: database,
+          username: username,
+          password: password
+        };
+        const history = JSON.parse(
+          localStorage.getItem("redisHistory") || "[]"
+        );
+        const key_1 = `${host}:${port}:${database}:${username || ""}:${password || ""}`;
+        const index = history.indexOf(key_1);
+        if (index !== -1) {
+          history.splice(index, 1);
+        }
+        history.unshift(key_1);
+        if (history.length > 10) {
+          history.length = 10;
+        }
+        redisClientHistory.value = history;
+        localStorage.setItem("redisHistory", JSON.stringify(history));
+        selectDB.value = redisClient.value.database.toString();
+      } else {
+        message(res.message, {
+          type: "error",
+          customClass: "el"
+        });
+      }
+    }
+    return res;
+  } catch (error) {
+    return { success: false, message: error.message };
+  }
 };
 
 const redisClientHistory = ref(
@@ -401,7 +432,18 @@ const handleLoadHistory = (item: string) => {
     username,
     password
   };
-  getTreeData();
+  getRedisClient(
+    false,
+    redisClient.value.host,
+    redisClient.value.port,
+    redisClient.value.database,
+    redisClient.value.username,
+    redisClient.value.password
+  ).then(res => {
+    if (res.success) {
+      getTreeData();
+    }
+  });
 };
 
 const isLoad = ref(true);
@@ -410,14 +452,7 @@ let treeV2Data = [];
 const getTreeData = () => {
   isLoad.value = false;
   if (treeType.value === "2") {
-    getRedisKeys(
-      ":",
-      selectDB.value,
-      redisClient.value.host,
-      redisClient.value.port,
-      redisClient.value.username,
-      redisClient.value.password
-    ).then(res => {
+    getRedisKeys(":", selectDB.value).then(res => {
       treeV2Data = res.data;
       treeRefV2.value.setData(treeV2Data);
     });
@@ -425,15 +460,9 @@ const getTreeData = () => {
 };
 
 const loadTree = (node: TreeNode, resolve: (data: any[]) => void) => {
-  getRedisKeys(
-    node.data?.key || "",
-    selectDB.value,
-    redisClient.value.host,
-    redisClient.value.port,
-    redisClient.value.username,
-    redisClient.value.password,
-    true
-  ).then(res => resolve(res.data));
+  getRedisKeys(node.data?.key || "", selectDB.value, true).then(res =>
+    resolve(res.data)
+  );
   return;
 };
 
@@ -446,14 +475,7 @@ const treeRefV2 = ref<InstanceType<typeof ElTreeV2>>();
 const codeMirrorRef = ref<InstanceType<typeof codeMirror>>();
 const handleNodeClick = (data: getRedisKeysData, node: TreeNode) => {
   if (node.isLeaf) {
-    getRedisValue(
-      data.key as string,
-      selectDB.value,
-      redisClient.value.host,
-      redisClient.value.port,
-      redisClient.value.username,
-      redisClient.value.password
-    ).then(res => {
+    getRedisValue(data.key as string, selectDB.value).then(res => {
       if (!res.success) {
         message(res.message, {
           type: "error",
@@ -472,7 +494,8 @@ const handleNodeClick = (data: getRedisKeysData, node: TreeNode) => {
           data: {
             key: data.key as string,
             value: res.data.value,
-            expire: res.data.expire
+            expire: res.data.expire,
+            db: selectDB.value
           }
         },
         closeCallBack: ({ options, args }) => {
@@ -492,10 +515,6 @@ const handleNodeClick = (data: getRedisKeysData, node: TreeNode) => {
               data.key as string,
               newData.value,
               selectDB.value,
-              redisClient.value.host,
-              redisClient.value.port,
-              redisClient.value.username,
-              redisClient.value.password,
               newData.expire,
               isChange ? newData.key : undefined
             ).then(res => {
@@ -600,7 +619,8 @@ const handleAdd = () => {
       data: {
         key,
         value: "",
-        expire: -1
+        expire: -1,
+        db: selectDB.value
       }
     },
     closeCallBack: ({ options, args }) => {
@@ -616,10 +636,6 @@ const handleAdd = () => {
           newData.key,
           newData.value,
           selectDB.value,
-          redisClient.value.host,
-          redisClient.value.port,
-          redisClient.value.username,
-          redisClient.value.password,
           newData.expire
         ).then(res => {
           message("添加成功~ Ciallo～(∠・ω< )⌒☆'", {
@@ -662,14 +678,7 @@ const handleDeleteKeys = () => {
     });
     return;
   }
-  deleteRedisKeys(
-    checkedKeys.value,
-    selectDB.value,
-    redisClient.value.host,
-    redisClient.value.port,
-    redisClient.value.username,
-    redisClient.value.password
-  ).then(res => {
+  deleteRedisKeys(checkedKeys.value, selectDB.value).then(res => {
     if (res.success) {
       message("删除成功~ Ciallo～(∠・ω< )⌒☆'", {
         customClass: "el",
