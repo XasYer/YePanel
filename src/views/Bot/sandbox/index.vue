@@ -82,7 +82,23 @@
                       <div>
                         <el-text tag="b"> {{ msg.name }} </el-text>
                       </div>
-                      <component :is="msg.message" />
+                      <div class="flex items-center">
+                        <component :is="msg.message" />
+
+                        <el-button
+                          v-if="!msg.bot"
+                          circle
+                          type="info"
+                          class="ml-[10px]"
+                          @click="handleAgainMsg(msg)"
+                        >
+                          <Iconify
+                            icon="mdi:plus-one"
+                            :width="23"
+                            :height="24"
+                          />
+                        </el-button>
+                      </div>
                     </div>
                   </div>
                   <div v-if="msg.poke" class="flex-c">
@@ -185,6 +201,7 @@ import { createWS } from "@/api/utils";
 import { buildPrefixUUID, openLink } from "@pureadmin/utils";
 import { Link } from "@element-plus/icons-vue";
 import Menu from "./components/menu.vue";
+import { IconifyIconOnline as Iconify } from "@/components/ReIcon";
 
 defineOptions({
   name: "sandbox"
@@ -297,6 +314,7 @@ type msgDataType = {
   msgId?: string;
   bot?: boolean;
   message?: DefineComponent;
+  rawMessage?: string;
   poke?: {
     operatorId: string;
     targetId: string;
@@ -369,14 +387,27 @@ const sendWsMessage = (content: string, push: boolean = true) => {
     target.push({
       name: selectUser.value,
       msgId,
+      rawMessage: content,
       message: defineComponent({
         render() {
-          return h("div", { class: "message", innerHTML: input });
+          return h("div", {
+            class: "message",
+            innerHTML: input,
+            style: {
+              maxWidth: `${bodyWidth.value}px`
+            }
+          });
         }
       })
     });
     msg.value = "";
     setScrollToBottom();
+  }
+};
+
+const handleAgainMsg = (msg: msgDataType) => {
+  if (msg.rawMessage) {
+    sendWsMessage(msg.rawMessage, true);
   }
 };
 
@@ -444,7 +475,7 @@ onMounted(() => {
   window.addEventListener("resize", updateWidth);
   bodyWidth.value =
     (cardRef.value.$el.clientWidth - 140 - (isCollapse.value ? 60 : 200)) *
-    (isCollapse.value ? 1 : 0.8);
+    (isCollapse.value ? 1.1 : 0.8);
   socket.value = createWS("sandbox", {
     onopen(ev) {
       socket.value.send(
