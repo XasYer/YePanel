@@ -1,0 +1,1 @@
+import{m as o,s as e}from"./index-Bw2MYvv1.js";const s=o({id:"pure-home",state:()=>({botInfo:[]}),actions:{setTodayData(t){this.todayData=t},setMonthData(t){this.monthData=t},setBotInfo(t){this.botInfo=t}}});function n(){return s(e)}export{n as u};
