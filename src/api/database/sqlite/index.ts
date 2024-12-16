@@ -33,7 +33,12 @@ function findSqlitePath (directory: string): string[] {
       continue
     }
     const fullPath = join(directory, item)
-    const stat = fs.statSync(fullPath)
+    let stat: fs.Stats | undefined
+    try {
+      stat = fs.statSync(fullPath)
+    } catch {
+      continue
+    }
 
     if (stat.isDirectory()) {
       dbPath.push(...findSqlitePath(fullPath))

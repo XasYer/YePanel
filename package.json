@@ -5,10 +5,10 @@
   "author": "XasYer",
   "type": "module",
   "scripts": {
-    "start": "node dist/index.js",
+    "start": "node lib/index.js",
     "dev": "tsx src/index.ts",
     "build": "tsc && tsc-alias",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf lib"
   },
   "dependencies": {
     "@fastify/auth": "^5.0.1",
