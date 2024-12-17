@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.10.9](https://github.com/XasYer/YePanel/compare/v1.10.8...v1.10.9) (2024-12-17)
+
+
+### Bug Fixes
+
+* 可能出现的没有文件或文件夹 ([74e843b](https://github.com/XasYer/YePanel/commit/74e843bd4c6385fb30ff73fc8758d96098d6618f))
+
+
+### Performance Improvements
+
+* 初次适配单独运行 ([af28ffe](https://github.com/XasYer/YePanel/commit/af28ffe8c1cee880c84298febadb5721dee0a1a4))
+
 ## [1.10.8](https://github.com/XasYer/YePanel/compare/v1.10.7...v1.10.8) (2024-11-18)
 
 
