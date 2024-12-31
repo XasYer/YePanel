@@ -136,6 +136,7 @@ getGuobaData(props.pluginName).then(res => {
       case "Rate":
         columns.valueType = "rate";
         break;
+      case "SOFT_GROUP_BEGIN":
       case "Divider":
         if (columnsCache.columns.length > 0) {
           group.value.push(clone(columnsCache, true));
