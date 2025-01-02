@@ -213,5 +213,28 @@ export default [
         }
       }
     }
+  },
+  {
+    url: '/execute-sql',
+    method: 'post',
+    handler: async ({ body }) => {
+      const { path, sql } = body as { path: string, sql: string }
+      const { instance: sequelize } = getSequelize(path)
+      try {
+        const [results, metadata] = await sequelize.query(sql)
+        return {
+          success: true,
+          data: {
+            results,
+            metadata
+          }
+        }
+      } catch (error) {
+        return {
+          success: false,
+          message: (error as Error).message
+        }
+      }
+    }
   }
 ] as RouteOptions[]
