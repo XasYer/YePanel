@@ -72,6 +72,9 @@
             @click="handleAdd('新增数据')"
             >新增</el-button
           >
+          <el-button type="primary" :disabled="!path" @click="handleSql"
+            >sql</el-button
+          >
           <el-popover
             placement="bottom"
             title="展示列"
@@ -212,6 +215,7 @@ import { message } from "@/utils/message";
 import codeMirror from "./components/codeMirror.vue";
 import { addDialog } from "@/components/ReDialog";
 import add from "./components/add.vue";
+import sql from "./components/sql.vue";
 
 defineOptions({
   name: "sqlite"
@@ -299,6 +303,9 @@ const handleAdd = (title: string, row?: any) => {
     closeCallBack: ({ options, args }) => {
       if (args?.command === "sure") {
         const data = addDialogRef.value.getData();
+        for (const key in data) {
+          if (!data[key]) delete data[key];
+        }
         setSqliteTableData(path.value, table.value, data).then(res => {
           if (res.success) {
             message("操作成功~ Ciallo～(∠・ω< )⌒☆", {
@@ -355,6 +362,21 @@ const handleDelete = (rows: any) => {
       });
     }
     getTableData();
+  });
+};
+
+const handleSql = () => {
+  addDialog({
+    width: window.innerWidth < 992 ? "90%" : "50%",
+    title: `自定义sql语句 table: ${table.value}`,
+    contentRenderer: () => h(sql),
+    top: "3vh",
+    props: {
+      path: path.value
+    },
+    draggable: true,
+    hideFooter: true,
+    closeCallBack: () => (forceInput.value = !forceInput.value)
   });
 };
 

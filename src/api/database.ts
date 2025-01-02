@@ -247,3 +247,16 @@ export const deleteSqliteTableData = (
     }
   );
 };
+
+export const executeSql = (path: string, sql: string) => {
+  return http.request<{
+    success: boolean;
+    data: {
+      results: any;
+      metadata: any;
+    };
+    message?: string;
+  }>("post", "/execute-sql", {
+    data: { path, sql }
+  });
+};
