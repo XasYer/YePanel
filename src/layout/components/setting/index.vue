@@ -460,7 +460,6 @@ onUnmounted(() => removeMatchMedia);
           <el-input-number
             v-model="useHttpStoreHook().timeout"
             :min="1"
-            :max="60"
             controls-position="right"
             @change="value => useHttpStoreHook().setTimeout(value)"
           />
