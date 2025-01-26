@@ -15,11 +15,10 @@ import { getToken, formatToken } from "@/utils/auth";
 import { useUserStoreHook } from "@/store/modules/user";
 import { message } from "../message";
 import { getBaseUrlApi } from "@/api/utils";
+import { useHttpStoreHook } from "@/store/modules/http";
 
 // 相关配置请参考：www.axios-js.com/zh-cn/docs/#axios-request-config-1
 const defaultConfig: AxiosRequestConfig = {
-  // 请求超时时间
-  timeout: 10000,
   headers: {
     Accept: "application/json, text/plain, */*",
     "Content-Type": "application/json",
@@ -159,7 +158,8 @@ class PureHttp {
       url,
       baseURL: getBaseUrlApi(),
       ...param,
-      ...axiosConfig
+      ...axiosConfig,
+      timeout: useHttpStoreHook().timeout * 1000
     } as PureHttpRequestConfig;
 
     // 单独处理自定义请求/响应回调

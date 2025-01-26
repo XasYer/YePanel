@@ -50,3 +50,7 @@ export type userType = {
 export type homeDataType = {
   botInfo: getBotInfoResult["data"];
 };
+
+export type httpType = {
+  timeout: number;
+};

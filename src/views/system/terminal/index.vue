@@ -147,13 +147,13 @@ const onExecCmd = (
       onclose: event => {
         clearInterval(timer.value);
         timer.value = null;
-        terminalRef.value.pushMessage({
+        terminalRef.value?.pushMessage({
           type: "normal",
           content: "终端已关闭！",
           class: "error",
           tag: "error"
         });
-        flash.value.finish();
+        flash.value?.finish();
         socket.value = null;
       }
     });

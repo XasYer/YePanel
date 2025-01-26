@@ -13,6 +13,7 @@ import panel from "../panel/index.vue";
 import { emitter } from "@/utils/mitt";
 import { useNav } from "@/layout/hooks/useNav";
 import { useAppStoreHook } from "@/store/modules/app";
+import { useHttpStoreHook } from "@/store/modules/http";
 import { toggleTheme } from "@pureadmin/theme/dist/browser-utils";
 import { useMultiTagsStoreHook } from "@/store/modules/multiTags";
 import Segmented, { type OptionsType } from "@/components/ReSegmented";
@@ -451,6 +452,20 @@ onUnmounted(() => removeMatchMedia);
         :options="markOptions"
         @change="onChange"
       />
+
+      <p class="mt-5 font-medium text-sm dark:text-white">请求配置</p>
+      <ul class="setting">
+        <li>
+          <span class="dark:text-white">超时时间(秒)</span>
+          <el-input-number
+            v-model="useHttpStoreHook().timeout"
+            :min="1"
+            :max="60"
+            controls-position="right"
+            @change="value => useHttpStoreHook().setTimeout(value)"
+          />
+        </li>
+      </ul>
 
       <p class="mt-5 font-medium text-sm dark:text-white">界面显示</p>
       <ul class="setting">
