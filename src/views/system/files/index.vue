@@ -7,6 +7,7 @@
             <el-dropdown
               split-button
               :disabled="!historyPath.length"
+              style="width: 40px"
               @command="getData"
               @click="getData(historyPath.shift())"
             >
@@ -30,7 +31,7 @@
           ></template>
         </el-input>
       </el-col>
-      <el-col :xl="3" :sm="12" :lg="3" :xs="24" class="mr-[10px]">
+      <div class="mr-[10px] div-col">
         <el-popover :width="400" trigger="click" :visible="uploadVisible">
           <template #reference>
             <el-button
@@ -99,8 +100,6 @@
             >
           </template>
         </el-popconfirm>
-      </el-col>
-      <el-col :xl="6" :sm="12" :lg="6" :xs="24">
         <el-button
           type="primary"
           :disabled="!selectData.length || action == 'copy'"
@@ -122,7 +121,7 @@
         <el-button v-if="action" type="success" @click="handlePaste"
           >粘贴</el-button
         >
-      </el-col>
+      </div>
     </el-row>
     <div>
       <el-table
@@ -730,6 +729,12 @@ getData("");
 }
 
 .el-col {
+  margin-bottom: 10px;
+}
+
+.div-col .el-button {
+  margin-right: 10px;
+  margin-left: 0;
   margin-bottom: 10px;
 }
 </style>
