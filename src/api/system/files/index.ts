@@ -210,7 +210,7 @@ export default [
     handler: ({ body }, reply) => {
       const { path, name } = body as { path: string, name: string }
       reply.header('Content-Type', 'application/octet-stream')
-      reply.header('Content-Disposition', `attachment; filename="${name}"`)
+      reply.header('Content-Disposition', `attachment; filename="${encodeURIComponent(name)}"`)
 
       const fileStream = fs.createReadStream(path)
 

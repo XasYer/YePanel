@@ -73,8 +73,10 @@ export async function startServer () {
   })
 
   fastify.addHook('onError', (request, reply, error, done) => {
-    logger.error(chalk.rgb(255, 105, 180)(`[YePanel Server] url: ${request.url}  Error: `))
-    logger.error(error as any)
+    if (error.message !== 'Unauthorized') {
+      logger.error(chalk.rgb(255, 105, 180)(`[YePanel Server] url: ${request.url}  Error: `))
+      logger.error(error as any)
+    }
     done()
   })
 
