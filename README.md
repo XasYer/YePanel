@@ -52,14 +52,14 @@
 
 快捷登录: **私聊bot发送`#小叶面板登录`**
 
-YePanel 目前只提供 api 接口，需要登陆官方或第三方面板后才能使用。需要服务器有公网 ip 或 gui，才能访问面板。
+YePanel 目前只提供 api 接口，需要安装web面板后才能使用。需要服务器有公网 ip 或 gui，才能访问面板。
 
 用户名和密码可在`config/server.yaml`中编辑，密码默认为`123456`，用户名可以为任何已登录的 Bot 账号，
 api 接口地址为`http://ip:port`，**ip 为服务器公网 ip，port 更换为配置文件中设置的端口，如果在外网环境中访问面板，需要开放端口**。
 
 使用方式为 1 或 2 时, 可以直接访问`http://ip:port`。
 
-### 1. 使用公共面板
+<!-- ### 1. 使用公共面板
 
 [公共地址](http://gh.xasyer.icu/YePanel/)
 
@@ -91,9 +91,9 @@ web 面板和 api 接口 通常为同步更新，如果届时发现无法登录 
 
   私聊 bot 发送 `#小叶面板安装web` 挂载在本地服务器上
 
- </details>
+ </details> -->
 
-### 2. 挂载到崽上
+### 安装 web 面板
 
 clone gh-pages 分支到 plugins 目录下以`YePanel-Web`命名, 此时启动时会自动挂载到 server.yaml 中配置的端口下。
 
@@ -110,7 +110,7 @@ git clone --depth=1 -b gh-pages https://github.com/XasYer/YePanel.git ./plugins/
 
 ~~放到 plugins 目录蹭一下#全部更新~~
 
-### 3. clone web 分支自行编译
+### clone web 分支自行编译 (不推荐)
 
 在任意目录下执行以下命令
 
