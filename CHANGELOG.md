@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.10.10](https://github.com/XasYer/YePanel/compare/v1.10.9...v1.10.10) (2025-02-15)
+
+
+### Bug Fixes
+
+* sqlite表名可能为关键字 ([4c9405a](https://github.com/XasYer/YePanel/commit/4c9405a95a5eb7c45d8db0c123b52b559f2435b1))
+
 ## [1.10.9](https://github.com/XasYer/YePanel/compare/v1.10.8...v1.10.9) (2025-02-06)
 
 
