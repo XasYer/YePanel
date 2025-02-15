@@ -115,12 +115,12 @@ export default [
       const offset = (pageNum * pageSize) - pageSize
       const { instance: sequelize, total, tableInfo } = getSequelize(path)
       if (!total[table]) {
-        const [totalResults] = await sequelize.query(`SELECT COUNT(*) AS total FROM ${table};`) as [{ total: number }[], unknown]
+        const [totalResults] = await sequelize.query(`SELECT COUNT(*) AS total FROM '${table}';`) as [{ total: number }[], unknown]
         total[table] = totalResults[0].total
       }
       let count = total[table]
       if (!tableInfo[table]) {
-        const [tableInfoResults] = await sequelize.query(`PRAGMA table_info(${table});`) as [tableInfo[], unknown]
+        const [tableInfoResults] = await sequelize.query(`PRAGMA table_info('${table}');`) as [tableInfo[], unknown]
         const info: any = {}
         for (const item of tableInfoResults) {
           if (item.pk) {
@@ -131,10 +131,10 @@ export default [
         }
         tableInfo[table] = info
       }
-      const sql = `SELECT * FROM ${table} ${search ? `WHERE ${search}` : ''} LIMIT ${pageSize} OFFSET ${offset};`
+      const sql = `SELECT * FROM '${table}' ${search ? `WHERE ${search}` : ''} LIMIT ${pageSize} OFFSET ${offset};`
       const [results] = await sequelize.query(sql) as [{ [key: string]: any }[], unknown]
       if (search) {
-        const [searchResults] = await sequelize.query(`SELECT COUNT(*) AS total FROM ${table} WHERE ${search};`) as [{ total: number }[], unknown]
+        const [searchResults] = await sequelize.query(`SELECT COUNT(*) AS total FROM '${table}' WHERE ${search};`) as [{ total: number }[], unknown]
         count = searchResults[0].total
       }
       return {
@@ -160,8 +160,8 @@ export default [
       const pk = keys.find(key => (tableInfo[table] as any)[key].pk) || 'createdAt'
       // 如果有创建时间就是修改
       const sql = type === 'update'
-        ? `UPDATE ${table} SET ${keys.map((key) => `${key} = ?`).join(', ')}, updatedAt = ? WHERE ${pk} = ?`
-        : `INSERT INTO ${table} (${keys.join(', ')}, createdAt, updatedAt) VALUES (${keys.map(() => '?').join(', ')}, ?, ?)`
+        ? `UPDATE '${table}' SET ${keys.map((key) => `${key} = ?`).join(', ')}, updatedAt = ? WHERE ${pk} = ?`
+        : `INSERT INTO '${table}' (${keys.join(', ')}, createdAt, updatedAt) VALUES (${keys.map(() => '?').join(', ')}, ?, ?)`
       try {
         const [results, metadata] = await sequelize.query(
           sql,
@@ -169,7 +169,7 @@ export default [
             replacements: type === 'update' ? [...values, updatedAt, data[pk]] : [...values, updatedAt, updatedAt]
           }
         )
-        const [totalResults] = await sequelize.query(`SELECT COUNT(*) AS total FROM ${table};`) as [{ total: number }[], unknown]
+        const [totalResults] = await sequelize.query(`SELECT COUNT(*) AS total FROM '${table}';`) as [{ total: number }[], unknown]
         total[table] = totalResults[0].total
         return {
           success: true,
@@ -194,12 +194,12 @@ export default [
       const pk = keys.find(key => (tableInfo[table] as any)[key].pk) || 'createdAt'
       try {
         const [results, metadata] = await sequelize.query(
-          `DELETE FROM ${table} WHERE ${pk} = ?`,
+          `DELETE FROM '${table}' WHERE ${pk} = ?`,
           {
             replacements: [data[pk]]
           }
         )
-        const [totalResults] = await sequelize.query(`SELECT COUNT(*) AS total FROM ${table};`) as [{ total: number }[], unknown]
+        const [totalResults] = await sequelize.query(`SELECT COUNT(*) AS total FROM '${table}';`) as [{ total: number }[], unknown]
         total[table] = totalResults[0].total
         return {
           success: true,
