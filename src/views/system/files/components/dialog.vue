@@ -15,6 +15,17 @@
       :tab-size="2"
       :extensions="extensions"
     />
+    <video
+      v-else-if="props.type === 'video'"
+      :src="data.url"
+      controls
+      class="h-full"
+    >
+      你的浏览器不支持video标签
+    </video>
+    <audio v-else-if="props.type === 'audio'" :src="data.url" controls>
+      你的浏览器不支持audio标签
+    </audio>
   </div>
 </template>
 
@@ -54,7 +65,7 @@ const extMap = {
 const extensions = ref([]);
 
 export interface Props {
-  type: "code" | "image";
+  type: "code" | "image" | "video" | "audio";
   data: {
     url?: string;
     ext?: string;

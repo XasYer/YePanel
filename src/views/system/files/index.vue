@@ -345,6 +345,7 @@ const diaLogRef = ref<InstanceType<typeof dialog>>();
 
 const showDialog = (options: DialogOptions) => {
   addDialog({
+    title: options.title,
     width: "80%",
     top: "5vh",
     contentRenderer: () => h(dialog, { ref: diaLogRef }),
@@ -424,7 +425,7 @@ const handleDblclick = (row: getDirDataResult["data"]["files"][0]) => {
         const url = URL.createObjectURL(res);
         props.type = "image";
         props.data = { url };
-        showDialog({ props });
+        showDialog({ props, title: row.name });
       });
     } else if (codeExt.includes(row.ext)) {
       downloadFile(row.path, row.name)
@@ -433,6 +434,7 @@ const handleDblclick = (row: getDirDataResult["data"]["files"][0]) => {
           props.type = "code";
           props.data = { ext: row.ext, content: res };
           showDialog({
+            title: row.name,
             props,
             closeCallBack({ options, args }) {
               if (args?.command === "sure") {
@@ -456,6 +458,20 @@ const handleDblclick = (row: getDirDataResult["data"]["files"][0]) => {
             }
           });
         });
+    } else if (videoExt.includes(row.ext)) {
+      downloadFile(row.path, row.name).then(res => {
+        const url = URL.createObjectURL(res);
+        props.type = "video";
+        props.data = { url };
+        showDialog({ props, title: row.name });
+      });
+    } else if (audioExt.includes(row.ext)) {
+      downloadFile(row.path, row.name).then(res => {
+        const url = URL.createObjectURL(res);
+        props.type = "audio";
+        props.data = { url };
+        showDialog({ props, title: row.name });
+      });
     } else {
       return message("暂不支持预览该文件类型", {
         customClass: "el",
