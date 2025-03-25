@@ -23,16 +23,17 @@
         <Menu
           :is-collapse="isCollapse"
           :addUser="addUser"
+          :add-custom-user="addCustomUser"
           :userList="userList"
           :handleSelectMenu="handleSelectMenu"
-          :height="bodyHeihgt - 70"
+          :height="bodyHeihgt - 140"
         />
       </el-aside>
 
       <el-container>
         <el-main>
           <el-tabs
-            v-if="selectUser"
+            v-if="selectUser.userId"
             v-model="activeName"
             :before-leave="beforeLeave"
           >
@@ -51,7 +52,7 @@
               >
                 <div
                   v-for="msg in item.name === 'private'
-                    ? msgData[item.name][selectUser]
+                    ? msgData[item.name][selectUser.userId]
                     : msgData[item.name]"
                   :key="msg.msgId"
                 >
@@ -133,7 +134,7 @@
         </el-main>
 
         <el-footer
-          v-show="activeName !== 'setting' && selectUser"
+          v-show="activeName !== 'setting' && selectUser.userId"
           height="80px"
           class="flex w-full items-center"
         >
@@ -159,6 +160,7 @@
       <Menu
         :is-collapse="false"
         :addUser="addUser"
+        :add-custom-user="addCustomUser"
         :userList="userList"
         :handleSelectMenu="handleSelectMenu"
         :height="innerHeight"
@@ -202,6 +204,8 @@ import { buildPrefixUUID, openLink } from "@pureadmin/utils";
 import { Link } from "@element-plus/icons-vue";
 import Menu from "./components/menu.vue";
 import { IconifyIconOnline as Iconify } from "@/components/ReIcon";
+import customUser from "./components/customUser.vue";
+import { addDialog } from "@/components/ReDialog";
 
 defineOptions({
   name: "sandbox"
@@ -254,9 +258,23 @@ const nameList = [
 /** tabs选中的 */
 const activeName = ref("private");
 /** 当前选中的用户 */
-const selectUser = ref("Alice");
+const selectUser = ref<{
+  userId: string;
+  name: string;
+  avatar?: string;
+}>({
+  userId: "Alice",
+  name: "Alice"
+});
 /** 左侧用户列表 */
-const userList = ref([
+const userList = ref<
+  {
+    name: string;
+    selfId: string;
+    userId: string;
+    avatar?: string;
+  }[]
+>([
   {
     name: "Alice",
     selfId: userStore.uin,
@@ -291,6 +309,43 @@ const addUser = () => {
   permission.value[userId] = "user";
   msgData.value.private[userId] = [];
 };
+
+const customUserRef = ref<InstanceType<typeof customUser>>();
+const addCustomUser = () => {
+  addDialog({
+    title: "添加自定义用户",
+    width: window.innerWidth < 992 ? "90%" : "50%",
+    contentRenderer: () => h(customUser, { ref: customUserRef }),
+    beforeSure: async (done, { options, index, closeLoading }) => {
+      const ref = customUserRef.value.getRef();
+      await ref.validate(valid => {
+        if (valid) {
+          const data = customUserRef.value.getData();
+          if (userList.value.some(item => item.userId === data.userId)) {
+            message("用户已存在, 请更改用户id", {
+              customClass: "el",
+              type: "warning"
+            });
+          } else {
+            userList.value.push({
+              name: data.name,
+              selfId: userStore.uin,
+              userId: data.userId,
+              avatar: data.avatar
+            });
+            permission.value[data.userId] = "user";
+            msgData.value.private[data.userId] = [];
+            done();
+          }
+        } else {
+          closeLoading();
+        }
+      });
+    },
+    draggable: true
+  });
+};
+
 /** 发送方式, 全部用户生效 */
 const sendType = ref(0);
 /** 用户权限 */
@@ -301,7 +356,8 @@ const permission = ref<{
 });
 // 选中的用户
 const handleSelectMenu = (index: string) => {
-  selectUser.value = index;
+  const user = userList.value.find(i => i.userId === index);
+  selectUser.value = user;
   state.value = {
     sendType: sendType.value,
     permission: permission.value[index] || "user"
@@ -371,21 +427,22 @@ const sendWsMessage = (content: string, push: boolean = true) => {
     JSON.stringify({
       type: "message",
       uin: userStore.uin,
-      userId: selectUser.value,
+      userId: selectUser.value.userId,
       groupId: activeName.value === "group" ? "sandbox.group" : undefined,
       content: content,
       msgId,
-      permission: permission.value[selectUser.value]
+      permission: permission.value[selectUser.value.userId]
     })
   );
   if (push) {
     const target =
       activeName.value === "private"
-        ? msgData.value.private[selectUser.value]
+        ? msgData.value.private[selectUser.value.userId]
         : msgData.value.group;
     const input = content.replace(/\n|\r/g, "<br>").replace(/\s|\t/g, "&nbsp;");
     target.push({
-      name: selectUser.value,
+      name: selectUser.value.name,
+      avatar: selectUser.value.avatar,
       msgId,
       rawMessage: content,
       message: defineComponent({
@@ -431,7 +488,7 @@ const columns: PlusColumn[] = [
     valueType: "radio",
     fieldProps: {
       onChange: (value: "owner" | "admin" | "user" | "master") => {
-        permission.value[selectUser.value] = value;
+        permission.value[selectUser.value.userId] = value;
       }
     },
     options: [
@@ -525,7 +582,7 @@ onMounted(() => {
           msgData.value.group.push(value);
           break;
       }
-      if (type === "group" || id === selectUser.value) {
+      if (type === "group" || id === selectUser.value.userId) {
         setScrollToBottom();
       }
     },
@@ -548,14 +605,13 @@ onBeforeUnmount(() => {
 
 const handlePoke = (msg: msgDataType) => {
   const targetId = msg.bot ? userStore.uin : msg.name;
-  const operatorId = selectUser.value;
   const target =
     activeName.value === "private"
-      ? msgData.value.private[selectUser.value]
+      ? msgData.value.private[selectUser.value.userId]
       : msgData.value.group;
   target.push({
     poke: {
-      operatorId,
+      operatorId: selectUser.value.name,
       targetId: msg.name
     }
   });
@@ -564,10 +620,10 @@ const handlePoke = (msg: msgDataType) => {
       type: "poke",
       uin: userStore.uin,
       groupId: activeName.value === "group" ? "sandbox.group" : undefined,
-      userId: selectUser.value,
-      operatorId,
+      userId: selectUser.value.userId,
+      operatorId: selectUser.value.userId,
       targetId,
-      permission: permission.value[selectUser.value]
+      permission: permission.value[selectUser.value.userId]
     })
   );
   setScrollToBottom();
