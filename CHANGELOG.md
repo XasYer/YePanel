@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.10.10](https://github.com/XasYer/YePanel/compare/v1.10.9...v1.10.10) (2025-04-18)
+
+
+### Bug Fixes
+
+* pnpm-lock ([c80e816](https://github.com/XasYer/YePanel/commit/c80e8163299a61ab523be449490c0c2f5e0804da))
+* sqlite表名可能为关键字 ([4c9405a](https://github.com/XasYer/YePanel/commit/4c9405a95a5eb7c45d8db0c123b52b559f2435b1))
+* tsc-alias: 1.8.13 ([5f07e30](https://github.com/XasYer/YePanel/commit/5f07e3008e61de8330b5a94a154981f08d84b3e7))
+
 ## [1.10.9](https://github.com/XasYer/YePanel/compare/v1.10.8...v1.10.9) (2025-02-06)
 
 
